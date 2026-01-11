@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Send } from "lucide-react";
+import { ArrowLeft, MessageSquare, Send, Bot, User, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { startSimulation, continueSimulation } from "@/lib/gemini";
 import { motion, AnimatePresence } from "framer-motion";
@@ -117,8 +117,8 @@ const SimulationArena = () => {
                                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                     >
                                         <div className={`max-w-[70%] p-4 rounded-2xl ${msg.role === 'user'
-                                                ? 'bg-brand-purple text-white rounded-tr-none'
-                                                : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/10'
+                                            ? 'bg-brand-purple text-white rounded-tr-none'
+                                            : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/10'
                                             }`}>
                                             <p className="text-sm">{msg.text}</p>
                                         </div>
