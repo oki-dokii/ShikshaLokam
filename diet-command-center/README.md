@@ -1,73 +1,56 @@
-# Welcome to your Lovable project
+# ShikshaLokam DIET Command Center
 
-## Project info
+## Project Overview
+The **DIET (District Institute of Education and Training) Command Center** is a comprehensive dashboard designed to empower education administrators and teachers in rural India. It addresses the "Principal's Dilemma" by providing real-time analytics to identify school clusters with specific needs and offering AI-driven solutions to address them immediately.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Key Features:**
+1.  **Geospatial Heatmap**: Visualizes district performance (Absenteeism, Infrastructure, Resources) to prioritize interventions.
+2.  **AI Module Generator**: Generates 15-minute micro-learning training modules customized to a cluster's specific context (Language, Region, Issue).
+3.  **Reflection Copilot**: An AI-powered "Implementation Coach" that chats with teachers post-training to ensure practical application of concepts.
+4.  **Frugal TLM Recommender**: A computer vision tool that analyzes classroom photos to suggest low-cost teaching aids and experiments using available materials (trash-to-treasure).
 
-## How can I edit this code?
+## Technology Stack
+- **Frontend**: React, Vite, TypeScript
+- **Styling**: Tailwind CSS, shadcn-ui
+- **AI Backend**: Google Gemini 2.0 (via RapidAPI Proxy) for text generation and vision analysis.
+- **Routing**: React Router DOM
+- **State/Data**: React Query, Context API
 
-There are several ways of editing your application.
+## Setup & Installation
 
-**Use Lovable**
+### Prerequisites
+- Node.js (v18+)
+- npm
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+### Steps
+1.  **Clone the repository**
+    ```sh
+    git clone https://github.com/oki-dokii/ShikshaLokam.git
+    cd ShikshaLokam/diet-command-center
+    ```
 
-Changes made via Lovable will be committed automatically to this repo.
+2.  **Install Dependencies**
+    ```sh
+    npm install
+    ```
 
-**Use your preferred IDE**
+3.  **Environment Configuration**
+    Create a `.env` file in the root directory and add your RapidAPI credentials:
+    ```env
+    VITE_RAPIDAPI_KEY=your_rapidapi_key_here
+    VITE_RAPIDAPI_HOST=gemini-pro-ai.p.rapidapi.com
+    ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+4.  **Run Development Server**
+    ```sh
+    npm run dev
+    ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Usage Guide
+1.  **Analyze**: Start at the `/heatmap` to view cluster performance.
+2.  **Generate**: Select a cluster > "Deep Dive" > "Generate Training" to create a contextualized module.
+3.  **Reflect**: Use the "Launch Coach" feature in the module view to simulate a post-lesson reflection chat.
+4.  **Innovate**: Navigate to `/frugal-tlm` to upload photos and get resource-aware activity suggestions.
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## License
+MIT
