@@ -118,7 +118,7 @@ export const processVisualKnowledge = async (base64Image: string, transcript?: s
     }
 };
 
-export const generateTrainingModule = async (topic: string, context: any) => {
+export const generateTrainingModule = async (topic: string, context: any, specificChallenge?: string) => {
     const prompt = `
     You are an expert Teacher Trainer for rural India. Create a 15-minute micro-learning training module for teachers.
 
@@ -128,6 +128,14 @@ export const generateTrainingModule = async (topic: string, context: any) => {
     - Primary Issue: ${context.primaryIssue}
     - Infrastructure: ${context.infrastructure}
     - Language: ${context.language}
+    
+    ${specificChallenge ? `
+    **CRITICAL ADAPTATION REQUIRED:**
+    The user has reported this SPECIFIC LOCAL CHALLENGE: "${specificChallenge}".
+    You MUST rewrite all examples, activities, and strategies to directly address this specific scenario.
+    ` : ''}
+
+    **Strict Output Format (JSON ONLY):**
 
     **Strict Output Format (JSON ONLY):**
     {
@@ -228,12 +236,14 @@ export const generateReflectionChat = async (history: { role: string, text: stri
     }
 };
 
-export const recommendTLM = async (base64Image: string) => {
+export const recommendTLM = async (base64Image: string | null, resourceText?: string) => {
     const prompt = `
-    Analyze this image of a classroom or potential teaching resources.
+    Analyze the available resources provided via image and/or text description.
     
-    1. **Identify Resources**: List 3-5 low-cost or recyclable materials visible (e.g., plastic bottles, cardboard, stones, leaves, chalk).
-    2. **Suggest Activities**: Create 3 specific, educational activities/experiments using ONLY these found items.
+    ${resourceText ? `USER DESCRIPTION OF MATERIALS: "${resourceText}"` : ''}
+    
+    1. **Identify Resources**: List 3-5 low-cost or recyclable materials visible in the image ${resourceText ? 'OR mentioned in the text' : ''}.
+    2. **Suggest Activities**: Create 3 specific, educational activities/experiments using ONLY these identified items.
     
     **Strict Output Format (JSON ONLY):**
     {
@@ -249,17 +259,20 @@ export const recommendTLM = async (base64Image: string) => {
     `;
 
     // Visual extraction logic reuse
+    const parts: any[] = [{ text: prompt }];
+
+    if (base64Image) {
+        parts.push({
+            inlineData: {
+                mimeType: "image/jpeg",
+                data: base64Image.split(',')[1] // Remove header
+            }
+        });
+    }
+
     const contents = [{
         role: "user",
-        parts: [
-            { text: prompt },
-            {
-                inlineData: {
-                    mimeType: "image/jpeg",
-                    data: base64Image.split(',')[1] // Remove header
-                }
-            }
-        ]
+        parts: parts
     }];
 
     try {

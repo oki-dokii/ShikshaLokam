@@ -10,6 +10,7 @@ const FrugalRecommender = () => {
     const navigate = useNavigate();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [resourceText, setResourceText] = useState("");
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [results, setResults] = useState<any | null>(null);
 
@@ -26,11 +27,11 @@ const FrugalRecommender = () => {
     };
 
     const handleAnalyze = async () => {
-        if (!imagePreview) return;
+        if (!imagePreview && !resourceText) return;
         setIsAnalyzing(true);
 
         try {
-            const data = await recommendTLM(imagePreview);
+            const data = await recommendTLM(imagePreview, resourceText);
             setResults(data);
             toast.success("Resources Identified!");
         } catch (error) {
@@ -66,7 +67,7 @@ const FrugalRecommender = () => {
                     <div
                         onClick={() => fileInputRef.current?.click()}
                         className={`
-                            border-2 border-dashed rounded-2xl h-[400px] flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden
+                            border-2 border-dashed rounded-2xl h-[300px] flex flex-col items-center justify-center cursor-pointer transition-all relative overflow-hidden
                             ${imagePreview ? 'border-brand-cyan/50 bg-slate-900' : 'border-white/10 hover:border-brand-cyan/50 hover:bg-white/5'}
                         `}
                     >
@@ -98,9 +99,20 @@ const FrugalRecommender = () => {
                         />
                     </div>
 
+                    <div>
+                        <label className="text-sm font-medium text-slate-300 mb-2 block">
+                            Or Describe Available Materials (Optional)
+                        </label>
+                        <textarea
+                            placeholder="e.g., 'Bamboo sticks, Clay, Old Newspapers, Plastic Cups'"
+                            className="w-full bg-slate-900 border border-white/10 rounded-xl p-4 text-slate-200 focus:border-brand-cyan focus:outline-none resize-none h-24 placeholder:text-slate-600"
+                            onChange={(e) => setResourceText(e.target.value)}
+                        />
+                    </div>
+
                     <Button
                         onClick={handleAnalyze}
-                        disabled={!imagePreview || isAnalyzing}
+                        disabled={(!imagePreview && !resourceText) || isAnalyzing}
                         className="w-full h-14 text-lg bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold"
                     >
                         {isAnalyzing ? "Scanning..." : "Identify Experiments"}
@@ -165,8 +177,8 @@ const FrugalRecommender = () => {
                     )}
                 </div>
 
-            </main>
-        </div>
+            </main >
+        </div >
     );
 };
 

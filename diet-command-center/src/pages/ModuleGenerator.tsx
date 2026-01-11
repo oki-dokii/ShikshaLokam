@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Sparkles, Loader2, BookOpen, CheckCircle, Share2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { CLUSTERS } from "@/data/mockData";
 import { generateTrainingModule } from "@/lib/gemini";
 import { motion } from "framer-motion";
@@ -15,6 +16,7 @@ const ModuleGenerator = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedModule, setGeneratedModule] = useState<any | null>(null);
     const [showReflection, setShowReflection] = useState(false);
+    const [localChallenge, setLocalChallenge] = useState("");
 
     useEffect(() => {
         if (location.state?.clusterId) {
@@ -29,7 +31,7 @@ const ModuleGenerator = () => {
         if (!cluster) return;
         setIsGenerating(true);
         try {
-            const moduleData = await generateTrainingModule(cluster.primaryIssue, cluster);
+            const moduleData = await generateTrainingModule(cluster.primaryIssue, cluster, localChallenge);
             setGeneratedModule(moduleData);
             toast.success("Training Module Generated Successfully!");
         } catch (error) {
@@ -87,32 +89,44 @@ const ModuleGenerator = () => {
                                 <span className="text-white">{cluster.infrastructure}</span>
                             </div>
                         </div>
-
-                        {!generatedModule && (
-                            <div className="mt-8">
-                                <Button
-                                    onClick={handleGenerate}
-                                    disabled={isGenerating}
-                                    className="w-full h-16 text-lg bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold relative overflow-hidden"
-                                >
-                                    {isGenerating ? (
-                                        <div className="flex items-center gap-2">
-                                            <Loader2 className="w-6 h-6 animate-spin" />
-                                            Analyzing Data & Generating Curriculum...
-                                        </div>
-                                    ) : (
-                                        <div className="flex items-center gap-2">
-                                            <Sparkles className="w-6 h-6" />
-                                            Generate "{cluster.primaryIssue}" Module
-                                        </div>
-                                    )}
-                                </Button>
-                                <p className="text-center text-xs text-slate-500 mt-2">
-                                    Uses Gemini 1.5 Pro to synthesize 15-min micro-learning.
-                                </p>
-                            </div>
-                        )}
                     </div>
+
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                        <label className="text-sm font-medium text-slate-300 mb-2 block">
+                            Address Specific Local Challenge (Optional)
+                        </label>
+                        <Textarea
+                            placeholder="e.g., 'Harvest season is causing low attendance' or 'Flood warning upcoming'"
+                            value={localChallenge}
+                            onChange={(e) => setLocalChallenge(e.target.value)}
+                            className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-20"
+                        />
+                    </div>
+
+                    {!generatedModule && (
+                        <div className="mt-8">
+                            <Button
+                                onClick={handleGenerate}
+                                disabled={isGenerating}
+                                className="w-full h-16 text-lg bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold relative overflow-hidden"
+                            >
+                                {isGenerating ? (
+                                    <div className="flex items-center gap-2">
+                                        <Loader2 className="w-6 h-6 animate-spin" />
+                                        Analyzing Data & Generating Curriculum...
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="w-6 h-6" />
+                                        Generate "{cluster.primaryIssue}" Module
+                                    </div>
+                                )}
+                            </Button>
+                            <p className="text-center text-xs text-slate-500 mt-2">
+                                Uses Gemini 1.5 Pro to synthesize 15-min micro-learning.
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 {/* RIGHT: Generated Content */}
@@ -208,7 +222,7 @@ const ModuleGenerator = () => {
                     )}
                 </div>
 
-            </main>
+            </main >
 
             {generatedModule && (
                 <ReflectionCopilot
@@ -220,7 +234,7 @@ const ModuleGenerator = () => {
                     }}
                 />
             )}
-        </div>
+        </div >
     );
 };
 
