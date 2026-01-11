@@ -12,28 +12,27 @@ import { ReflectionCopilot } from "@/components/reflection/ReflectionCopilot";
 const ModuleGenerator = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [clusterId, setClusterId] = useState<string | null>(null);
+
+    // Initialize clusterId from location state directly to avoid flash of "Select Value" content
+    const [clusterId, setClusterId] = useState<string | null>(() => location.state?.clusterId || null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [generatedModule, setGeneratedModule] = useState<any | null>(null);
     const [showReflection, setShowReflection] = useState(false);
     const [localChallenge, setLocalChallenge] = useState("");
-
-    useEffect(() => {
-        if (location.state?.clusterId) {
-            setClusterId(location.state.clusterId);
-            // Auto-generate on load if directed from dashboard
-        }
-    }, [location]);
+    const [resourceMode, setResourceMode] = useState("Optimized");
+    const [pedagogyStyle, setPedagogyStyle] = useState("Standard");
 
     const cluster = CLUSTERS.find(c => c.id === clusterId);
 
-    const handleGenerate = async () => {
+    const runGeneration = async (topic: string) => {
         if (!cluster) return;
         setIsGenerating(true);
+        console.log("Generating for topic:", topic);
         try {
-            const moduleData = await generateTrainingModule(cluster.primaryIssue, cluster, localChallenge);
+            // Pass resourceMode and pedagogyStyle to the API call
+            const moduleData = await generateTrainingModule(topic, cluster, localChallenge, resourceMode, pedagogyStyle);
             setGeneratedModule(moduleData);
-            toast.success("Training Module Generated Successfully!");
+            toast.success(`Generated using ${pedagogyStyle} approach!`);
         } catch (error) {
             console.error(error);
             toast.error("Failed to generate module. AI Service busy.");
@@ -41,6 +40,22 @@ const ModuleGenerator = () => {
             setIsGenerating(false);
         }
     };
+
+    const handleGenerateClick = () => {
+        if (cluster) {
+            runGeneration(cluster.primaryIssue);
+        }
+    };
+
+    useEffect(() => {
+        // Auto-trigger if prefilled topic is provided
+        if (location.state?.prefilledTopic && location.state?.clusterId) {
+            const timer = setTimeout(() => {
+                runGeneration(location.state.prefilledTopic);
+            }, 800);
+            return () => clearTimeout(timer);
+        }
+    }, [location]);
 
     if (!cluster) {
         return <div className="p-8 text-white">Select a cluster from the dashboard first.</div>;
@@ -93,6 +108,34 @@ const ModuleGenerator = () => {
 
                     <div className="mt-4 pt-4 border-t border-white/5">
                         <label className="text-sm font-medium text-slate-300 mb-2 block">
+                            Connectivity & Resources
+                        </label>
+                        <select
+                            value={resourceMode}
+                            onChange={(e) => setResourceMode(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/10 rounded-lg p-3 text-white focus:border-cyan-400 outline-none mb-4"
+                        >
+                            <option value="Optimized">Optimized (Default)</option>
+                            <option value="Low Bandwidth">Low Bandwidth (Text/Images)</option>
+                            <option value="Offline / No Internet">Offline / No Internet (Printables)</option>
+                            <option value="Digital Classroom">Digital Classroom (Smartboard)</option>
+                        </select>
+
+                        <label className="text-sm font-medium text-slate-300 mb-2 block">
+                            Pedagogy Style
+                        </label>
+                        <select
+                            value={pedagogyStyle}
+                            onChange={(e) => setPedagogyStyle(e.target.value)}
+                            className="w-full bg-slate-900 border border-white/10 rounded-lg p-3 text-white focus:border-purple-400 outline-none mb-4"
+                        >
+                            <option value="Standard">Standard (Direct Instruction)</option>
+                            <option value="Creative / Innovation">Creative / Innovation</option>
+                            <option value="Game-Based Learning">Game-Based Learning</option>
+                            <option value="Socratic / Inquiry">Socratic / Inquiry</option>
+                        </select>
+
+                        <label className="text-sm font-medium text-slate-300 mb-2 block">
                             Address Specific Local Challenge (Optional)
                         </label>
                         <Textarea
@@ -106,7 +149,7 @@ const ModuleGenerator = () => {
                     {!generatedModule && (
                         <div className="mt-8">
                             <Button
-                                onClick={handleGenerate}
+                                onClick={handleGenerateClick}
                                 disabled={isGenerating}
                                 className="w-full h-16 text-lg bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold relative overflow-hidden"
                             >

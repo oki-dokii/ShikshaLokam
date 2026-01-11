@@ -40,19 +40,28 @@ async function callGeminiProxy(contents: any[], systemInstruction?: string) {
     // 2. Fallback to Direct Google API
     try {
         console.warn("Using Fallback Google API Key");
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         // Robust Fallback: Extract text if simple structure to avoid SDK mismatch
         let finalPrompt: string | Array<any> = contents;
-
-        // If contents is [{ role: 'user', parts: [{ text: '...' }] }]
         if (Array.isArray(contents) && contents.length === 1 && contents[0].role === 'user' && contents[0].parts && contents[0].parts[0].text) {
             finalPrompt = contents[0].parts[0].text;
         }
 
-        const result = await model.generateContent(finalPrompt);
-        const response = await result.response;
-        return response.text();
+        // Try gemini-1.5-flash first (fastest/newest)
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(finalPrompt);
+            const response = await result.response;
+            return response.text();
+        } catch (flashError) {
+            console.warn("Flash failed, trying Pro...", flashError);
+            // Fallback to gemini-pro (stable)
+            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            const result = await model.generateContent(finalPrompt);
+            const response = await result.response;
+            return response.text();
+        }
+
     } catch (error) {
         console.error("Fallback API Error:", error);
         throw new Error("Both Primary and Fallback APIs failed.");
@@ -127,7 +136,38 @@ export const processVisualKnowledge = async (base64Image: string, transcript?: s
     }
 };
 
-export const generateTrainingModule = async (topic: string, context: any, specificChallenge?: string) => {
+export const generateTrainingModule = async (topic: string, context: any, localChallenge?: string, resourceMode: string = "Optimized", pedagogyStyle: string = "Standard") => {
+
+    let resourceConstraint = "";
+    switch (resourceMode) {
+        case "Low Bandwidth":
+            resourceConstraint = "STRICT CONSTRAINT: Low Bandwidth Mode. Do not include video links. Use text-heavy resources and compressed images only.";
+            break;
+        case "Offline / No Internet":
+            resourceConstraint = "STRICT CONSTRAINT: Offline Mode. NO INTERNET available. Suggest ONLY physical, printable, or oral activities. No URLs.";
+            break;
+        case "Digital Classroom":
+            resourceConstraint = "Constraint: Digital Mode. Encourage use of smartboards, videos, and online quizzes.";
+            break;
+        default:
+            resourceConstraint = "Constraint: Optimize for mixed availability.";
+    }
+
+    let pedagogyConstraint = "";
+    switch (pedagogyStyle) {
+        case "Creative / Innovation":
+            pedagogyConstraint = "PEDAGOGY: Use Creative/Innovative methods. Focus on arts, drama, maker activities, and metaphors. Avoid standard lecturing.";
+            break;
+        case "Game-Based Learning":
+            pedagogyConstraint = "PEDAGOGY: Gamify the lesson. Turn concepts into points, levels, or competitive team activities.";
+            break;
+        case "Socratic / Inquiry":
+            pedagogyConstraint = "PEDAGOGY: Socratic Method. Do not give answers. Guide teachers to ask questions that lead students to discovery.";
+            break;
+        default:
+            pedagogyConstraint = "PEDAGOGY: Standard direct instruction with some interaction.";
+    }
+
     const prompt = `
     You are an expert Teacher Trainer for rural India. Create a 15-minute micro-learning training module for teachers.
 
@@ -137,12 +177,17 @@ export const generateTrainingModule = async (topic: string, context: any, specif
     - Primary Issue: ${context.primaryIssue}
     - Infrastructure: ${context.infrastructure}
     - Language: ${context.language}
+    - **Resource Mode:** ${resourceMode}
+    - **Pedagogy Style:** ${pedagogyStyle}
     
-    ${specificChallenge ? `
+    ${localChallenge ? `
     **CRITICAL ADAPTATION REQUIRED:**
-    The user has reported this SPECIFIC LOCAL CHALLENGE: "${specificChallenge}".
+    The user has reported this SPECIFIC LOCAL CHALLENGE: "${localChallenge}".
     You MUST rewrite all examples, activities, and strategies to directly address this specific scenario.
     ` : ''}
+
+    ${resourceConstraint}
+    ${pedagogyConstraint}
 
     **Strict Output Format (JSON ONLY):**
 
@@ -449,6 +494,108 @@ export const analyzeEngagement = async (sessionData: string) => {
             recommendations: [
                 { "title": "Check Internet", "description": "Please check your connection and try again." }
             ]
+        };
+    }
+};
+
+export const generateInstantFeedback = async (observation: string) => {
+    const prompt = `
+    You are an expert Teacher's Aide in a live classroom.
+    The teacher has just whispered this urgent observation: "${observation}"
+
+    **Goal:** Provide ONE single, high-impact, immediate action they can take RIGHT NOW to fix the situation.
+    - Keep it under 2 sentences.
+    - Be tactical (e.g., "Do a 30-second stretch", "Ask a show-of-hands question").
+    - Format as a clear directive.
+
+    **Strict Output Format (JSON ONLY):**
+    {
+        "action": "Do a Think-Pair-Share on the last concept.",
+        "reason": "It breaks the passive listening pattern and forces peer retrieval."
+    }
+    `;
+
+    try {
+        const text = await callGeminiProxy([{ role: "user", parts: [{ text: prompt }] }]);
+        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error("Instant Feedback Error:", error);
+        return {
+            action: "Take a deep breath and ask: 'What is one thing you understood?'",
+            reason: "Resetting the room's energy usually helps."
+        };
+    }
+};
+
+export const predictTrainingNeed = async (metrics: { attendance: string, scores: string, engagement: string }) => {
+    const prompt = `
+    You are a Data-Driven Pedagogical Analyst.
+    Analyze the following weekly classroom metrics to predict the specific teacher training module needed NEXT.
+    
+    **Metrics:**
+    - Attendance Trend: ${metrics.attendance}
+    - Recent Test Scores: ${metrics.scores}
+    - Student Engagement/Mood: ${metrics.engagement}
+
+    **Task:**
+    1. Identify the core underlying issue ("Predictive Need").
+    2. Recommend ONE specific training module topic to address it.
+    3. **Preventive Risk Analysis**: Identify one major potential risk if this is not addressed (e.g. "High Dropout Risk").
+    4. **Preventive Action**: Suggest one immediate non-training action (e.g. "Call parents").
+
+    **Strict Output Format (JSON ONLY):**
+    {
+        "recommendedTopic": "Gamification for Regularity",
+        "rationale": "Low attendance combined with low engagement suggests students need more fun reasons to come to school.",
+        "riskAssessment": "High Dropout Risk",
+        "preventiveAction": "Organize a parent-teacher community meeting this Saturday."
+    }
+    `;
+
+    try {
+        const text = await callGeminiProxy([{ role: "user", parts: [{ text: prompt }] }]);
+        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error("Prediction Error:", error);
+        return {
+            recommendedTopic: "Student Motivation Techniques",
+            rationale: "Analysis failed, but motivation is a universally helpful refresh.",
+            riskAssessment: "Unknown Risk",
+            preventiveAction: "Monitor attendance closely for the next week."
+        };
+    }
+};
+
+export const analyzeDemand = async (selectedChallenges: string[]) => {
+    const prompt = `
+    You are a Demand-Driven Training Architect.
+    A teacher has swiped "YES" on the following classroom challenges:
+    
+    ${selectedChallenges.map(c => `- ${c}`).join('\n')}
+
+    **Task:**
+    1. Analyze the intersection of these specific challenges.
+    2. Recommend ONE high-impact training module name that solves them simultaneously.
+    3. Generate a 1-sentence "Demand Profile" description of this teacher's context.
+
+    **Strict Output Format (JSON ONLY):**
+    {
+        "recommendedModule": "Classroom Management in Multi-Grade Settings",
+        "demandProfile": "Teacher dealing with resource scarcity and diverse learner groups."
+    }
+    `;
+
+    try {
+        const text = await callGeminiProxy([{ role: "user", parts: [{ text: prompt }] }]);
+        const jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        return JSON.parse(jsonStr);
+    } catch (error) {
+        console.error("Demand Analysis Error:", error);
+        return {
+            recommendedModule: "Universal Classroom Strategies",
+            demandProfile: "Teacher facing complex operational challenges."
         };
     }
 };
