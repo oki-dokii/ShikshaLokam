@@ -8,6 +8,11 @@ The **DIET (District Institute of Education and Training) Command Center** is a 
 2.  **AI Module Generator**: Generates 15-minute micro-learning training modules customized to a cluster's specific context (Language, Region, Issue).
 3.  **Reflection Copilot**: An AI-powered "Implementation Coach" that chats with teachers post-training to ensure practical application of concepts.
 4.  **Frugal TLM Recommender**: A computer vision tool that analyzes classroom photos to suggest low-cost teaching aids and experiments using available materials (trash-to-treasure).
+5.  **Simulation Arena**: A role-play simulator for teachers to practice handling difficult conversations (e.g., Angry Parent, Disengaged Student).
+6.  **AI Assessment**: Upload student performance descriptions to get strengths, gaps, and targeted interventions.
+7.  **Engagement Tracker**: Analyze classroom session logs to get engagement scores and "Energizer" recommendations.
+8.  **Just-in-Time Accuracy (Predictive)**: Forecasts teacher training needs based on weekly metrics and warns of risks (e.g., Dropout).
+9.  **The Agency Engine**: A demand-driven "swipe" interface for teachers to signal their specific challenges and get instant solutions.
 
 ## Technology Stack
 - **Frontend**: React, Vite, TypeScript
@@ -54,4 +59,3 @@ The **DIET (District Institute of Education and Training) Command Center** is a 
 
 ## License
 MIT
-
