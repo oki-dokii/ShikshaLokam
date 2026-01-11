@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Map, Recycle } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
@@ -109,6 +110,23 @@ const Index = () => {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </motion.div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+              <Link to="/heatmap" className="bg-slate-800 p-6 rounded-xl hover:bg-slate-700 transition-colors border border-white/10 group">
+                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 mb-4 group-hover:bg-purple-500 group-hover:text-white transition-all">
+                  <Map className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">View Geospatial Heatmap</h3>
+                <p className="text-slate-400">Analyze district-wise performance and identify priority clusters.</p>
+              </Link>
+
+              <Link to="/frugal-tlm" className="bg-slate-800 p-6 rounded-xl hover:bg-slate-700 transition-colors border border-white/10 group">
+                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 mb-4 group-hover:bg-green-500 group-hover:text-white transition-all">
+                  <Recycle className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Frugal TLM Recommender</h3>
+                <p className="text-slate-400">AI-powered resource discovery for low-cost teaching aids.</p>
+              </Link>
+            </div>
             {/* Issue cards grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {issues.map((issue, i) => (
@@ -141,7 +159,7 @@ const Index = () => {
             <div className="flex flex-col md:flex-row gap-4 justify-center">
               <CTAButton onClick={handleGenerate} />
               <button
-                onClick={() => navigate('/dashboard/heatmap')}
+                onClick={() => navigate('/heatmap')}
                 className="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 text-white font-orbitron tracking-widest transition-all"
               >
                 View Geospatial Heatmap

@@ -1,22 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Layers, Users, TrendingUp, Info, X, Zap, Target, BookOpen } from "lucide-react";
+import { ArrowLeft, Layers, Users, TrendingUp, Info, X, Zap, Target, BookOpen, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-// Initial Mock Data
-const initialDistrictData = [
-    { id: "d1", name: "North District", engagement: 78, clarity: 85, teacherReflections: 12, path: "M50,50 L150,50 L150,150 L50,150 Z" },
-    { id: "d2", name: "East Cluster", engagement: 65, clarity: 72, teacherReflections: 8, path: "M160,50 L260,50 L260,150 L160,150 Z" },
-    { id: "d3", name: "South Zone", engagement: 88, clarity: 90, teacherReflections: 24, path: "M50,160 L150,160 L150,260 L50,260 Z" },
-    { id: "d4", name: "West Banks", engagement: 45, clarity: 55, teacherReflections: 5, path: "M160,160 L260,160 L260,260 L160,260 Z" },
-];
+import { CLUSTERS } from "@/data/mockData";
 
 const HeatmapDashboard = () => {
     const navigate = useNavigate();
     const [metric, setMetric] = useState<"engagement" | "clarity">("engagement");
-    const [districtData, setDistrictData] = useState(initialDistrictData);
+    const [districtData, setDistrictData] = useState(CLUSTERS);
     const [selectedDistrictId, setSelectedDistrictId] = useState<string | null>(null);
     const [isDeepDiveOpen, setIsDeepDiveOpen] = useState(false);
 
@@ -57,6 +50,13 @@ const HeatmapDashboard = () => {
 
     const handleDeepDive = () => {
         setIsDeepDiveOpen(true);
+    };
+
+    const handleGenerateTraining = () => {
+        if (selectedDistrict) {
+            // Navigate to generator with state
+            navigate('/module-generator', { state: { clusterId: selectedDistrict.id } });
+        }
     };
 
     return (
@@ -148,7 +148,18 @@ const HeatmapDashboard = () => {
                             <motion.line x1="100" y1="100" x2="210" y2="100" className="stroke-white/10 stroke-[1] stroke-dasharray-4" animate={{ strokeDashoffset: [0, 100] }} transition={{ repeat: Infinity, duration: 5, ease: "linear" }} />
                             <motion.line x1="100" y1="210" x2="210" y2="210" className="stroke-white/10 stroke-[1] stroke-dasharray-4" animate={{ strokeDashoffset: [0, -100] }} transition={{ repeat: Infinity, duration: 7, ease: "linear" }} />
                         </svg>
+
+                        {/* Labels for Clusters */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            {districtData.map((d) => (
+                                <div key={d.id} style={{ left: `${(d.coordinates.x / 320) * 100}%`, top: `${(d.coordinates.y / 320) * 100}%` }} className="absolute -translate-x-1/2 -translate-y-1/2 text-[10px] font-mono text-white/50">
+                                    {d.id.split('-')[1].toUpperCase()}
+                                </div>
+                            ))}
+                        </div>
                     </div>
+
+
 
                     {/* Legend */}
                     <div className="absolute bottom-4 right-4 bg-black/40 backdrop-blur p-2 rounded-lg border border-white/10 flex gap-4 text-xs">
@@ -173,8 +184,8 @@ const HeatmapDashboard = () => {
                             <div>
                                 <h4 className="text-2xl font-orbitron flex justify-between items-center">
                                     {selectedDistrict.name}
-                                    <span className="text-xs font-mono text-slate-500">ID: {selectedDistrict.id.toUpperCase()}</span>
                                 </h4>
+                                <div className="text-sm font-mono text-cyan-400 mb-2">{selectedDistrict.type}</div>
                                 <div className="flex items-center gap-2 text-slate-400 text-sm">
                                     <span className={`w-2 h-2 rounded-full ${selectedDistrict.engagement > 60 ? 'bg-green-500' : 'bg-red-500'} animate-pulse`} />
                                     Live Monitoring Active
@@ -209,16 +220,12 @@ const HeatmapDashboard = () => {
                                     Key Alerts
                                 </h5>
                                 <ul className="text-sm space-y-2 text-slate-300">
-                                    {selectedDistrict.engagement < 60 && (
-                                        <li className="flex gap-2 text-red-300">
-                                            • Low student participation detected in afternoon sessions.
+                                    {selectedDistrict.primaryIssue !== "None" && (
+                                        <li className="flex gap-2 text-red-300 font-bold">
+                                            • PRIORITY: {selectedDistrict.primaryIssue}
                                         </li>
                                     )}
-                                    {selectedDistrict.clarity > 80 && (
-                                        <li className="flex gap-2 text-green-300">
-                                            • High concept retention in recent science modules.
-                                        </li>
-                                    )}
+
                                     <li className="flex gap-2 text-slate-400">
                                         • {selectedDistrict.teacherReflections} updates from teachers today.
                                     </li>
@@ -281,13 +288,13 @@ const HeatmapDashboard = () => {
                                         <Zap className="w-4 h-4" /> AI Correlated Insight
                                     </h3>
                                     <p className="text-sm text-slate-300 leading-relaxed mb-4">
-                                        Analysis of {selectedDistrict.teacherReflections} teacher reflections indicates a strong correlation between
-                                        <strong> interactive science labs</strong> and the {selectedDistrict.clarity}% clarity score.
-                                        Schools attempting the "Visual Mnemonics" hack reported a 15% boost in retention.
+                                        {selectedDistrict.description}
+                                        <br /><br />
+                                        Correlation with <strong>{selectedDistrict.primaryIssue}</strong> is high.
                                     </p>
                                     <div className="flex gap-2">
                                         <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">High Confidence</span>
-                                        <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">Trend: Positive</span>
+                                        <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-1 rounded border border-indigo-500/30">Trend: {selectedDistrict.engagement > 60 ? "Positive" : "Critical"}</span>
                                     </div>
                                 </div>
 
@@ -295,20 +302,20 @@ const HeatmapDashboard = () => {
                                 <div>
                                     <h4 className="font-semibold text-white mb-4">Sub-Region Performance</h4>
                                     <div className="space-y-3">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="bg-slate-800/50 p-3 rounded-lg flex items-center justify-between border border-white/5">
+                                        {selectedDistrict.subRegions.map((sub) => (
+                                            <div key={sub.id} className="bg-slate-800/50 p-3 rounded-lg flex items-center justify-between border border-white/5">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-400">
-                                                        S{i}
+                                                        {sub.id}
                                                     </div>
                                                     <div>
-                                                        <div className="text-sm font-medium text-slate-200">School Block {Math.random().toString(36).substring(7).toUpperCase()}</div>
-                                                        <div className="text-xs text-slate-500">Principal: Dr. A. Sharma</div>
+                                                        <div className="text-sm font-medium text-slate-200">{sub.name}</div>
+                                                        <div className="text-xs text-slate-500">Principal: {sub.principal}</div>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className={`text-sm font-bold ${selectedDistrict.engagement > 60 ? 'text-green-400' : 'text-yellow-400'}`}>
-                                                        {(selectedDistrict.engagement + (Math.random() * 10 - 5)).toFixed(1)}%
+                                                    <div className={`text-sm font-bold ${sub.engagement > 60 ? 'text-green-400' : 'text-yellow-400'}`}>
+                                                        {sub.engagement}%
                                                     </div>
                                                     <div className="text-[10px] text-slate-500">Eng. Score</div>
                                                 </div>
@@ -317,21 +324,21 @@ const HeatmapDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Focus Areas */}
-                                <div>
-                                    <h4 className="font-semibold text-white mb-4">Recommended Focus Areas</h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 rounded-xl border border-dashed border-slate-700 bg-slate-900/50 hover:bg-slate-800/50 transition-colors">
-                                            <Target className="w-5 h-5 text-pink-400 mb-2" />
-                                            <h5 className="text-sm font-medium text-slate-200 mb-1">Peer Learning</h5>
-                                            <p className="text-xs text-slate-400">Encourage more group breakout sessions to boost afternoon engagement.</p>
-                                        </div>
-                                        <div className="p-4 rounded-xl border border-dashed border-slate-700 bg-slate-900/50 hover:bg-slate-800/50 transition-colors">
-                                            <BookOpen className="w-5 h-5 text-cyan-400 mb-2" />
-                                            <h5 className="text-sm font-medium text-slate-200 mb-1">Visual Aids</h5>
-                                            <p className="text-xs text-slate-400">Distribute the new "Science 3D" deck to Cluster B teachers.</p>
-                                        </div>
-                                    </div>
+                                {/* Action Area */}
+                                <div className="pt-4 border-t border-white/10">
+                                    <h4 className="font-semibold text-white mb-4">Recommended Actions</h4>
+
+                                    <Button
+                                        className="w-full h-14 text-lg bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] mb-4"
+                                        onClick={handleGenerateTraining}
+                                    >
+                                        <Sparkles className="w-5 h-5 mr-3" />
+                                        Generate AI Training Module
+                                    </Button>
+
+                                    <p className="text-center text-xs text-slate-500">
+                                        Creates a personalized micro-learning module considering "{selectedDistrict.primaryIssue}" and teacher feedback.
+                                    </p>
                                 </div>
 
                             </div>
