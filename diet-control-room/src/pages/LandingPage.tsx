@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
 import { Hero } from '../components/landing/Hero';
@@ -60,6 +59,30 @@ export const LandingPage = () => {
                     ]}
                     onClick={() => navigate('/dashboard/cluster-c')}
                 />
+            </div>
+
+            {/* Agency Engine Feature Card */}
+            <div className="mb-12">
+                <button
+                    onClick={() => navigate('/agency')}
+                    className="w-full max-w-md mx-auto block group"
+                >
+                    <div className="glass-panel rounded-xl p-6 border-brand-orange/30 hover:border-brand-orange/60 transition-all hover:shadow-[0_0_30px_-10px_#ff9100]">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-lg bg-brand-orange/20">
+                                <Zap className="w-6 h-6 text-brand-orange" />
+                            </div>
+                            <div className="text-left">
+                                <h3 className="font-orbitron font-bold text-white group-hover:text-brand-orange transition-colors">
+                                    Agency Engine
+                                </h3>
+                                <p className="text-sm text-slate-400">
+                                    Swipe to tell us your classroom challenges
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </button>
             </div>
 
             <div className="text-center">
