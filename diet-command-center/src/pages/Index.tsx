@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
-import { useNavigate, Link } from "react-router-dom";
-import { Map, Recycle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Map, Recycle, MessageSquare } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
 import { CTAButton } from "@/components/CTAButton";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 import clusterA from "@/assets/cluster-a.png";
 import clusterB from "@/assets/cluster-b.png";
@@ -110,22 +111,61 @@ const Index = () => {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-              <Link to="/heatmap" className="bg-slate-800 p-6 rounded-xl hover:bg-slate-700 transition-colors border border-white/10 group">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center text-purple-400 mb-4 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                  <Map className="w-6 h-6" />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {/* Heatmap Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-purple/50 transition-all group">
+                <div className="w-12 h-12 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Map className="w-6 h-6 text-brand-purple" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">View Geospatial Heatmap</h3>
-                <p className="text-slate-400">Analyze district-wise performance and identify priority clusters.</p>
-              </Link>
+                <h3 className="text-xl font-bold text-white mb-2">Geospatial Heatmap</h3>
+                <p className="text-slate-400 mb-6">
+                  Analyze district-wise performance and identify priority clusters.
+                </p>
+                <Button
+                  onClick={() => navigate('/heatmap')}
+                  variant="outline"
+                  className="w-full border-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white"
+                >
+                  View Heatmap
+                </Button>
+              </div>
 
-              <Link to="/frugal-tlm" className="bg-slate-800 p-6 rounded-xl hover:bg-slate-700 transition-colors border border-white/10 group">
-                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400 mb-4 group-hover:bg-green-500 group-hover:text-white transition-all">
-                  <Recycle className="w-6 h-6" />
+              {/* Frugal TLM Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group">
+                <div className="w-12 h-12 bg-brand-cyan/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Recycle className="w-6 h-6 text-brand-cyan" />
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2">Frugal TLM Recommender</h3>
-                <p className="text-slate-400">AI-powered resource discovery for low-cost teaching aids.</p>
-              </Link>
+                <p className="text-slate-400 mb-6">
+                  Turn classroom trash into teaching treasures. AI identifies resources from photos.
+                </p>
+                <Button
+                  onClick={() => navigate('/frugal-tlm')}
+                  variant="outline"
+                  className="w-full border-brand-cyan/20 text-brand-cyan hover:bg-brand-cyan hover:text-brand-dark"
+                >
+                  Scan Resources
+                </Button>
+              </div>
+
+              {/* Simulation Arena Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-purple/50 transition-all group">
+                <div className="w-12 h-12 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <MessageSquare className="w-6 h-6 text-brand-purple" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Simulation Arena</h3>
+                <p className="text-slate-400 mb-6">
+                  Practice handling difficult parents and students with AI role-play scenarios.
+                </p>
+                <Button
+                  onClick={() => navigate('/simulation')}
+                  variant="outline"
+                  className="w-full border-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white"
+                >
+                  Start Role-Play
+                </Button>
+              </div>
+
             </div>
             {/* Issue cards grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

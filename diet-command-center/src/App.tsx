@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import HeatmapDashboard from "./pages/HeatmapDashboard";
 import ModuleGenerator from "./pages/ModuleGenerator";
 import FrugalRecommender from "./pages/FrugalRecommender";
+import SimulationArena from "./pages/SimulationArena";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/heatmap" element={<HeatmapDashboard />} />
             <Route path="/module-generator" element={<ModuleGenerator />} />
             <Route path="/frugal-tlm" element={<FrugalRecommender />} />
+            <Route path="/simulation" element={<SimulationArena />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
