@@ -1,62 +1,57 @@
-# ShikshaLokam: Real-Time Education Transformation Platform
+# ShikshaLokam DIET Command Center
 
-This repository houses the **DIET Command Center** and **Control Room** ecosystem, designed to empower educational leaders and teachers with real-time data, AI-driven insights, and geospatial monitoring.
+## Project Overview
+The **DIET (District Institute of Education and Training) Command Center** is a comprehensive dashboard designed to empower education administrators and teachers in rural India. It addresses the "Principal's Dilemma" by providing real-time analytics to identify school clusters with specific needs and offering AI-driven solutions to address them immediately.
 
-## 🏗️ Project Structure
+**Key Features:**
+1.  **Geospatial Heatmap**: Visualizes district performance (Absenteeism, Infrastructure, Resources) to prioritize interventions.
+2.  **AI Module Generator**: Generates 15-minute micro-learning training modules customized to a cluster's specific context (Language, Region, Issue).
+3.  **Reflection Copilot**: An AI-powered "Implementation Coach" that chats with teachers post-training to ensure practical application of concepts.
+4.  **Frugal TLM Recommender**: A computer vision tool that analyzes classroom photos to suggest low-cost teaching aids and experiments using available materials (trash-to-treasure).
 
-The platform consists of three main components:
+## Technology Stack
+- **Frontend**: React, Vite, TypeScript
+- **Styling**: Tailwind CSS, shadcn-ui
+- **AI Backend**: Google Gemini 2.0 (via RapidAPI Proxy) for text generation and vision analysis.
+- **Routing**: React Router DOM
+- **State/Data**: React Query, Context API
 
-| Component | Directory | Description |
-|-----------|-----------|-------------|
-| **Command Center** | `diet-command-center` | **For Administrators/State Officials.** A centralized dashboard for monitoring district performance, teacher engagement, and implementing data-driven interventions. Features geospatial heatmaps and AI insights. |
-| **Control Room** | `diet-control-room` | **For Teachers/Trainers.** A focused interface for teachers to access training, submit reflections, and receive real-time support. |
-| **Hackathon Resources** | `general_hackathon` | Additional resources, scripts, and legacy modules associated with the project. |
-
----
-
-## 🚀 Quick Start
+## Setup & Installation
 
 ### Prerequisites
 - Node.js (v18+)
 - npm
 
-### 1. DIET Command Center (Admin)
-Navigate to the command center directory and start the dev server:
+### Steps
+1.  **Clone the repository**
+    ```sh
+    git clone https://github.com/oki-dokii/ShikshaLokam.git
+    cd ShikshaLokam/diet-command-center
+    ```
 
-```bash
-cd diet-command-center
-npm install
-npm run dev
-```
-> Runs on: `http://localhost:8080` (default)
-> **Key Features:** Geospatial Heatmaps, District Deep Dives, Real-time Alerts.
+2.  **Install Dependencies**
+    ```sh
+    npm install
+    ```
 
-### 2. DIET Control Room (Teacher)
-Open a new terminal and start the control room:
+3.  **Environment Configuration**
+    Create a `.env` file in the root directory and add your RapidAPI credentials:
+    ```env
+    VITE_RAPIDAPI_KEY=your_rapidapi_key_here
+    VITE_RAPIDAPI_HOST=gemini-pro-ai.p.rapidapi.com
+    ```
 
-```bash
-cd diet-control-room
-npm install
-npm run dev
-```
-> Runs on: `http://localhost:5173` (default)
+4.  **Run Development Server**
+    ```sh
+    npm run dev
+    ```
 
----
+## Usage Guide
+1.  **Analyze**: Start at the `/heatmap` to view cluster performance.
+2.  **Generate**: Select a cluster > "Deep Dive" > "Generate Training" to create a contextualized module.
+3.  **Reflect**: Use the "Launch Coach" feature in the module view to simulate a post-lesson reflection chat.
+4.  **Innovate**: Navigate to `/frugal-tlm` to upload photos and get resource-aware activity suggestions.
 
-## 🌟 Key Features implemented
+## License
+MIT
 
-- **Geospatial Heatmap:** Real-time visualization of Engagement and Clarity scores across districts.
-  - *Navigate to:* `/dashboard/heatmap` in Command Center.
-- **Deep Dive Analysis:** AI-powered detailed breakdown of school metrics.
-- **Tacit Knowledge Capture:** Video/Audio capture tool for teachers to share classroom "hacks".
-- **Real-time Simulation:** Live data updates to simulate active classroom monitoring.
-
-## 🛠️ Tech Stack
-- **Frontend:** React, TypeScript, Vite
-- **Styling:** TailwindCSS, ShadCN UI
-- **Visualization:** Recharts, Framer Motion, Custom SVG Maps
-- **AI Integration:** Google Gemini (for knowledge analysis)
-
----
-
-*Note: This project is part of the ShikshaLokam initiative.*
