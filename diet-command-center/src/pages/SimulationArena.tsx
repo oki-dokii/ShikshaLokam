@@ -6,6 +6,8 @@ import { startSimulation, continueSimulation } from "@/lib/gemini";
 import { motion, AnimatePresence } from "framer-motion";
 
 const SimulationArena = () => {
+    // Component mounted
+    console.log("Simulation Arena Loaded");
     const navigate = useNavigate();
     const [scenario, setScenario] = useState<string | null>(null);
     const [messages, setMessages] = useState<{ role: 'bot' | 'user', text: string }[]>([]);
