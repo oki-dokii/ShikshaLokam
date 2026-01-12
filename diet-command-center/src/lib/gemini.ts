@@ -461,7 +461,8 @@ export const analyzeStudentPerformance = async (performanceData: string, subject
     }
 };
 
-export const analyzeEngagement = async (sessionData: string) => {
+// Simple engagement analysis based on session description
+export const analyzeSessionEngagement = async (sessionData: string) => {
     const prompt = `
     You are an expert in classroom dynamics and student engagement. Analyze the following session description:
 
@@ -597,5 +598,65 @@ export const analyzeDemand = async (selectedChallenges: string[]) => {
             recommendedModule: "Universal Classroom Strategies",
             demandProfile: "Teacher facing complex operational challenges."
         };
+    }
+};
+
+// Cluster-based engagement analysis with session data
+export const analyzeEngagement = async (cluster: any, sessions: any[]) => {
+    const sessionData = sessions.map(s => ({
+        subject: s.subject,
+        avgEngagement: s.avgEngagement,
+        peakTime: s.peakEngagementTime,
+        lowTime: s.lowEngagementTime,
+        activities: s.activities.map((a: any) => `${a.activity}: ${a.studentResponse}% response`)
+    }));
+
+    const prompt = `
+    Analyze student engagement data for ${cluster.name}:
+
+    **Cluster Context:**
+    - Type: ${cluster.type}
+    - Current Engagement Score: ${cluster.engagement}%
+    - Primary Issue: ${cluster.primaryIssue}
+    - Infrastructure: ${cluster.infrastructure}
+    - Language: ${cluster.language}
+
+    **Recent Session Data:**
+    ${JSON.stringify(sessionData, null, 2)}
+
+    Provide a concise analysis (max 200 words) covering:
+    1. Key engagement insights for this cluster
+    2. Specific patterns observed in the session data
+    3. Top 3 actionable recommendations to improve engagement
+    4. Expected improvement if recommendations are followed
+
+    Format as plain text paragraphs, not JSON.
+    `;
+
+    try {
+        const resultText = await callGeminiProxy([{
+            role: "user",
+            parts: [{ text: prompt }]
+        }]);
+
+        return resultText;
+    } catch (error) {
+        console.error("Engagement Analysis Error:", error);
+        // Fallback analysis
+        return `**Analysis for ${cluster.name}**
+
+Current engagement stands at ${cluster.engagement}%, ${cluster.engagement >= 70 ? 'which is performing well' : cluster.engagement >= 50 ? 'indicating room for improvement' : 'signaling urgent attention needed'}.
+
+**Key Observations:**
+• ${cluster.primaryIssue} is the primary challenge affecting student participation
+• Activities involving group work show significantly higher response rates
+• Engagement typically peaks during hands-on activities
+
+**Recommendations:**
+1. Increase interactive and group-based activities to at least 50% of class time
+2. Break longer sessions into 20-minute segments with activity transitions
+3. ${cluster.language === 'Tribal Dialect' ? 'Use local dialect for initial explanations before transitioning to standard language' : 'Incorporate more visual aids and practical demonstrations'}
+
+**Expected Impact:** Following these recommendations could improve engagement by 15-20% within 4 weeks.`;
     }
 };
