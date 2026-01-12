@@ -8,6 +8,12 @@ import HeatmapDashboard from "./pages/HeatmapDashboard";
 import ModuleGenerator from "./pages/ModuleGenerator";
 import FrugalRecommender from "./pages/FrugalRecommender";
 import SimulationArena from "./pages/SimulationArena";
+import AssessmentAI from "./pages/AssessmentAI";
+import EngagementAnalysis from "./pages/EngagementAnalysis";
+import ImplementationCopilot from "./pages/ImplementationCopilot";
+import RealTimeFeedback from "./pages/RealTimeFeedback";
+import PredictiveTraining from "./pages/PredictiveTraining";
+import AgencyEngine from "./pages/AgencyEngine";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +30,12 @@ const App = () => (
             <Route path="/module-generator" element={<ModuleGenerator />} />
             <Route path="/frugal-tlm" element={<FrugalRecommender />} />
             <Route path="/simulation" element={<SimulationArena />} />
+            <Route path="/assessment-ai" element={<AssessmentAI />} />
+            <Route path="/engagement-analysis" element={<EngagementAnalysis />} />
+            <Route path="/implementation-copilot" element={<ImplementationCopilot />} />
+            <Route path="/real-time-feedback" element={<RealTimeFeedback />} />
+            <Route path="/predictive-training" element={<PredictiveTraining />} />
+            <Route path="/agency-engine" element={<AgencyEngine />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Map, Recycle, MessageSquare } from "lucide-react";
+import { Map, Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
@@ -67,7 +67,7 @@ const Index = () => {
     toast.info(`Accessing ${title} data...`, {
       description: "Loading real-time analytics",
     });
-    navigate(`/cluster/${id}`);
+    navigate(`/ cluster / ${id} `);
   };
 
   const handleGenerate = () => {
@@ -163,6 +163,102 @@ const Index = () => {
                   className="w-full border-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white"
                 >
                   Start Role-Play
+                </Button>
+              </div>
+
+              {/* AI Assessment Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-green-500/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-green-500/20 flex items-center justify-center mb-6 text-green-400 group-hover:scale-110 transition-transform">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">AI Assessment</h3>
+                <p className="text-slate-400 mb-6">Analyze student performance and generate personalized learning plans.</p>
+                <Button
+                  onClick={() => navigate('/assessment-ai')}
+                  variant="outline"
+                  className="w-full border-green-500/20 text-green-400 hover:bg-green-500 hover:text-white"
+                >
+                  Analyze Data
+                </Button>
+              </div>
+
+              {/* Engagement Analysis Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-brand-cyan/20 flex items-center justify-center mb-6 text-brand-cyan group-hover:scale-110 transition-transform">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Engagement Tracker</h3>
+                <p className="text-slate-400 mb-6">Analyze class dynamics and get engagement boosters.</p>
+                <Button
+                  onClick={() => navigate('/engagement-analysis')}
+                  variant="outline"
+                  className="w-full border-brand-cyan/20 text-brand-cyan hover:bg-brand-cyan hover:text-brand-dark"
+                >
+                  Check Pulse
+                </Button>
+              </div>
+
+              {/* Implementation Copilot Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-pink-500/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-pink-500/20 flex items-center justify-center mb-6 text-pink-400 group-hover:scale-110 transition-transform">
+                  <MessageSquare className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Implementation Copilot</h3>
+                <p className="text-slate-400 mb-6">Your personal coach for reflecting on teaching strategies.</p>
+                <Button
+                  onClick={() => navigate('/implementation-copilot')}
+                  variant="outline"
+                  className="w-full border-pink-500/20 text-pink-400 hover:bg-pink-500 hover:text-white"
+                >
+                  Start Reflection
+                </Button>
+              </div>
+
+              {/* Real-Time Feedback Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-red-500/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-red-500/20 flex items-center justify-center mb-6 text-red-500 group-hover:scale-110 transition-transform">
+                  <Activity className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Live Pulse</h3>
+                <p className="text-slate-400 mb-6">Immediate in-class interventions for urgent situations.</p>
+                <Button
+                  onClick={() => navigate('/real-time-feedback')}
+                  variant="outline"
+                  className="w-full border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white"
+                >
+                  Get Help Now
+                </Button>
+              </div>
+
+              {/* Predictive Training Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-blue-500/20 flex items-center justify-center mb-6 text-blue-500 group-hover:scale-110 transition-transform">
+                  <LineChart className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Just-in-Time Accuracy</h3>
+                <p className="text-slate-400 mb-6">Forecast and prevent training gaps with predictive AI.</p>
+                <Button
+                  onClick={() => navigate('/predictive-training')}
+                  variant="outline"
+                  className="w-full border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white"
+                >
+                  Forecast Needs
+                </Button>
+              </div>
+
+              {/* Agency Engine Card */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-pink-500/50 transition-all group">
+                <div className="h-12 w-12 rounded-lg bg-pink-500/20 flex items-center justify-center mb-6 text-pink-500 group-hover:scale-110 transition-transform">
+                  <Flame className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Agency Engine</h3>
+                <p className="text-slate-400 mb-6">Swipe on your challenges to tell us what you really need.</p>
+                <Button
+                  onClick={() => navigate('/agency-engine')}
+                  variant="outline"
+                  className="w-full border-pink-500/20 text-pink-500 hover:bg-pink-500 hover:text-white"
+                >
+                  Start Swiping
                 </Button>
               </div>
 
