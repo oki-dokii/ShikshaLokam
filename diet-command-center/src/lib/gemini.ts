@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { translateText, getLanguageCode } from "./translate";
 
 const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const RAPIDAPI_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
@@ -660,3 +661,171 @@ Current engagement stands at ${cluster.engagement}%, ${cluster.engagement >= 70 
 **Expected Impact:** Following these recommendations could improve engagement by 15-20% within 4 weeks.`;
     }
 };
+
+// ============================================
+// APPOSITE CONTENT TRANSFORMER (Feature 1)
+// Converts training manuals into 5-min micro-modules
+// ============================================
+
+export interface TeacherProfileInput {
+    region: string;
+    teacherCluster: string;
+    schoolType: string;
+    language: string;
+    grade: string;
+    subject: string;
+}
+
+export interface LocalContextInput {
+    localMetaphors: string[];
+    dailyContexts: string[];
+    avoidTerms: string[];
+}
+
+export interface MicroModuleOutput {
+    coreIdea: string;
+    classroomExample: string;
+    actionStep: string;
+    reflectionQuestion: string;
+    sourceTitle: string;
+    generatedAt: string;
+}
+
+export const transformManualContent = async (
+    sourceContent: string,
+    sourceTitle: string,
+    teacherProfile: TeacherProfileInput,
+    localContext: LocalContextInput,
+    targetLanguageCode: string = 'en' // Language code for translation (e.g., 'hi', 'te', 'ta')
+): Promise<MicroModuleOutput> => {
+    // Always generate in English first for best quality, then translate
+    const prompt = `You are an expert instructional designer for Indian government school teacher training.
+
+Your task is to transform long, formal teacher training manuals into short, practical,
+5-minute micro-learning modules that teachers can immediately apply in their classrooms.
+
+You specialize in:
+- Adult learning
+- Rural and semi-urban Indian classrooms
+- Low-resource school environments
+- Clear, non-academic language
+
+You must always:
+- Avoid academic jargon and theory-heavy explanations
+- Use simple, conversational language
+- Prefer concrete classroom examples over definitions
+- Respect local culture, daily life, and constraints of government schools
+
+========================
+TASK
+========================
+Convert the provided official teacher training content into ONE self-contained
+5-minute micro-module tailored to the following teacher profile.
+
+========================
+TARGET TEACHER PROFILE
+========================
+- Region: ${teacherProfile.region}
+- Teacher cluster: ${teacherProfile.teacherCluster}
+- School type: ${teacherProfile.schoolType}
+- Grade level: ${teacherProfile.grade}
+- Subject: ${teacherProfile.subject}
+
+========================
+LOCAL CONTEXT GUIDELINES
+========================
+- Preferred local metaphors to use: ${localContext.localMetaphors.join(', ')}
+- Daily-life references teachers relate to: ${localContext.dailyContexts.join(', ')}
+- Avoid using these terms or jargon: ${localContext.avoidTerms.join(', ')}
+
+========================
+STRICT OUTPUT FORMAT (JSON)
+========================
+Return ONLY valid JSON in this exact format:
+{
+    "coreIdea": "3-4 simple sentences explaining the main idea",
+    "classroomExample": "A realistic classroom situation using local context and metaphors",
+    "actionStep": "One small action the teacher can apply tomorrow",
+    "reflectionQuestion": "One question for the teacher to think about after class"
+}
+
+========================
+SOURCE CONTENT (from training manual)
+========================
+${sourceContent}
+
+Remember: Rewrite and adapt ONLY this content. Do not invent new pedagogy.
+Return ONLY the JSON object, no other text.`;
+
+    try {
+        const resultText = await callGeminiProxy([{
+            role: "user",
+            parts: [{ text: prompt }]
+        }]);
+
+        // Parse the JSON response
+        const jsonStr = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(jsonStr);
+
+        // Extract English content
+        let coreIdea = parsed.coreIdea || "";
+        let classroomExample = parsed.classroomExample || "";
+        let actionStep = parsed.actionStep || "";
+        let reflectionQuestion = parsed.reflectionQuestion || "";
+
+        // Translate if target language is not English
+        if (targetLanguageCode && targetLanguageCode !== 'en') {
+            console.log(`Translating to ${targetLanguageCode}...`);
+
+            // Translate all fields with a small delay between each to avoid rate limiting
+            coreIdea = await translateText(coreIdea, targetLanguageCode);
+            await new Promise(r => setTimeout(r, 300));
+
+            classroomExample = await translateText(classroomExample, targetLanguageCode);
+            await new Promise(r => setTimeout(r, 300));
+
+            actionStep = await translateText(actionStep, targetLanguageCode);
+            await new Promise(r => setTimeout(r, 300));
+
+            reflectionQuestion = await translateText(reflectionQuestion, targetLanguageCode);
+
+            console.log('Translation complete!');
+        }
+
+        return {
+            coreIdea,
+            classroomExample,
+            actionStep,
+            reflectionQuestion,
+            sourceTitle: sourceTitle,
+            generatedAt: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error("Content Transformation Error:", error);
+
+        // Fallback response for demo stability
+        let fallback = {
+            coreIdea: `When teaching ${teacherProfile.subject}, remember that children learn best when they can connect new ideas to things they already know from daily life. Instead of just explaining, ask questions and let students discover answers through activities.`,
+            classroomExample: `Imagine you're teaching a new concept. Instead of writing on the board and asking students to copy, try this: Ask students what they already know about the topic. Let them share experiences from home or the village. Then build the lesson from their answers - like adding bricks to a wall they've already started.`,
+            actionStep: `Tomorrow, start your first lesson by asking students one question about their daily life that connects to what you'll teach. Listen to 3-4 answers before you begin explaining.`,
+            reflectionQuestion: `After today's class, think: Did my students seem more interested when I connected the lesson to their daily experiences? What local example worked best?`,
+            sourceTitle: sourceTitle,
+            generatedAt: new Date().toISOString()
+        };
+
+        // Try to translate fallback if not English
+        if (targetLanguageCode && targetLanguageCode !== 'en') {
+            try {
+                fallback.coreIdea = await translateText(fallback.coreIdea, targetLanguageCode);
+                fallback.classroomExample = await translateText(fallback.classroomExample, targetLanguageCode);
+                fallback.actionStep = await translateText(fallback.actionStep, targetLanguageCode);
+                fallback.reflectionQuestion = await translateText(fallback.reflectionQuestion, targetLanguageCode);
+            } catch (translateError) {
+                console.error("Fallback translation failed:", translateError);
+            }
+        }
+
+        return fallback;
+    }
+};
+

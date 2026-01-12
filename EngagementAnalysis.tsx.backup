@@ -1,0 +1,411 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    ArrowLeft, Users, TrendingUp, TrendingDown, Activity, Brain,
+    Lightbulb, AlertTriangle, CheckCircle, BarChart3, Clock,
+    Sparkles, Loader2, Target, BookOpen, Zap
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CLUSTERS } from "@/data/mockData";
+import {
+    CLASSROOM_SESSIONS,
+    WEEKLY_TRENDS,
+    ENGAGEMENT_PATTERNS,
+    SUBJECT_ENGAGEMENT
+} from "@/data/engagementData";
+import { analyzeEngagement } from "@/lib/gemini";
+
+function EngagementAnalysis() {
+    const navigate = useNavigate();
+    const [selectedCluster, setSelectedCluster] = useState<string | null>(null);
+    const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [activeTab, setActiveTab] = useState<'overview' | 'patterns' | 'subjects'>('overview');
+
+    const handleAnalyzeCluster = async (clusterId: string) => {
+        setSelectedCluster(clusterId);
+        setIsAnalyzing(true);
+        setAiAnalysis(null);
+
+        const cluster = CLUSTERS.find(c => c.id === clusterId);
+        const sessions = CLASSROOM_SESSIONS.filter(s => s.clusterId === clusterId);
+
+        if (cluster && sessions.length > 0) {
+            try {
+                const analysis = await analyzeEngagement(cluster, sessions);
+                setAiAnalysis(analysis);
+            } catch (error) {
+                console.error('AI Analysis failed:', error);
+                setAiAnalysis(`Based on the data for ${cluster.name}:\n\n• Average engagement: ${cluster.engagement}%\n• Primary issue: ${cluster.primaryIssue}\n• Recommendation: Focus on interactive activities and group work to boost engagement.\n\nKey insight: Students respond better to hands-on activities than passive learning.`);
+            }
+        }
+        setIsAnalyzing(false);
+    };
+
+    const getEngagementColor = (score: number) => {
+        if (score >= 70) return 'text-emerald-400';
+        if (score >= 50) return 'text-amber-400';
+        return 'text-red-400';
+    };
+
+    const getEngagementBg = (score: number) => {
+        if (score >= 70) return 'bg-emerald-500/20';
+        if (score >= 50) return 'bg-amber-500/20';
+        return 'bg-red-500/20';
+    };
+
+    const selectedClusterData = CLUSTERS.find(c => c.id === selectedCluster);
+    const clusterSessions = CLASSROOM_SESSIONS.filter(s => s.clusterId === selectedCluster);
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 p-6">
+            {/* Header */}
+            <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4 mb-8"
+            >
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate("/")}
+                    className="text-slate-400 hover:text-white"
+                >
+                    <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <div>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                        <Activity className="w-6 h-6 text-cyan-400" />
+                        Learner Engagement Analysis
+                    </h1>
+                    <p className="text-slate-400 text-sm">AI-powered insights into student engagement patterns</p>
+                </div>
+            </motion.div>
+
+            {/* Tab Navigation */}
+            <div className="flex gap-2 mb-6">
+                {(['overview', 'patterns', 'subjects'] as const).map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={cn(
+                            "px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize",
+                            activeTab === tab
+                                ? "bg-cyan-500/20 text-cyan-400 border border-cyan-500/30"
+                                : "text-slate-400 hover:text-white hover:bg-white/5"
+                        )}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Panel - Cluster Selection */}
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="lg:col-span-1 space-y-4"
+                >
+                    <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                        Select Cluster to Analyze
+                    </h3>
+
+                    {CLUSTERS.map((cluster, index) => (
+                        <motion.div
+                            key={cluster.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => handleAnalyzeCluster(cluster.id)}
+                            className={cn(
+                                "p-4 rounded-xl border cursor-pointer transition-all",
+                                selectedCluster === cluster.id
+                                    ? "bg-cyan-500/10 border-cyan-500/50"
+                                    : "bg-slate-900/50 border-slate-700/50 hover:border-slate-600"
+                            )}
+                        >
+                            <div className="flex items-center justify-between mb-3">
+                                <h4 className="font-semibold text-white">{cluster.name}</h4>
+                                <div className={cn(
+                                    "px-2 py-1 rounded text-xs font-bold",
+                                    getEngagementBg(cluster.engagement),
+                                    getEngagementColor(cluster.engagement)
+                                )}>
+                                    {cluster.engagement}%
+                                </div>
+                            </div>
+                            <p className="text-xs text-slate-500 mb-2">{cluster.type}</p>
+                            <div className="flex items-center gap-2">
+                                {cluster.engagement >= 70 ? (
+                                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                                ) : cluster.engagement >= 50 ? (
+                                    <Activity className="w-4 h-4 text-amber-400" />
+                                ) : (
+                                    <TrendingDown className="w-4 h-4 text-red-400" />
+                                )}
+                                <span className="text-xs text-slate-400">
+                                    {cluster.engagement >= 70 ? 'High' : cluster.engagement >= 50 ? 'Medium' : 'Low'} Engagement
+                                </span>
+                            </div>
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* Right Panel - Analysis Content */}
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="lg:col-span-2 space-y-6"
+                >
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'overview' && (
+                            <motion.div
+                                key="overview"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="space-y-6"
+                            >
+                                {/* AI Analysis Card */}
+                                {selectedCluster && (
+                                    <div className="bg-slate-900/70 rounded-xl border border-cyan-500/30 p-6">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Sparkles className="w-5 h-5 text-cyan-400" />
+                                            <h3 className="font-semibold text-white">AI Analysis: {selectedClusterData?.name}</h3>
+                                        </div>
+
+                                        {isAnalyzing ? (
+                                            <div className="flex items-center justify-center py-8">
+                                                <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+                                                <span className="ml-3 text-slate-400">Analyzing engagement patterns...</span>
+                                            </div>
+                                        ) : aiAnalysis ? (
+                                            <div className="text-slate-300 leading-relaxed whitespace-pre-line text-sm">
+                                                {aiAnalysis}
+                                            </div>
+                                        ) : (
+                                            <p className="text-slate-500 text-sm">Select a cluster to see AI analysis</p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Session Activity Breakdown */}
+                                {clusterSessions.length > 0 && (
+                                    <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-6">
+                                        <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                                            <Clock className="w-5 h-5 text-purple-400" />
+                                            Latest Session Breakdown
+                                        </h3>
+                                        <div className="space-y-3">
+                                            {clusterSessions[0].activities.map((activity, idx) => (
+                                                <div key={idx} className="flex items-center gap-4">
+                                                    <div className="w-32 text-sm text-slate-400 truncate">{activity.activity}</div>
+                                                    <div className="flex-1 bg-slate-800 rounded-full h-3 overflow-hidden">
+                                                        <motion.div
+                                                            initial={{ width: 0 }}
+                                                            animate={{ width: `${activity.studentResponse}%` }}
+                                                            transition={{ delay: idx * 0.1 }}
+                                                            className={cn(
+                                                                "h-full rounded-full",
+                                                                activity.engagementLevel === 'high' ? 'bg-emerald-500' :
+                                                                    activity.engagementLevel === 'medium' ? 'bg-amber-500' : 'bg-red-500'
+                                                            )}
+                                                        />
+                                                    </div>
+                                                    <span className="text-sm font-medium text-white w-12">{activity.studentResponse}%</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Weekly Trends Chart */}
+                                <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-6">
+                                    <h3 className="font-semibold text-white mb-4 flex items-center gap-2">
+                                        <BarChart3 className="w-5 h-5 text-blue-400" />
+                                        Weekly Engagement Trends
+                                    </h3>
+                                    <div className="flex items-end gap-4 h-40">
+                                        {WEEKLY_TRENDS.map((day, idx) => (
+                                            <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
+                                                <div className="w-full flex gap-1 h-32 items-end">
+                                                    <motion.div
+                                                        initial={{ height: 0 }}
+                                                        animate={{ height: `${day.clusterA}%` }}
+                                                        transition={{ delay: idx * 0.1 }}
+                                                        className="flex-1 bg-blue-500 rounded-t opacity-60"
+                                                        title={`Cluster A: ${day.clusterA}%`}
+                                                    />
+                                                    <motion.div
+                                                        initial={{ height: 0 }}
+                                                        animate={{ height: `${day.clusterB}%` }}
+                                                        transition={{ delay: idx * 0.1 + 0.05 }}
+                                                        className="flex-1 bg-emerald-500 rounded-t opacity-60"
+                                                        title={`Cluster B: ${day.clusterB}%`}
+                                                    />
+                                                    <motion.div
+                                                        initial={{ height: 0 }}
+                                                        animate={{ height: `${day.clusterC}%` }}
+                                                        transition={{ delay: idx * 0.1 + 0.1 }}
+                                                        className="flex-1 bg-red-500 rounded-t opacity-60"
+                                                        title={`Cluster C: ${day.clusterC}%`}
+                                                    />
+                                                    <motion.div
+                                                        initial={{ height: 0 }}
+                                                        animate={{ height: `${day.clusterD}%` }}
+                                                        transition={{ delay: idx * 0.1 + 0.15 }}
+                                                        className="flex-1 bg-purple-500 rounded-t opacity-60"
+                                                        title={`Cluster D: ${day.clusterD}%`}
+                                                    />
+                                                </div>
+                                                <span className="text-xs text-slate-500">{day.day}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-center gap-6 mt-4">
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-blue-500" /><span className="text-xs text-slate-400">Cluster A</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-emerald-500" /><span className="text-xs text-slate-400">Cluster B</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-red-500" /><span className="text-xs text-slate-400">Cluster C</span></div>
+                                        <div className="flex items-center gap-2"><div className="w-3 h-3 rounded bg-purple-500" /><span className="text-xs text-slate-400">Cluster D</span></div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'patterns' && (
+                            <motion.div
+                                key="patterns"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="space-y-4"
+                            >
+                                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                    AI-Identified Engagement Patterns
+                                </h3>
+                                {ENGAGEMENT_PATTERNS.map((pattern, idx) => (
+                                    <motion.div
+                                        key={pattern.pattern}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 0.1 }}
+                                        className={cn(
+                                            "p-5 rounded-xl border",
+                                            pattern.impact === 'positive' ? "bg-emerald-500/5 border-emerald-500/30" :
+                                                pattern.impact === 'negative' ? "bg-red-500/5 border-red-500/30" :
+                                                    "bg-slate-900/50 border-slate-700/50"
+                                        )}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            <div className={cn(
+                                                "p-2 rounded-lg",
+                                                pattern.impact === 'positive' ? "bg-emerald-500/20" :
+                                                    pattern.impact === 'negative' ? "bg-red-500/20" : "bg-slate-700"
+                                            )}>
+                                                {pattern.impact === 'positive' ? (
+                                                    <CheckCircle className="w-5 h-5 text-emerald-400" />
+                                                ) : pattern.impact === 'negative' ? (
+                                                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                                                ) : (
+                                                    <Target className="w-5 h-5 text-slate-400" />
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <h4 className="font-semibold text-white">{pattern.pattern}</h4>
+                                                    <span className="text-xs text-slate-500">{pattern.frequency}% frequency</span>
+                                                </div>
+                                                <p className="text-sm text-slate-400 mb-3">{pattern.description}</p>
+                                                <div className="flex items-start gap-2 p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                                                    <Lightbulb className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                                                    <p className="text-sm text-cyan-300">{pattern.recommendation}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'subjects' && (
+                            <motion.div
+                                key="subjects"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="space-y-6"
+                            >
+                                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+                                    Subject-wise Engagement Analysis
+                                </h3>
+                                <div className="bg-slate-900/50 rounded-xl border border-slate-700/50 p-6">
+                                    <div className="space-y-4">
+                                        {SUBJECT_ENGAGEMENT.map((subject, idx) => (
+                                            <motion.div
+                                                key={subject.subject}
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: idx * 0.1 }}
+                                                className="flex items-center gap-4"
+                                            >
+                                                <div className="w-32 text-sm text-white font-medium">{subject.subject}</div>
+                                                <div className="flex-1 bg-slate-800 rounded-full h-4 overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        animate={{ width: `${subject.engagement}%` }}
+                                                        transition={{ delay: idx * 0.1, duration: 0.8 }}
+                                                        className="h-full rounded-full"
+                                                        style={{ backgroundColor: subject.color }}
+                                                    />
+                                                </div>
+                                                <span className="text-sm font-bold w-12" style={{ color: subject.color }}>
+                                                    {subject.engagement}%
+                                                </span>
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Insights Card */}
+                                <div className="bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/30 p-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Brain className="w-5 h-5 text-purple-400" />
+                                        <h4 className="font-semibold text-white">AI Insights</h4>
+                                    </div>
+                                    <ul className="space-y-3 text-sm text-slate-300">
+                                        <li className="flex items-start gap-2">
+                                            <Zap className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                                            <span><strong>Science (Lab)</strong> shows highest engagement - prioritize hands-on activities</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+                                            <span><strong>Language</strong> needs attention - consider storytelling and local dialect integration</span>
+                                        </li>
+                                        <li className="flex items-start gap-2">
+                                            <TrendingUp className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                                            <span><strong>15% improvement</strong> possible with activity-based learning in low-performing subjects</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Empty State */}
+                    {!selectedCluster && activeTab === 'overview' && (
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                            <Activity className="w-16 h-16 text-slate-600 mb-4" />
+                            <h3 className="text-lg font-semibold text-slate-400 mb-2">Select a Cluster</h3>
+                            <p className="text-slate-500 text-sm">Choose a cluster from the left panel to see AI-powered engagement analysis</p>
+                        </div>
+                    )}
+                </motion.div>
+            </div>
+        </div>
+    );
+}
+
+export default EngagementAnalysis;

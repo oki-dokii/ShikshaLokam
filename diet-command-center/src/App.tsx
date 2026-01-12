@@ -14,6 +14,7 @@ import ImplementationCopilot from "./pages/ImplementationCopilot";
 import RealTimeFeedback from "./pages/RealTimeFeedback";
 import PredictiveTraining from "./pages/PredictiveTraining";
 import AgencyEngine from "./pages/AgencyEngine";
+import ContentTransformer from "./pages/ContentTransformer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/real-time-feedback" element={<RealTimeFeedback />} />
             <Route path="/predictive-training" element={<PredictiveTraining />} />
             <Route path="/agency-engine" element={<AgencyEngine />} />
+            <Route path="/content-transformer" element={<ContentTransformer />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

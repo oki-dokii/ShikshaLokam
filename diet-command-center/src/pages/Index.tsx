@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Map, Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame } from "lucide-react";
+import { Map, Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
@@ -112,6 +112,26 @@ const Index = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+              {/* Content Transformer Card - Feature 1 */}
+              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group bg-gradient-to-br from-brand-cyan/5 to-purple-500/5">
+                <div className="w-12 h-12 bg-gradient-to-br from-brand-cyan/20 to-purple-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <FileText className="w-6 h-6 text-brand-cyan" />
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-xl font-bold text-white">Content Transformer</h3>
+                  <span className="px-2 py-0.5 bg-brand-cyan/20 text-brand-cyan text-xs rounded font-bold">NEW</span>
+                </div>
+                <p className="text-slate-400 mb-6">
+                  Convert 50-page manuals into 5-minute micro-modules, auto-contextualized for local teachers.
+                </p>
+                <Button
+                  onClick={() => navigate('/content-transformer')}
+                  className="w-full bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold"
+                >
+                  Transform Content
+                </Button>
+              </div>
+
               {/* Heatmap Card */}
               <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-purple/50 transition-all group">
                 <div className="w-12 h-12 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
