@@ -1,73 +1,127 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Check, X, Flame, ArrowRight } from "lucide-react";
+import { ArrowLeft, Flame, X, Check, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { analyzeDemand } from "@/lib/gemini";
 import { toast } from "sonner";
 import { CLUSTERS } from "@/data/mockData";
+import { CHALLENGES } from "@/data/agencyChallenges";
+import { TeacherProfileForm, SwipeCard, AggregationDashboard } from "@/components/agency";
+import type { TeacherProfile, SwipeRecord } from "@/types/agency";
 
-const CHALLENGES = [
-    { id: 1, text: "Students leave for harvest season", category: "attendance" },
-    { id: 2, text: "No electricity for digital aids", category: "infrastructure" },
-    { id: 3, text: "Multi-grade (Grades 1-5 in one room)", category: "management" },
-    { id: 4, text: "Parents don't attend meetings", category: "community" },
-    { id: 5, text: "Lack of Science Lab equipment", category: "resources" },
-    { id: 6, text: "Students struggling with English fluency", category: "learning" },
-];
+type Step = 'profile' | 'swiping' | 'analyzing' | 'results';
 
 const AgencyEngine = () => {
     const navigate = useNavigate();
+
+    // State
+    const [step, setStep] = useState<Step>('profile');
+    const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [selectedChallenges, setSelectedChallenges] = useState<string[]>([]);
-    const [isAnalyzing, setIsAnalyzing] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [swipeRecords, setSwipeRecords] = useState<SwipeRecord[]>([]);
+    const [result, setResult] = useState<{ recommendedModule: string; demandProfile: string } | null>(null);
 
-    // Card Stack Logic
-    const currentCard = CHALLENGES[currentIndex];
+    // Current challenge
+    const currentChallenge = CHALLENGES[currentIndex];
     const isFinished = currentIndex >= CHALLENGES.length;
+    const progress = (currentIndex / CHALLENGES.length) * 100;
 
-    const handleSwipe = (direction: "left" | "right") => {
-        if (direction === "right") {
-            setSelectedChallenges(prev => [...prev, currentCard.text]);
-            toast.info("Added to your challenges", { duration: 1000, icon: "👍" });
+    // Handler: Profile completed
+    const handleProfileComplete = (profile: TeacherProfile) => {
+        setTeacherProfile(profile);
+        setStep('swiping');
+        toast.success("Great! Now swipe on your challenges", { icon: "👆" });
+    };
+
+    // Handler: Swipe action
+    const handleSwipe = (direction: 'left' | 'right' | 'up') => {
+        if (!currentChallenge || !teacherProfile) return;
+
+        // Create swipe record
+        const record: SwipeRecord = {
+            challenge_id: currentChallenge.id,
+            challenge_text: currentChallenge.text,
+            swipe_direction: direction,
+            urgency_level: direction === 'up' ? 'high' : direction === 'right' ? 'medium' : 'low',
+            teacher_context: teacherProfile,
+            timestamp: new Date().toISOString(),
+        };
+
+        setSwipeRecords(prev => [...prev, record]);
+
+        // Show toast feedback
+        if (direction === 'right') {
+            toast.info("Added to your challenges", { duration: 800, icon: "👍" });
+        } else if (direction === 'up') {
+            toast.success("Marked as URGENT!", { duration: 800, icon: "🔥" });
         } else {
-            toast.info("Skipped", { duration: 1000, icon: "👎" });
+            toast.info("Skipped", { duration: 800, icon: "⏭️" });
         }
+
+        // Move to next challenge
         setCurrentIndex(prev => prev + 1);
     };
 
+    // Handler: Quick action buttons
+    const handleQuickSwipe = (direction: 'left' | 'right' | 'up') => {
+        handleSwipe(direction);
+    };
+
+    // Handler: Run analysis
     const runAnalysis = async () => {
-        if (selectedChallenges.length === 0) {
+        if (!teacherProfile) return;
+
+        const selectedRecords = swipeRecords.filter(r => r.swipe_direction !== 'left');
+        const urgentRecords = swipeRecords.filter(r => r.swipe_direction === 'up');
+
+        if (selectedRecords.length === 0) {
             toast.error("You didn't select any challenges! Try again.");
             setCurrentIndex(0);
+            setSwipeRecords([]);
             return;
         }
 
-        setIsAnalyzing(true);
+        setStep('analyzing');
+
         try {
-            const data = await analyzeDemand(selectedChallenges);
+            const data = await analyzeDemand({
+                selectedChallenges: selectedRecords.map(r => r.challenge_text),
+                urgentChallenges: urgentRecords.map(r => r.challenge_text),
+                teacherContext: teacherProfile,
+            });
             setResult(data);
+            setStep('results');
         } catch (e) {
-            toast.error("Analysis Failed");
-        } finally {
-            setIsAnalyzing(false);
+            toast.error("Analysis Failed. Please try again.");
+            setStep('swiping');
         }
     };
 
-    const handleGenerate = () => {
+    // Handler: Generate module
+    const handleGenerateModule = () => {
         if (result?.recommendedModule) {
             navigate('/module-generator', {
                 state: {
                     prefilledTopic: result.recommendedModule,
-                    clusterId: CLUSTERS[0].id
+                    clusterId: CLUSTERS[0].id,
                 }
             });
         }
     };
 
+    // Handler: Restart
+    const handleRestart = () => {
+        setStep('profile');
+        setTeacherProfile(null);
+        setCurrentIndex(0);
+        setSwipeRecords([]);
+        setResult(null);
+    };
+
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
+            {/* Background Pattern */}
             <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
 
             {/* Header */}
@@ -75,107 +129,170 @@ const AgencyEngine = () => {
                 <Button variant="ghost" onClick={() => navigate('/')}>
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
-                <div>
+                <div className="flex-1">
                     <h1 className="font-orbitron font-bold text-lg flex items-center gap-2 text-pink-500">
                         <Flame className="w-5 h-5" />
                         The Agency Engine
                     </h1>
                     <p className="text-xs text-slate-400">Demand-Driven Training</p>
                 </div>
-            </header>
 
-            <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
-
-                {!isFinished && !result && (
-                    <div className="max-w-md w-full text-center mb-8">
-                        <h2 className="text-2xl font-bold mb-2">What holds you back?</h2>
-                        <p className="text-slate-400">Swipe Right if you face this issue. Swipe Left if you don't.</p>
+                {/* Progress indicator during swiping */}
+                {step === 'swiping' && (
+                    <div className="text-right">
+                        <span className="text-sm text-slate-400">
+                            {currentIndex}/{CHALLENGES.length}
+                        </span>
+                        <div className="w-24 h-1 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                            <motion.div
+                                className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${progress}%` }}
+                            />
+                        </div>
                     </div>
                 )}
+            </header>
 
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
                 <AnimatePresence mode="wait">
-                    {!isFinished ? (
-                        <motion.div
-                            key={currentCard.id}
-                            initial={{ scale: 0.9, opacity: 0, y: 50 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 1.1, opacity: 0, x: 200 }} // Simple exit animation
-                            className="bg-slate-900 border border-white/10 w-full max-w-sm aspect-[3/4] rounded-3xl p-8 flex flex-col items-center justify-center shadow-2xl relative"
-                        >
-                            <span className="bg-white/5 text-slate-300 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4">
-                                {currentCard.category}
-                            </span>
-                            <h3 className="text-3xl font-bold text-center leading-tight mb-8">
-                                {currentCard.text}
-                            </h3>
 
-                            <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-12">
+                    {/* Step 1: Profile Form */}
+                    {step === 'profile' && (
+                        <motion.div
+                            key="profile"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 20 }}
+                        >
+                            <TeacherProfileForm onComplete={handleProfileComplete} />
+                        </motion.div>
+                    )}
+
+                    {/* Step 2: Swiping Cards */}
+                    {step === 'swiping' && !isFinished && (
+                        <motion.div
+                            key="swiping"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-full max-w-md"
+                        >
+                            {/* Instructions */}
+                            <div className="text-center mb-8">
+                                <h2 className="text-2xl font-bold mb-2">What holds you back?</h2>
+                                <p className="text-slate-400 text-sm">
+                                    Swipe <span className="text-emerald-400">RIGHT</span> if you face this •
+                                    <span className="text-red-400"> LEFT</span> to skip •
+                                    <span className="text-pink-400"> UP</span> if urgent
+                                </p>
+                            </div>
+
+                            {/* Card Stack */}
+                            <div className="relative w-full h-[380px]">
+                                <AnimatePresence>
+                                    {CHALLENGES.slice(currentIndex, currentIndex + 2).reverse().map((challenge, i, arr) => (
+                                        <SwipeCard
+                                            key={challenge.id}
+                                            challenge={challenge}
+                                            onSwipe={handleSwipe}
+                                            isTop={i === arr.length - 1}
+                                        />
+                                    ))}
+                                </AnimatePresence>
+                            </div>
+
+                            {/* Quick Action Buttons */}
+                            <div className="flex justify-center gap-6 mt-8">
                                 <Button
                                     size="lg"
-                                    className="rounded-full w-16 h-16 bg-slate-800 hover:bg-red-500/20 text-red-500 border-2 border-red-500/50 hover:border-red-500 transition-all"
-                                    onClick={() => handleSwipe("left")}
+                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-red-500/20 text-red-500 border-2 border-red-500/50 hover:border-red-500 transition-all"
+                                    onClick={() => handleQuickSwipe('left')}
                                 >
-                                    <X className="w-8 h-8" />
+                                    <X className="w-6 h-6" />
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-full w-16 h-16 bg-slate-800 hover:bg-green-500/20 text-green-500 border-2 border-green-500/50 hover:border-green-500 transition-all"
-                                    onClick={() => handleSwipe("right")}
+                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-pink-500/20 text-pink-500 border-2 border-pink-500/50 hover:border-pink-500 transition-all"
+                                    onClick={() => handleQuickSwipe('up')}
                                 >
-                                    <Check className="w-8 h-8" />
+                                    <ChevronUp className="w-6 h-6" />
+                                </Button>
+                                <Button
+                                    size="lg"
+                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-emerald-500/20 text-emerald-500 border-2 border-emerald-500/50 hover:border-emerald-500 transition-all"
+                                    onClick={() => handleQuickSwipe('right')}
+                                >
+                                    <Check className="w-6 h-6" />
                                 </Button>
                             </div>
                         </motion.div>
-                    ) : !result ? (
-                        <div className="text-center space-y-6">
-                            <h2 className="text-2xl font-bold">All Done!</h2>
-                            <p className="text-slate-400">You identified {selectedChallenges.length} specific challenges.</p>
-                            <Button
-                                onClick={runAnalysis}
-                                disabled={isAnalyzing}
-                                className="bg-pink-500 hover:bg-pink-600 text-white font-bold h-14 px-8 rounded-full text-lg shadow-lg shadow-pink-500/20"
-                            >
-                                {isAnalyzing ? "Analyzing Demand..." : "Find My Training Solution"}
-                            </Button>
-                        </div>
-                    ) : (
+                    )}
+
+                    {/* Step 2b: Swiping Complete */}
+                    {step === 'swiping' && isFinished && (
                         <motion.div
+                            key="complete"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/30 p-8 rounded-3xl max-w-lg w-full relative"
+                            className="text-center space-y-6"
                         >
-                            <div className="absolute top-0 right-0 p-4 opacity-20">
-                                <Flame className="w-24 h-24 text-pink-500" />
+                            <div className="w-20 h-20 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Flame className="w-10 h-10 text-pink-500" />
                             </div>
-                            <h3 className="text-pink-400 font-mono text-xs uppercase tracking-widest mb-2">Demand Profile Match</h3>
-                            <h2 className="text-3xl font-bold text-white mb-4">
-                                {result.recommendedModule}
-                            </h2>
-                            <p className="text-slate-300 text-lg mb-8 italic">
-                                "{result.demandProfile}"
+                            <h2 className="text-2xl font-bold">All Done!</h2>
+                            <p className="text-slate-400">
+                                You identified <span className="text-pink-400 font-bold">
+                                    {swipeRecords.filter(r => r.swipe_direction !== 'left').length}
+                                </span> challenges
+                                {swipeRecords.filter(r => r.swipe_direction === 'up').length > 0 && (
+                                    <>, including <span className="text-pink-500 font-bold">
+                                        {swipeRecords.filter(r => r.swipe_direction === 'up').length}
+                                    </span> urgent ones</>
+                                )}
                             </p>
-
-                            <div className="bg-black/30 p-4 rounded-xl mb-6">
-                                <h4 className="text-xs text-slate-500 uppercase tracking-wider mb-2">Addressing your needs:</h4>
-                                <ul className="text-sm text-slate-300 space-y-1">
-                                    {selectedChallenges.map((c, i) => (
-                                        <li key={i} className="flex items-start gap-2">
-                                            <Check className="w-4 h-4 text-green-500 mt-0.5" /> {c}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
                             <Button
-                                onClick={handleGenerate}
-                                className="w-full bg-white text-pink-600 hover:bg-pink-50 font-bold h-14 text-lg"
+                                onClick={runAnalysis}
+                                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold h-14 px-8 rounded-full text-lg shadow-lg shadow-pink-500/20"
                             >
-                                Generate Module Now <ArrowRight className="w-5 h-5 ml-2" />
+                                Find My Training Solution
                             </Button>
                         </motion.div>
                     )}
-                </AnimatePresence>
 
+                    {/* Step 3: Analyzing */}
+                    {step === 'analyzing' && (
+                        <motion.div
+                            key="analyzing"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center"
+                        >
+                            <div className="w-20 h-20 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin mx-auto mb-6" />
+                            <h2 className="text-xl font-bold mb-2">Analyzing Your Needs...</h2>
+                            <p className="text-slate-400 text-sm">AI is matching your demands to the best training</p>
+                        </motion.div>
+                    )}
+
+                    {/* Step 4: Results */}
+                    {step === 'results' && result && (
+                        <motion.div
+                            key="results"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                        >
+                            <AggregationDashboard
+                                swipeRecords={swipeRecords}
+                                recommendedModule={result.recommendedModule}
+                                demandProfile={result.demandProfile}
+                                onGenerateModule={handleGenerateModule}
+                                onRestart={handleRestart}
+                            />
+                        </motion.div>
+                    )}
+
+                </AnimatePresence>
             </main>
         </div>
     );

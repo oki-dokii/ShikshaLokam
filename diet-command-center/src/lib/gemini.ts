@@ -229,31 +229,62 @@ export const generateTrainingModule = async (topic: string, context: any, localC
     } catch (error) {
         console.error("Gemini Generation Error:", error);
 
-        // Fallback Mock for Demo Stability
+        // Comprehensive Fallback Module for Demo Stability
         console.warn("Falling back to simulated module due to API error.");
         return {
             title: `Contextualized Module: ${topic}`,
-            duration: "15 mins (Simulated - API Error)",
-            objective: `To address ${context.primaryIssue} using locally available resources.`,
+            duration: "15 mins",
+            objective: `To address ${context.primaryIssue} using locally available resources and evidence-based strategies tailored for ${context.type} school environments.`,
             isMock: true,
             content: [
                 {
                     type: "concept",
                     title: "Understanding the Core Issue",
-                    body: `Specifically in ${context.name}, we observe that ${context.primaryIssue} is affecting learning outcomes. This module focuses on root cause mitigation.`
+                    body: `In ${context.name || 'your cluster'}, ${context.primaryIssue} is a significant challenge affecting learning outcomes. Research shows that this issue often stems from multiple interconnected factors including economic pressures, social dynamics, and infrastructure limitations. Understanding these root causes is essential before we can design effective interventions.\n\nKey insight: The most successful teachers in similar contexts have found that addressing this issue requires both immediate classroom strategies AND longer-term community engagement. Let's explore both approaches in this module.`
+                },
+                {
+                    type: "concept",
+                    title: "Evidence-Based Strategies",
+                    body: `Three proven strategies for addressing ${context.primaryIssue}:\n\n1. **Relationship Building**: Start each class with a 2-minute "check-in" where students share one thing about their day. This builds trust and helps identify students at risk.\n\n2. **Flexible Learning Paths**: Create "catch-up cards" - simple one-page summaries of key concepts that absent students can complete independently.\n\n3. **Peer Support System**: Assign "study buddies" - pairs of students who help each other when one is absent or struggling. This reduces your workload while building student responsibility.`
                 },
                 {
                     type: "activity",
-                    title: "Community-Driven Solution",
-                    body: `Engage with parents using the '${context.language}' dialect to build trust. Create a simple feedback loop using WhatsApp or local meetings.`
+                    title: "Community Engagement Exercise",
+                    body: `This week, try the "Parent Postcard" activity:\n\n**Materials needed**: Paper, pencil (no special materials required)\n\n**Steps**:\n1. Have each student write a short postcard to their parent describing ONE thing they learned this week\n2. Students take the postcard home and ask parents to sign it\n3. Next class, students share what their parents said\n\n**Why this works**: It creates a low-barrier communication channel with parents using the ${context.language || 'local'} language, making them feel included in their child's education without requiring them to come to school.\n\n**Adaptation for your context**: If parents cannot read, students can draw a picture instead and explain it verbally at home.`
+                },
+                {
+                    type: "activity",
+                    title: "Classroom Intervention Technique",
+                    body: `Try the "Success Jar" technique:\n\n**Setup (5 minutes, one time)**:\n1. Find any empty container (bottle, box, tin)\n2. Label it "Our Class Successes"\n3. Cut small pieces of paper\n\n**Daily practice (2 minutes)**:\n1. At the end of each class, ask: "What went well today?"\n2. Write ONE student-suggested success on a paper slip\n3. Add it to the jar together\n\n**Weekly celebration (5 minutes)**:\n1. Every Friday, read 3-4 slips from the jar\n2. Discuss what made these moments successful\n\n**Impact**: This builds positive classroom culture, increases student engagement, and provides YOU with evidence of what works for future planning.`
+                },
+                {
+                    type: "concept",
+                    title: "Monitoring Progress",
+                    body: `Simple tracking without extra paperwork:\n\n**The Traffic Light System**:\n- Keep a class list on one page\n- Each week, mark students: 🟢 (on track) 🟡 (needs attention) 🔴 (urgent support needed)\n- Focus your energy on 🔴 and 🟡 students\n\n**The 3-Minute Observation**:\n- Pick 3 different students each day to observe closely\n- Notice: Are they engaged? Struggling? Helping others?\n- Jot one word about each in your register margin\n\nThese micro-observations, done consistently, give you better insight than formal assessments.`
                 },
                 {
                     type: "assessment",
-                    title: "Knowledge Check",
-                    questions: ["How does local context impact this issue?", "Name one immediate strategy you can apply."]
+                    title: "Knowledge Check & Reflection",
+                    questions: [
+                        "What are the three evidence-based strategies mentioned for addressing the core issue?",
+                        "How would you adapt the 'Parent Postcard' activity for parents who cannot read?",
+                        "Name one low-resource intervention you can implement in your classroom THIS WEEK.",
+                        "How does the 'Success Jar' technique help both students AND teachers?",
+                        "Which color in the Traffic Light System indicates a student needs urgent support?"
+                    ]
+                },
+                {
+                    type: "concept",
+                    title: "Your Action Plan",
+                    body: `Before you finish this module, commit to ONE action:\n\n**Choose one from below**:\n□ I will try the "Parent Postcard" activity this week\n□ I will set up a "Success Jar" in my classroom\n□ I will implement the "Study Buddy" system with my class\n□ I will start the Traffic Light tracking system\n\n**My chosen action**: ____________________\n\n**I will start on (date)**: ____________________\n\n**I will know it's working when**: ____________________\n\nRemember: Start small. One consistent action is better than many abandoned plans. You can always add more strategies once the first one becomes a habit.`
                 }
             ],
-            resources: ["State Framework 2024", "Cluster-Specific Case Studies"]
+            resources: [
+                "State Education Framework 2024 - Chapter on Classroom Management",
+                "NCERT Guidelines for Addressing Student Engagement",
+                "Cluster Resource Center - Regional Case Studies",
+                "WhatsApp Teacher Support Group (Contact your BRC coordinator)"
+            ]
         };
     }
 };
@@ -570,22 +601,60 @@ export const predictTrainingNeed = async (metrics: { attendance: string, scores:
     }
 };
 
-export const analyzeDemand = async (selectedChallenges: string[]) => {
-    const prompt = `
-    You are a Demand-Driven Training Architect.
-    A teacher has swiped "YES" on the following classroom challenges:
-    
-    ${selectedChallenges.map(c => `- ${c}`).join('\n')}
+export interface DemandAnalysisInput {
+    selectedChallenges: string[];
+    urgentChallenges: string[];
+    teacherContext?: {
+        region: string;
+        schoolType: string;
+        language: string;
+        grade: string;
+        subject: string;
+    };
+}
 
+export const analyzeDemand = async (input: DemandAnalysisInput | string[]) => {
+    // Handle legacy call format (just array of challenges)
+    const data: DemandAnalysisInput = Array.isArray(input)
+        ? { selectedChallenges: input, urgentChallenges: [] }
+        : input;
+
+    const { selectedChallenges, urgentChallenges, teacherContext } = data;
+
+    const contextBlock = teacherContext ? `
+    **Teacher Profile:**
+    - Region: ${teacherContext.region}
+    - School Type: ${teacherContext.schoolType}
+    - Medium of Instruction: ${teacherContext.language}
+    - Grade Level: ${teacherContext.grade}
+    - Subject: ${teacherContext.subject}
+    ` : '';
+
+    const urgencyBlock = urgentChallenges.length > 0 ? `
+    **URGENT Challenges (Teacher marked as critical):**
+    ${urgentChallenges.map(c => `- 🔥 ${c}`).join('\n')}
+    ` : '';
+
+    const prompt = `
+    You are a Demand-Driven Training Architect for Indian government schools.
+    
+    A teacher has swiped on classroom challenges to express their needs.
+    ${contextBlock}
+    
+    **Selected Challenges:**
+    ${selectedChallenges.map(c => `- ${c}`).join('\n')}
+    ${urgencyBlock}
+    
     **Task:**
-    1. Analyze the intersection of these specific challenges.
-    2. Recommend ONE high-impact training module name that solves them simultaneously.
-    3. Generate a 1-sentence "Demand Profile" description of this teacher's context.
+    1. Analyze the intersection of these specific challenges considering the teacher's context.
+    2. Recommend ONE high-impact training module name that addresses the most critical needs.
+    3. Generate a 1-sentence "Demand Profile" description capturing this teacher's unique situation.
+    4. If there are urgent challenges, prioritize addressing those in your recommendation.
 
     **Strict Output Format (JSON ONLY):**
     {
-        "recommendedModule": "Classroom Management in Multi-Grade Settings",
-        "demandProfile": "Teacher dealing with resource scarcity and diverse learner groups."
+        "recommendedModule": "Module Name Here",
+        "demandProfile": "Brief description of teacher's context and needs."
     }
     `;
 
