@@ -1,0 +1,22 @@
+{
+    "name": "diet-telegram-bot",
+    "version": "1.0.0",
+    "description": "Frustration-to-Breakthrough Bot for DIET Teachers via Telegram",
+    "main": "bot.js",
+    "scripts": {
+        "start": "node bot.js",
+        "dev": "node bot.js"
+    },
+    "dependencies": {
+        "node-telegram-bot-api": "^0.64.0",
+        "@google/generative-ai": "^0.21.0",
+        "dotenv": "^16.3.1"
+    },
+    "keywords": [
+        "telegram",
+        "bot",
+        "education",
+        "teachers"
+    ],
+    "author": "DIET Command Center"
+}
