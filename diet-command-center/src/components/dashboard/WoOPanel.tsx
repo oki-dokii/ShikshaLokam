@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Bell, PlayCircle, Clock, AlertTriangle, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button'; // Assuming shadcn button exists
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { triggerData, Trigger } from '@/data/triggerData';
 
 interface WoOPanelProps {
@@ -45,6 +47,7 @@ export const WoOPanel: React.FC<WoOPanelProps> = ({ clusterId, glowColor }) => {
                     <TriggerCard
                         key={trigger.id}
                         trigger={trigger}
+                        clusterId={clusterId}
                         glowClass={glowClasses[glowColor]}
                         borderClass={borderClasses[glowColor]}
                         textClass={textClasses[glowColor]}
@@ -58,13 +61,37 @@ export const WoOPanel: React.FC<WoOPanelProps> = ({ clusterId, glowColor }) => {
 
 interface TriggerCardProps {
     trigger: Trigger;
+    clusterId: string;
     glowClass: string;
     borderClass: string;
     textClass: string;
     delay: number;
 }
 
-const TriggerCard: React.FC<TriggerCardProps> = ({ trigger, glowClass, borderClass, textClass, delay }) => {
+const TriggerCard: React.FC<TriggerCardProps> = ({ trigger, clusterId, glowClass, borderClass, textClass, delay }) => {
+    const navigate = useNavigate();
+    const { toast } = useToast();
+
+    const handleDeployModule = () => {
+        toast({
+            title: "🚀 Deploying Module",
+            description: `"${trigger.recommendedModule.title}" is being prepared for ${trigger.affectedSchools} schools...`,
+        });
+
+        // Navigate to module generator with pre-filled context including clusterId
+        // ClusterDashboard uses short IDs (a, b, c) but mockData expects cluster-a, cluster-b format
+        setTimeout(() => {
+            navigate('/module-generator', {
+                state: {
+                    clusterId: `cluster-${clusterId}`,
+                    prefilledTopic: trigger.recommendedModule.title,
+                    context: `Intervention for: ${trigger.message}`,
+                    targetSchools: trigger.affectedSchools
+                }
+            });
+        }, 1500);
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -101,7 +128,11 @@ const TriggerCard: React.FC<TriggerCardProps> = ({ trigger, glowClass, borderCla
                         </div>
                     </div>
                 </div>
-                <Button size="sm" className={`w-full ${textClass} bg-white/5 hover:bg-white/10 border-white/10 hover:border-${textClass}`}>
+                <Button
+                    size="sm"
+                    onClick={handleDeployModule}
+                    className={`w-full ${textClass} bg-white/5 hover:bg-white/10 border-white/10 hover:scale-105 transition-transform cursor-pointer`}
+                >
                     <PlayCircle className="w-4 h-4 mr-2" />
                     Deploy Module
                 </Button>
