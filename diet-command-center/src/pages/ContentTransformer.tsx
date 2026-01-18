@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Sparkles, Loader2, BookOpen, Lightbulb, Target, HelpCircle, FileText, Globe } from "lucide-react";
+import {
+    ArrowLeft, Sparkles, Loader2, BookOpen, Lightbulb, Target,
+    HelpCircle, FileText, Globe, Layers, Zap, Upload
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
     transformManualContent,
+    generateCourseModules,
     MicroModuleOutput
 } from "@/lib/gemini";
 import {
@@ -19,34 +23,56 @@ import {
     LocalContext
 } from "@/data/trainingManuals";
 import { SUPPORTED_LANGUAGES, INDIAN_LANGUAGES } from "@/lib/translate";
+import type { GeneratedCourse, CourseModule } from "@/types/courseTypes";
+import FileUploader from "@/components/content/FileUploader";
+import CourseOutline from "@/components/content/CourseOutline";
+import ModuleViewer from "@/components/content/ModuleViewer";
+
+type TransformMode = 'quick' | 'course';
 
 const ContentTransformer = () => {
     const navigate = useNavigate();
+
+    // Transform mode
+    const [mode, setMode] = useState<TransformMode>('course');
 
     // Source content state
     const [selectedManual, setSelectedManual] = useState<ManualChunk | null>(null);
     const [customContent, setCustomContent] = useState("");
     const [useCustomContent, setUseCustomContent] = useState(false);
+    const [uploadedFileName, setUploadedFileName] = useState("");
 
     // Teacher profile state
     const [region, setRegion] = useState("rural-chhattisgarh");
     const [schoolType, setSchoolType] = useState(SCHOOL_TYPES[0]);
-    const [languageCode, setLanguageCode] = useState("en"); // Language code for translation
+    const [languageCode, setLanguageCode] = useState("en");
     const [grade, setGrade] = useState(GRADE_LEVELS[1]);
     const [subject, setSubject] = useState(SUBJECTS[6]);
-    const [showAllLanguages, setShowAllLanguages] = useState(false); // Toggle for showing all languages
+    const [showAllLanguages, setShowAllLanguages] = useState(false);
+    const [numberOfModules, setNumberOfModules] = useState(6);
 
     // Output state
     const [isTransforming, setIsTransforming] = useState(false);
     const [microModule, setMicroModule] = useState<MicroModuleOutput | null>(null);
 
+    // Course builder state
+    const [generatedCourse, setGeneratedCourse] = useState<GeneratedCourse | null>(null);
+    const [activeModuleIndex, setActiveModuleIndex] = useState(0);
+
     const getLocalContext = (): LocalContext => {
         return REGION_CONTEXTS[region] || REGION_CONTEXTS["default"];
     };
 
-    const handleTransform = async () => {
+    const handleFileContentExtracted = (content: string, fileName: string) => {
+        setCustomContent(content);
+        setUploadedFileName(fileName);
+        setUseCustomContent(true);
+        toast.success(`Content extracted from ${fileName}`);
+    };
+
+    const handleQuickTransform = async () => {
         const sourceContent = useCustomContent ? customContent : selectedManual?.content;
-        const sourceTitle = useCustomContent ? "Custom Content" : selectedManual?.title || "";
+        const sourceTitle = useCustomContent ? (uploadedFileName || "Custom Content") : selectedManual?.title || "";
 
         if (!sourceContent || sourceContent.trim().length < 50) {
             toast.error("Please select a training manual or enter source content (at least 50 characters).");
@@ -75,7 +101,7 @@ const ContentTransformer = () => {
                     subject: subject
                 },
                 getLocalContext(),
-                languageCode // Pass the language code for translation
+                languageCode
             );
 
             setMicroModule(result);
@@ -88,11 +114,118 @@ const ContentTransformer = () => {
         }
     };
 
+    const handleCourseGeneration = async () => {
+        const sourceContent = useCustomContent ? customContent : selectedManual?.content;
+
+        if (!sourceContent || sourceContent.trim().length < 100) {
+            toast.error("Please upload or paste course content (at least 100 characters).");
+            return;
+        }
+
+        const selectedLang = SUPPORTED_LANGUAGES.find(l => l.code === languageCode);
+        const languageName = selectedLang ? selectedLang.name : 'English';
+
+        setIsTransforming(true);
+        toast.info(`Generating ${numberOfModules} micro-modules with AI...`);
+
+        try {
+            const course = await generateCourseModules({
+                content: sourceContent,
+                title: uploadedFileName || selectedManual?.title,
+                subject: subject,
+                gradeLevel: grade,
+                numberOfModules: numberOfModules,
+                language: languageName,
+                region: region
+            });
+
+            setGeneratedCourse(course);
+            setActiveModuleIndex(0);
+            toast.success(`Course generated with ${course.modules.length} modules!`);
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to generate course. Please try again.");
+        } finally {
+            setIsTransforming(false);
+        }
+    };
+
+    const handleModuleComplete = () => {
+        if (!generatedCourse) return;
+
+        const updatedModules = [...generatedCourse.modules];
+        updatedModules[activeModuleIndex] = {
+            ...updatedModules[activeModuleIndex],
+            isCompleted: true
+        };
+
+        setGeneratedCourse({
+            ...generatedCourse,
+            modules: updatedModules
+        });
+    };
+
     const resetForm = () => {
         setMicroModule(null);
+        setGeneratedCourse(null);
         setSelectedManual(null);
         setCustomContent("");
+        setUploadedFileName("");
+        setActiveModuleIndex(0);
     };
+
+    // Course Builder View
+    if (generatedCourse) {
+        return (
+            <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
+                <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+
+                {/* Header */}
+                <header className="flex items-center gap-4 p-4 border-b border-white/10 relative z-10 bg-slate-900/80 backdrop-blur">
+                    <Button variant="ghost" onClick={resetForm} className="text-slate-400 hover:text-white">
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        New Course
+                    </Button>
+                    <div className="flex-1">
+                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
+                            <Layers className="w-5 h-5 text-brand-cyan" />
+                            {generatedCourse.title}
+                        </h1>
+                        <p className="text-xs text-slate-400">{generatedCourse.description}</p>
+                    </div>
+                </header>
+
+                {/* Main Content - Course View */}
+                <div className="flex h-[calc(100vh-73px)] relative z-10">
+                    {/* Left Sidebar - Course Outline */}
+                    <div className="w-80 flex-shrink-0 border-r border-white/10 p-4 overflow-hidden">
+                        <CourseOutline
+                            course={generatedCourse}
+                            activeModuleIndex={activeModuleIndex}
+                            onSelectModule={setActiveModuleIndex}
+                        />
+                    </div>
+
+                    {/* Main Content - Module Viewer */}
+                    <div className="flex-1 p-6 overflow-y-auto">
+                        <AnimatePresence mode="wait">
+                            <ModuleViewer
+                                key={generatedCourse.modules[activeModuleIndex].id}
+                                module={generatedCourse.modules[activeModuleIndex]}
+                                onComplete={handleModuleComplete}
+                                onNext={() => setActiveModuleIndex(prev => Math.min(prev + 1, generatedCourse.modules.length - 1))}
+                                onPrevious={() => setActiveModuleIndex(prev => Math.max(prev - 1, 0))}
+                                hasNext={activeModuleIndex < generatedCourse.modules.length - 1}
+                                hasPrevious={activeModuleIndex > 0}
+                                currentIndex={activeModuleIndex}
+                                totalModules={generatedCourse.modules.length}
+                            />
+                        </AnimatePresence>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
@@ -109,9 +242,38 @@ const ContentTransformer = () => {
                         <Sparkles className="w-6 h-6 text-brand-cyan" />
                         Apposite Content Transformer
                     </h1>
-                    <p className="text-sm text-slate-400">Convert training manuals into 5-minute micro-modules</p>
+                    <p className="text-sm text-slate-400">
+                        {mode === 'quick'
+                            ? 'Convert training manuals into 5-minute micro-modules'
+                            : 'Create Udemy-style courses with AI-generated visualizations'}
+                    </p>
                 </div>
             </header>
+
+            {/* Mode Toggle */}
+            <div className="flex gap-2 mb-8 relative z-10">
+                <button
+                    onClick={() => setMode('course')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'course'
+                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                >
+                    <Layers className="w-5 h-5" />
+                    Course Builder
+                    <span className="text-xs px-2 py-0.5 bg-white/20 rounded">NEW</span>
+                </button>
+                <button
+                    onClick={() => setMode('quick')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'quick'
+                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
+                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                >
+                    <Zap className="w-5 h-5" />
+                    Quick Transform
+                </button>
+            </div>
 
             <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
 
@@ -122,70 +284,109 @@ const ContentTransformer = () => {
                     <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6">
                         <h2 className="text-lg font-bold mb-4 text-cyan-400 flex items-center gap-2">
                             <FileText className="w-5 h-5" />
-                            Source Training Content
+                            {mode === 'course' ? 'Upload Course Content' : 'Source Training Content'}
                         </h2>
 
-                        {/* Toggle between sample and custom */}
-                        <div className="flex gap-2 mb-4">
-                            <button
-                                onClick={() => setUseCustomContent(false)}
-                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${!useCustomContent
-                                    ? 'bg-brand-cyan text-brand-dark'
-                                    : 'bg-slate-800 text-slate-400 hover:text-white'
-                                    }`}
-                            >
-                                Sample Manuals
-                            </button>
-                            <button
-                                onClick={() => setUseCustomContent(true)}
-                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${useCustomContent
-                                    ? 'bg-brand-cyan text-brand-dark'
-                                    : 'bg-slate-800 text-slate-400 hover:text-white'
-                                    }`}
-                            >
-                                Paste Custom Content
-                            </button>
-                        </div>
+                        {mode === 'course' ? (
+                            /* Course Builder - File Upload */
+                            <div className="space-y-4">
+                                <FileUploader
+                                    onContentExtracted={handleFileContentExtracted}
+                                    isProcessing={isTransforming}
+                                />
 
-                        {!useCustomContent ? (
-                            <div className="space-y-2">
-                                <label className="text-sm text-slate-400">Select from sample training manuals:</label>
-                                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                                    {SAMPLE_MANUALS.map((manual) => (
-                                        <div
-                                            key={manual.id}
-                                            onClick={() => setSelectedManual(manual)}
-                                            className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedManual?.id === manual.id
-                                                ? 'border-brand-cyan bg-brand-cyan/10'
-                                                : 'border-white/10 bg-slate-800/50 hover:border-white/30'
-                                                }`}
-                                        >
-                                            <h4 className="font-medium text-white text-sm">{manual.title}</h4>
-                                            <p className="text-xs text-slate-500 mt-1">{manual.source}</p>
-                                            <div className="flex gap-1 mt-2">
-                                                {manual.topics.slice(0, 2).map(topic => (
-                                                    <span key={topic} className="text-xs px-2 py-0.5 bg-slate-700 rounded text-slate-400">
-                                                        {topic}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                {selectedManual && (
-                                    <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
-                                        <p className="text-xs text-slate-400 mb-1">Preview:</p>
-                                        <p className="text-sm text-slate-300 line-clamp-3">{selectedManual.content.substring(0, 200)}...</p>
+                                {/* Or paste content */}
+                                <div className="relative">
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-white/10"></div>
                                     </div>
+                                    <div className="relative flex justify-center">
+                                        <span className="px-3 bg-slate-900 text-slate-500 text-sm">or paste content</span>
+                                    </div>
+                                </div>
+
+                                <Textarea
+                                    placeholder="Paste your syllabus, course outline, or teaching content here... (minimum 100 characters)"
+                                    value={customContent}
+                                    onChange={(e) => {
+                                        setCustomContent(e.target.value);
+                                        setUseCustomContent(true);
+                                    }}
+                                    className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-32"
+                                />
+
+                                {customContent && (
+                                    <p className="text-xs text-slate-500">
+                                        {customContent.length} characters • Ready to generate
+                                    </p>
                                 )}
                             </div>
                         ) : (
-                            <Textarea
-                                placeholder="Paste your training manual content here... (minimum 50 characters)"
-                                value={customContent}
-                                onChange={(e) => setCustomContent(e.target.value)}
-                                className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-48"
-                            />
+                            /* Quick Transform - Sample Manuals */
+                            <>
+                                {/* Toggle between sample and custom */}
+                                <div className="flex gap-2 mb-4">
+                                    <button
+                                        onClick={() => setUseCustomContent(false)}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${!useCustomContent
+                                            ? 'bg-brand-cyan text-brand-dark'
+                                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                                            }`}
+                                    >
+                                        Sample Manuals
+                                    </button>
+                                    <button
+                                        onClick={() => setUseCustomContent(true)}
+                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${useCustomContent
+                                            ? 'bg-brand-cyan text-brand-dark'
+                                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                                            }`}
+                                    >
+                                        Paste Custom Content
+                                    </button>
+                                </div>
+
+                                {!useCustomContent ? (
+                                    <div className="space-y-2">
+                                        <label className="text-sm text-slate-400">Select from sample training manuals:</label>
+                                        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                            {SAMPLE_MANUALS.map((manual) => (
+                                                <div
+                                                    key={manual.id}
+                                                    onClick={() => setSelectedManual(manual)}
+                                                    className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedManual?.id === manual.id
+                                                        ? 'border-brand-cyan bg-brand-cyan/10'
+                                                        : 'border-white/10 bg-slate-800/50 hover:border-white/30'
+                                                        }`}
+                                                >
+                                                    <h4 className="font-medium text-white text-sm">{manual.title}</h4>
+                                                    <p className="text-xs text-slate-500 mt-1">{manual.source}</p>
+                                                    <div className="flex gap-1 mt-2">
+                                                        {manual.topics.slice(0, 2).map(topic => (
+                                                            <span key={topic} className="text-xs px-2 py-0.5 bg-slate-700 rounded text-slate-400">
+                                                                {topic}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {selectedManual && (
+                                            <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
+                                                <p className="text-xs text-slate-400 mb-1">Preview:</p>
+                                                <p className="text-sm text-slate-300 line-clamp-3">{selectedManual.content.substring(0, 200)}...</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <Textarea
+                                        placeholder="Paste your training manual content here... (minimum 50 characters)"
+                                        value={customContent}
+                                        onChange={(e) => setCustomContent(e.target.value)}
+                                        className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-48"
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
 
@@ -276,7 +477,7 @@ const ContentTransformer = () => {
                                 </select>
                             </div>
 
-                            <div className="col-span-2">
+                            <div>
                                 <label className="text-sm text-slate-400 block mb-1">Subject</label>
                                 <select
                                     value={subject}
@@ -288,6 +489,30 @@ const ContentTransformer = () => {
                                     ))}
                                 </select>
                             </div>
+
+                            {/* Number of Modules (Course Builder Only) */}
+                            {mode === 'course' && (
+                                <div className="col-span-2">
+                                    <label className="text-sm text-slate-400 block mb-1 flex items-center gap-2">
+                                        <Layers className="w-4 h-4" />
+                                        Number of Modules
+                                    </label>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="range"
+                                            min="3"
+                                            max="30"
+                                            value={numberOfModules}
+                                            onChange={(e) => setNumberOfModules(Number(e.target.value))}
+                                            className="flex-1 accent-brand-cyan"
+                                        />
+                                        <span className="text-lg font-bold text-brand-cyan w-8">{numberOfModules}</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 mt-1">
+                                        Estimated duration: ~{numberOfModules * 7} minutes
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Local Context Preview */}
@@ -306,19 +531,28 @@ const ContentTransformer = () => {
                     {/* Transform Button */}
                     {!microModule && (
                         <Button
-                            onClick={handleTransform}
-                            disabled={isTransforming || (!selectedManual && !customContent)}
+                            onClick={mode === 'course' ? handleCourseGeneration : handleQuickTransform}
+                            disabled={isTransforming || (!selectedManual && !customContent.trim())}
                             className="w-full h-14 text-lg bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold relative overflow-hidden disabled:opacity-50"
                         >
                             {isTransforming ? (
                                 <div className="flex items-center gap-2">
                                     <Loader2 className="w-6 h-6 animate-spin" />
-                                    Transforming Content...
+                                    {mode === 'course' ? 'Generating Course Modules...' : 'Transforming Content...'}
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">
-                                    <Sparkles className="w-6 h-6" />
-                                    Transform to 5-Minute Micro-Module
+                                    {mode === 'course' ? (
+                                        <>
+                                            <Layers className="w-6 h-6" />
+                                            Generate {numberOfModules} Micro-Modules
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-6 h-6" />
+                                            Transform to 5-Minute Micro-Module
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </Button>
@@ -422,30 +656,61 @@ const ContentTransformer = () => {
                                 exit={{ opacity: 0 }}
                                 className="h-full flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-2xl p-12 text-center text-slate-500"
                             >
-                                <Sparkles className="w-16 h-16 mb-4 opacity-20" />
-                                <h3 className="text-xl font-medium mb-2">Ready to Transform</h3>
-                                <p className="max-w-md">
-                                    Select a training manual, configure the teacher profile, and click transform.
-                                    The AI will create a practical 5-minute micro-module adapted to the local context.
-                                </p>
-                                <div className="mt-6 flex items-center gap-4 text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-                                        <span>Core Idea</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                        <span>Example</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                                        <span>Action</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                                        <span>Reflection</span>
-                                    </div>
-                                </div>
+                                {mode === 'course' ? (
+                                    <>
+                                        <Layers className="w-16 h-16 mb-4 opacity-20" />
+                                        <h3 className="text-xl font-medium mb-2">Course Builder Ready</h3>
+                                        <p className="max-w-md">
+                                            Upload your syllabus or course content. AI will create
+                                            Udemy-style micro-modules with visualizations for each topic.
+                                        </p>
+                                        <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
+                                                <span>Structured Modules</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                                <span>Visual Diagrams</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                                                <span>Quiz Questions</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                                                <span>Progress Tracking</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="w-16 h-16 mb-4 opacity-20" />
+                                        <h3 className="text-xl font-medium mb-2">Ready to Transform</h3>
+                                        <p className="max-w-md">
+                                            Select a training manual, configure the teacher profile, and click transform.
+                                            The AI will create a practical 5-minute micro-module adapted to the local context.
+                                        </p>
+                                        <div className="mt-6 flex items-center gap-4 text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
+                                                <span>Core Idea</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                                                <span>Example</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                                                <span>Action</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                                                <span>Reflection</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </motion.div>
                         )}
                     </AnimatePresence>

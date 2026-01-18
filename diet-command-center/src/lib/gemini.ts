@@ -4,71 +4,125 @@ import { translateText, getLanguageCode } from "./translate";
 const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const RAPIDAPI_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
-// Fallback Key provided by user
-const GOOGLE_API_KEY_FALLBACK = "AIzaSyB7ZVtt36jp6jP-1UDqFBvj48tqIpaB55A";
+// Groq API Key (Primary and Only)
+const GROQ_API_KEY = "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";
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
+// Fallback Key (not used but kept for compatibility)
+const GOOGLE_API_KEY_FALLBACK = "AIzaSyB7ZVtt36jp6jP-1UDqFBvj48tqIpaB55A";
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY_FALLBACK);
 
-async function callGeminiProxy(contents: any[], systemInstruction?: string) {
-    // 1. Try RapidAPI Proxy First
-    if (RAPIDAPI_KEY && RAPIDAPI_HOST) {
+// Call Groq API
+async function callGroqAPI(prompt: string, base64Image?: string): Promise<string> {
+    const visionModels = [
+        "llama-3.2-11b-vision",
+        "llama-3.2-90b-vision",
+        "meta-llama/llama-4-scout-17b-16e-instruct",
+        "llava-v1.5-7b"
+    ];
+
+    const textModel = "llama-3.3-70b-versatile"; // Use 70b as primary, often better limits/precision
+    const backupTextModel = "llama-3.1-8b-instant";
+
+    // Initial model choice
+    let model = base64Image ? visionModels[0] : textModel;
+
+    let lastError: any = null;
+    const maxRetries = 3;
+
+    for (let i = 0; i < maxRetries; i++) {
+        console.log(`Calling Groq API with ${model} (Attempt ${i + 1})...`);
+
         try {
-            const body: any = { contents: contents };
-            const response = await fetch(`https://${RAPIDAPI_HOST}/`, {
+            const content: any[] = [{ type: "text", text: prompt }];
+            if (base64Image) {
+                const imageUrl = base64Image.startsWith('data:') ? base64Image : `data:image/jpeg;base64,${base64Image}`;
+                content.push({ type: "image_url", image_url: { url: imageUrl } });
+            }
+
+            const response = await fetch(GROQ_API_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-rapidapi-host": RAPIDAPI_HOST,
-                    "x-rapidapi-key": RAPIDAPI_KEY
+                    "Authorization": `Bearer ${GROQ_API_KEY}`
                 },
-                body: JSON.stringify(body)
+                body: JSON.stringify({
+                    model: model,
+                    messages: [{ role: "user", content: content }],
+                    temperature: base64Image ? 0.1 : 0.7,
+                    max_tokens: 4000 // Keep within TPM limit
+                })
             });
 
-            if (!response.ok) {
-                // If 429 or other error, throw to trigger fallback
-                throw new Error(`RapidAPI Error: ${response.status}`);
+            if (response.ok) {
+                const data = await response.json();
+                const result = data.choices[0]?.message?.content || "";
+                console.log(`Groq API success with ${model}`);
+                return result;
             }
 
-            const data = await response.json();
-            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-                return data.candidates[0].content.parts[0].text;
+            const errorText = await response.text();
+            console.warn(`Groq API error with ${model}:`, response.status, errorText);
+
+            // Handle Rate Limits (TPM/RPM) or Size
+            if (response.status === 429 || errorText.includes("rate_limit") || response.status === 413) {
+                console.log("Rate limit or size limit hit. Waiting 2s before retry...");
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // On retry, if not vision, swap to backup model
+                if (!base64Image) {
+                    model = (model === textModel) ? backupTextModel : textModel;
+                }
+                continue;
             }
-        } catch (error) {
-            console.warn("RapidAPI failed, switching to Fallback Key...", error);
+
+            lastError = new Error(`Groq API Error: ${response.status} ${errorText}`);
+
+            // Vision model decommissioned handling
+            if ((errorText.includes("model_decommissioned") || response.status === 404 || response.status === 400) && base64Image) {
+                const nextIndex = visionModels.indexOf(model) + 1;
+                if (nextIndex < visionModels.length) {
+                    model = visionModels[nextIndex];
+                    continue;
+                }
+            }
+
+            break;
+        } catch (err) {
+            console.error(`Fetch error with ${model}:`, err);
+            lastError = err;
+            await new Promise(resolve => setTimeout(resolve, 1000));
         }
     }
 
-    // 2. Fallback to Direct Google API
-    try {
-        console.warn("Using Fallback Google API Key");
-
-        // Robust Fallback: Extract text if simple structure to avoid SDK mismatch
-        let finalPrompt: string | Array<any> = contents;
-        if (Array.isArray(contents) && contents.length === 1 && contents[0].role === 'user' && contents[0].parts && contents[0].parts[0].text) {
-            finalPrompt = contents[0].parts[0].text;
-        }
-
-        // Try gemini-1.5-flash first (fastest/newest)
-        try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const result = await model.generateContent(finalPrompt);
-            const response = await result.response;
-            return response.text();
-        } catch (flashError) {
-            console.warn("Flash failed, trying Pro...", flashError);
-            // Fallback to gemini-pro (stable)
-            const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-            const result = await model.generateContent(finalPrompt);
-            const response = await result.response;
-            return response.text();
-        }
-
-    } catch (error) {
-        console.error("Fallback API Error:", error);
-        throw new Error("Both Primary and Fallback APIs failed.");
-    }
+    throw lastError || new Error("Failed to call Groq API after multiple retries");
 }
 
+async function callGeminiProxy(contents: any[], systemInstruction?: string) {
+    // Extract prompt text and optional image
+    let promptText = "";
+    let base64Image = "";
+
+    if (Array.isArray(contents) && contents.length > 0) {
+        const userMsg = contents[0];
+        if (userMsg.parts) {
+            for (const part of userMsg.parts) {
+                if (part.text) {
+                    promptText = part.text;
+                } else if (part.inlineData) {
+                    base64Image = part.inlineData.data;
+                }
+            }
+        }
+    }
+
+    if (!promptText) {
+        throw new Error("No prompt text provided");
+    }
+
+    // Use Groq API (will automatically switch to vision model if image is present)
+    return await callGroqAPI(promptText, base64Image);
+}
 export const processKnowledgeSnippet = async (text: string) => {
     const prompt = `
     Analyze the following teacher's tacit knowledge update:
@@ -898,3 +952,274 @@ Return ONLY the JSON object, no other text.`;
     }
 };
 
+
+// ============================================
+// COURSE BUILDER - Udemy-Style Micromodule Generation
+// Generates structured course with visualizations
+// ============================================
+
+import type { CourseModule, GeneratedCourse, CourseGenerationInput, ModuleVisualization } from '@/types/courseTypes';
+
+export const generateCourseModules = async (
+    input: CourseGenerationInput
+): Promise<GeneratedCourse> => {
+    const numberOfModules = input.numberOfModules || 5; // Default to 5 to save tokens
+
+    // Truncate input content to prevent exceeding TPM limits
+    const truncatedContent = input.content.length > 4000
+        ? input.content.substring(0, 4000) + "..."
+        : input.content;
+
+    const prompt = `You are an expert instructional designer creating Udemy-style course content for Indian government school teachers.
+
+TASK: Break down the provided course content into ${numberOfModules} micro-learning modules.
+
+========================
+COURSE CONTEXT
+========================
+- Subject: ${input.subject}
+- Grade Level: ${input.gradeLevel}
+- Language: ${input.language}
+- Region: ${input.region}
+- Target: Government school teachers in India
+
+========================
+SOURCE CONTENT (TRUNCATED)
+========================
+${truncatedContent}
+
+========================
+OUTPUT REQUIREMENTS
+========================
+Create EXACTLY ${numberOfModules} modules. Each module should:
+1. Be self-contained (5-10 minutes each)
+2. Have clear learning objectives
+3. Include practical classroom examples
+4. Build progressively on previous modules
+5. End with 1-2 quiz questions
+6. IMPORTANT: Keep "content" field between 80-100 words to respect token limits.
+
+========================
+STRICT OUTPUT FORMAT (JSON ONLY)
+========================
+Return ONLY valid JSON:
+{
+    "courseTitle": "Descriptive course title",
+    "courseDescription": "2-3 sentence description of what teachers will learn",
+    "totalDuration": "Estimated total time (e.g., '45 minutes')",
+    "modules": [
+        {
+            "order": 1,
+            "title": "Module title",
+            "duration": "5-10 mins",
+            "objectives": ["Objective 1", "Objective 2"],
+            "content": "A high-quality micro-lesson (80-100 words).",
+            "keyPoints": ["Key point 1", "Key point 2"],
+            "visualizationType": "flowchart|mindmap|diagram|timeline|sequence",
+            "quiz": [
+                {
+                    "question": "Question text?",
+                    "options": ["Option A", "Option B", "Option C", "Option D"],
+                    "correctIndex": 0,
+                    "explanation": "Brief explanation"
+                }
+            ]
+        }
+    ]
+}
+
+Return ONLY the JSON, no other text.`;
+
+    try {
+        const resultText = await callGeminiProxy([{
+            role: "user",
+            parts: [{ text: prompt }]
+        }]);
+
+        const jsonStr = resultText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+        const parsed = JSON.parse(jsonStr);
+
+        // Process modules sequentially with a small delay to avoid hitting rate limits
+        const modulesWithVisualizations: CourseModule[] = [];
+        for (let i = 0; i < parsed.modules.length; i++) {
+            const moduleData = parsed.modules[i];
+
+            // Add a 500ms delay between visualization requests
+            if (i > 0) await new Promise(resolve => setTimeout(resolve, 500));
+
+            const visualization = await generateModuleVisualization(
+                moduleData.title,
+                moduleData.content,
+                moduleData.keyPoints || [],
+                moduleData.visualizationType || 'flowchart'
+            );
+
+            modulesWithVisualizations.push({
+                id: `module-${i + 1}-${Date.now()}`,
+                order: moduleData.order || i + 1,
+                title: moduleData.title,
+                duration: moduleData.duration,
+                objectives: moduleData.objectives || [],
+                content: moduleData.content,
+                keyPoints: moduleData.keyPoints || [],
+                visualization,
+                quiz: (moduleData.quiz || []).map((q: any, qIndex: number) => ({
+                    id: `quiz-${i + 1}-${qIndex + 1}`,
+                    question: q.question,
+                    options: q.options,
+                    correctIndex: q.correctIndex,
+                    explanation: q.explanation
+                })),
+                isCompleted: false
+            });
+        }
+
+        return {
+            id: `course-${Date.now()}`,
+            title: parsed.courseTitle || input.title || 'Generated Course',
+            description: parsed.courseDescription || '',
+            subject: input.subject,
+            gradeLevel: input.gradeLevel,
+            totalDuration: parsed.totalDuration || `${numberOfModules * 7} minutes`,
+            totalModules: modulesWithVisualizations.length,
+            modules: modulesWithVisualizations,
+            createdAt: new Date().toISOString(),
+            sourceFileName: input.title
+        };
+
+    } catch (error) {
+        console.error("Course Generation Error:", error);
+        throw new Error("Failed to generate course modules. Please try again.");
+    }
+};
+
+export const generateModuleVisualization = async (
+    moduleTitle: string,
+    moduleContent: string,
+    keyPoints: string[],
+    preferredType: string = 'flowchart'
+): Promise<ModuleVisualization> => {
+    const typeToMermaid: Record<string, string> = {
+        'flowchart': 'flowchart TD',
+        'mindmap': 'mindmap',
+        'diagram': 'flowchart LR',
+        'timeline': 'timeline',
+        'sequence': 'sequenceDiagram'
+    };
+
+    const mermaidType = typeToMermaid[preferredType] || 'flowchart TD';
+
+    const prompt = `You are a Mermaid.js expert. Create a clear, professional diagram for the following educational module.
+
+MODULE:
+Title: ${moduleTitle}
+Key Takeaways: ${keyPoints.join(', ')}
+Summary: ${moduleContent.substring(0, 500)}
+
+DIAGRAM REQUIREMENTS:
+1. TYPE: Use "${mermaidType}" syntax.
+2. CONTENT: Focus on the relationship between concepts.
+3. STYLE: Use simple labels (max 3-5 words). Avoid special characters (, ), [, ], etc. in labels.
+4. SYNTAX:
+   - For flowchart: Use A[Label] --> B[Label]
+   - For mindmap: Use root((Title))\n  node1\n  node2 (Indent subnodes with spaces. Ensure ONLY ONE root node exists).
+5. IMPORTANT: Do not include the "${mermaidType}" line itself in the "mermaidCode" field, as I will add it.
+6. FORMAT: Return ONLY a JSON object.
+
+JSON FORMAT:
+{
+  "mermaidCode": "A[Start] --> B[Process]\\nB --> C[End]",
+  "description": "A short summary of the diagram"
+}
+`;
+
+    try {
+        const resultText = await callGeminiProxy([{
+            role: "user",
+            parts: [{ text: prompt }]
+        }]);
+
+        // Better JSON extraction - find the JSON object in the response
+        let jsonStr = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        // Try to extract JSON object if there's extra text
+        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            jsonStr = jsonMatch[0];
+        }
+
+        try {
+            const parsed = JSON.parse(jsonStr);
+            let finalCode = parsed.mermaidCode || '';
+
+            // Prepend the type if not present
+            if (finalCode && !finalCode.trim().match(/^(flowchart|graph|sequenceDiagram|mindmap|timeline)/i)) {
+                finalCode = `${mermaidType}\n${finalCode}`;
+            }
+
+            return {
+                type: preferredType as ModuleVisualization['type'],
+                mermaidCode: finalCode || generateFallbackMermaid(moduleTitle, keyPoints),
+                description: parsed.description || `Visual representation of ${moduleTitle}`
+            };
+        } catch (parseError) {
+            console.warn("JSON parse failed, using fallback visualization");
+            return {
+                type: 'flowchart',
+                mermaidCode: generateFallbackMermaid(moduleTitle, keyPoints),
+                description: `Key concepts from ${moduleTitle}`
+            };
+        }
+
+    } catch (error) {
+        console.error("Visualization Generation Error:", error);
+        return {
+            type: 'flowchart',
+            mermaidCode: generateFallbackMermaid(moduleTitle, keyPoints),
+            description: `Key concepts from ${moduleTitle}`
+        };
+    }
+};
+
+function generateFallbackMermaid(title: string, keyPoints: string[]): string {
+    const sanitize = (text: string) => text.replace(/[^\w\s]/g, '').substring(0, 30);
+    const points = keyPoints.length > 0 ? keyPoints.slice(0, 4) : ['Concept 1', 'Concept 2', 'Concept 3'];
+
+    let mermaid = 'flowchart TD\n';
+    mermaid += `    A[${sanitize(title)}]\n`;
+
+    points.forEach((point, index) => {
+        const nodeId = String.fromCharCode(66 + index);
+        mermaid += `    A --> ${nodeId}[${sanitize(point)}]\n`;
+    });
+
+    return mermaid;
+}
+
+export const extractTextFromImage = async (base64Image: string): Promise<string> => {
+    const prompt = `Extract all readable text from this image. This appears to be educational content or a course syllabus.
+    
+Return ONLY the extracted text, formatted clearly with proper paragraphs. If there are headings or sections, preserve them.
+Do not add any analysis or commentary - just extract the text exactly as it appears.`;
+
+    const contents = [{
+        role: "user",
+        parts: [
+            { text: prompt },
+            {
+                inlineData: {
+                    mimeType: "image/jpeg",
+                    data: base64Image.split(',')[1]
+                }
+            }
+        ]
+    }];
+
+    try {
+        const resultText = await callGeminiProxy(contents);
+        return resultText.trim();
+    } catch (error) {
+        console.error("Image Text Extraction Error:", error);
+        throw new Error("Failed to extract text from image. Please try a clearer image or paste text directly.");
+    }
+};
