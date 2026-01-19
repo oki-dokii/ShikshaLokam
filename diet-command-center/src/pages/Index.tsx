@@ -58,6 +58,7 @@ const issues = [
 import { CaptureFab } from "@/components/knowledge/CaptureFab";
 import { KnowledgeProvider } from "@/context/KnowledgeContext";
 import { KnowledgeFeed } from "@/components/knowledge/KnowledgeFeed";
+import { DropoutRadar } from "@/components/dashboard/DropoutRadar";
 
 
 const Index = () => {
@@ -111,46 +112,58 @@ const Index = () => {
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {/* Content Transformer Card - Feature 1 */}
-              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group bg-gradient-to-br from-brand-cyan/5 to-purple-500/5">
-                <div className="w-12 h-12 bg-gradient-to-br from-brand-cyan/20 to-purple-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <FileText className="w-6 h-6 text-brand-cyan" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+              <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Content Transformer Card - Feature 1 */}
+                  <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group bg-gradient-to-br from-brand-cyan/5 to-purple-500/5">
+                    <div className="w-12 h-12 bg-gradient-to-br from-brand-cyan/20 to-purple-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                      <FileText className="w-6 h-6 text-brand-cyan" />
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-xl font-bold text-white">Advanced Content Transformer</h3>
+                      <span className="px-2 py-0.5 bg-brand-cyan/20 text-brand-cyan text-xs rounded font-bold">RAG ACTIVE</span>
+                    </div>
+                    <p className="text-slate-400 mb-6">
+                      Convert manuals or NCERT books into micro-modules with AI visualizations, Voice, and RAG.
+                    </p>
+                    <Button
+                      onClick={() => navigate('/content-transformer')}
+                      className="w-full bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold"
+                    >
+                      Transform Content
+                    </Button>
+                  </div>
+
+                  {/* Frustration-to-Breakthrough Bot - Feature 4 */}
+                  <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-all group bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                      <MessageCircle className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-xl font-bold text-white">Teacher Support Bot</h3>
+                      <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded font-bold">LIVE</span>
+                    </div>
+                    <p className="text-slate-400 mb-6">
+                      24/7 AI mentor on Telegram. Get immediate "Breakthrough" solutions for classroom frustration.
+                    </p>
+                    <Button
+                      onClick={() => window.open('https://t.me/DIETTeacherBot', '_blank')}
+                      className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 font-bold"
+                    >
+                      Chat on Telegram
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-bold text-white">Content Transformer</h3>
-                  <span className="px-2 py-0.5 bg-brand-cyan/20 text-brand-cyan text-xs rounded font-bold">NEW</span>
-                </div>
-                <p className="text-slate-400 mb-6">
-                  Convert 50-page manuals into 5-minute micro-modules, auto-contextualized for local teachers.
-                </p>
-                <Button
-                  onClick={() => navigate('/content-transformer')}
-                  className="w-full bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold"
-                >
-                  Transform Content
-                </Button>
               </div>
 
-              {/* Frustration-to-Breakthrough Bot - Feature 4 */}
-              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-blue-500/50 transition-all group bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <MessageCircle className="w-6 h-6 text-blue-400" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-bold text-white">Teacher Support Bot</h3>
-                  <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded font-bold">LIVE</span>
-                </div>
-                <p className="text-slate-400 mb-6">
-                  24/7 AI mentor on Telegram. Get immediate "Breakthrough" solutions for classroom frustration.
-                </p>
-                <Button
-                  onClick={() => window.open('https://t.me/DIETTeacherBot', '_blank')}
-                  className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white hover:from-blue-500 hover:to-cyan-500 font-bold"
-                >
-                  Chat on Telegram
-                </Button>
+              {/* Dropout Radar Widget */}
+              <div className="lg:col-span-1">
+                <DropoutRadar />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
 
 
               {/* Frugal TLM Card */}

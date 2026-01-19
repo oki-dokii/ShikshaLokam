@@ -110,3 +110,26 @@ export interface LiveQuizSession {
   isActive: boolean;
   startTime: string;
 }
+
+// Dropout Radar / Early Warning System Types
+export interface EngagementData {
+  lastFiveQuizScores: number[]; // 0-100
+  averageScore: number;
+  participationRate: number; // 0-1
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface StudentRiskProfile {
+  id: string;
+  name: string;
+  attendance: {
+    consecutiveAbsences: number;
+    totalAbsenceRate: number;
+    lastSeenDate: string;
+  };
+  engagement: EngagementData;
+  riskScore: number; // 0-100
+  riskLevel: 'low' | 'medium' | 'high';
+  interventionStatus: 'none' | 'WhatsApp Sent' | 'Pending Review';
+  parentContact: string;
+}
