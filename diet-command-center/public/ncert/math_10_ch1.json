@@ -1,0 +1,18 @@
+[
+    {
+        "question": "Define Euclid's Division Lemma.",
+        "answer": "Euclid's Division Lemma states that for any two positive integers 'a' and 'b', there exist unique whole numbers 'q' and 'r' such that a = bq + r, where 0 <= r < b."
+    },
+    {
+        "question": "What is the Fundamental Theorem of Arithmetic?",
+        "answer": "Every composite number can be uniquely expressed as a product of prime numbers, regardless of the order of the prime factors."
+    },
+    {
+        "question": "Distinguish between Rational and Irrational numbers.",
+        "answer": "Rational numbers can be expressed as p/q (q != 0) and have terminating or repeating decimals. Irrational numbers cannot be expressed as p/q and have non-terminating, non-repeating decimals (e.g., sqrt(2), pi)."
+    },
+    {
+        "question": "How to determine if a rational number has a terminating decimal expansion?",
+        "answer": "A rational number p/q has a terminating decimal expansion if the prime factorization of the denominator 'q' is of the form 2^n * 5^m, where n and m are non-negative integers."
+    }
+]

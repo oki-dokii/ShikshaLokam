@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Clock, Target, BookOpen, CheckCircle2,
     ChevronRight, Play, Award, Lightbulb,
-    Users, BarChart3
+    Users, BarChart3, Volume2, Square, Youtube, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import VisualizationRenderer from './VisualizationRenderer';
 import LiveQuizOverlay from './LiveQuizOverlay';
+import { NCERTAssistant } from './NCERTAssistant';
 import type { CourseModule, QuizQuestion } from '@/types/courseTypes';
 
 interface ModuleViewerProps {
@@ -36,6 +37,29 @@ const ModuleViewer = ({
     const [showResults, setShowResults] = useState(false);
     const [quizScore, setQuizScore] = useState(0);
     const [showLiveQuiz, setShowLiveQuiz] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [showAssistant, setShowAssistant] = useState(false);
+
+    const handleSpeak = () => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(module.content);
+            utterance.rate = 1.0;
+            utterance.onend = () => setIsSpeaking(false);
+            window.speechSynthesis.speak(utterance);
+            setIsSpeaking(true);
+        }
+    };
+
+    const handleStop = () => {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
+    };
+
+    const handleYoutubeSearch = () => {
+        const query = module.videoQuery || `NCERT ${module.title} explanation`;
+        window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, '_blank');
+    };
 
     const handleQuizAnswer = (questionId: string, answerIndex: number) => {
         setQuizAnswers(prev => ({ ...prev, [questionId]: answerIndex }));
@@ -87,8 +111,58 @@ const ModuleViewer = ({
                         </span>
                     )}
                 </div>
-                <h2 className="text-2xl font-bold text-white">{module.title}</h2>
+                <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold text-white">{module.title}</h2>
+                    <div className="flex gap-2">
+                        {isSpeaking ? (
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-orange-400 hover:text-orange-300 hover:bg-orange-400/10"
+                                onClick={handleStop}
+                            >
+                                <Square className="w-4 h-4 mr-2" /> Stop
+                            </Button>
+                        ) : (
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-brand-cyan hover:text-cyan-300 hover:bg-brand-cyan/10"
+                                onClick={handleSpeak}
+                            >
+                                <Volume2 className="w-4 h-4 mr-2" /> Listen
+                            </Button>
+                        )}
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-purple-400 hover:text-purple-300 hover:bg-purple-400/10"
+                            onClick={() => setShowAssistant(true)}
+                        >
+                            <MessageSquare className="w-4 h-4 mr-2" /> Ask Assistant
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                            onClick={handleYoutubeSearch}
+                        >
+                            <Youtube className="w-4 h-4 mr-2" /> Video
+                        </Button>
+                    </div>
+                </div>
             </div>
+
+            {/* Assistant Drawer */}
+            <AnimatePresence>
+                {showAssistant && (
+                    <NCERTAssistant
+                        moduleTitle={module.title}
+                        context={module.content}
+                        onClose={() => setShowAssistant(false)}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Learning Objectives */}
             {module.objectives.length > 0 && (

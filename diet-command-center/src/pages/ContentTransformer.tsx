@@ -27,6 +27,12 @@ import type { GeneratedCourse, CourseModule } from "@/types/courseTypes";
 import FileUploader from "@/components/content/FileUploader";
 import CourseOutline from "@/components/content/CourseOutline";
 import ModuleViewer from "@/components/content/ModuleViewer";
+import { NCERTSourceSelector } from "@/components/content/NCERTSourceSelector";
+import type { NCERTSource } from "@/types/courseTypes";
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 type TransformMode = 'quick' | 'course';
 
@@ -51,6 +57,11 @@ const ContentTransformer = () => {
     const [showAllLanguages, setShowAllLanguages] = useState(false);
     const [numberOfModules, setNumberOfModules] = useState(6);
 
+    // NCERT RAG state
+    const [isNcertMode, setIsNcertMode] = useState(false);
+    const [selectedNcertSource, setSelectedNcertSource] = useState<NCERTSource | null>(null);
+    const [ncertLoading, setNcertLoading] = useState(false);
+
     // Output state
     const [isTransforming, setIsTransforming] = useState(false);
     const [microModule, setMicroModule] = useState<MicroModuleOutput | null>(null);
@@ -71,11 +82,20 @@ const ContentTransformer = () => {
     };
 
     const handleQuickTransform = async () => {
-        const sourceContent = useCustomContent ? customContent : selectedManual?.content;
+        let sourceContent = useCustomContent ? customContent : selectedManual?.content;
         const sourceTitle = useCustomContent ? (uploadedFileName || "Custom Content") : selectedManual?.title || "";
 
+        if (isNcertMode && selectedNcertSource) {
+            // In NCERT mode, we use the RAG context as the primary source if no other content is provided
+            // or we combine them. For Quick Transform, let's assume it uses NCERT context.
+            const ncertContext = await loadNcertContext(selectedNcertSource);
+            if (ncertContext) {
+                sourceContent = ncertContext;
+            }
+        }
+
         if (!sourceContent || sourceContent.trim().length < 50) {
-            toast.error("Please select a training manual or enter source content (at least 50 characters).");
+            toast.error("Please select a training manual, NCERT source, or enter custom content.");
             return;
         }
 
@@ -115,10 +135,11 @@ const ContentTransformer = () => {
     };
 
     const handleCourseGeneration = async () => {
-        const sourceContent = useCustomContent ? customContent : selectedManual?.content;
+        let sourceContent = useCustomContent ? customContent : selectedManual?.content;
+        const isUsingNcertOnly = isNcertMode && selectedNcertSource && (!sourceContent || sourceContent.trim().length < 50);
 
-        if (!sourceContent || sourceContent.trim().length < 100) {
-            toast.error("Please upload or paste course content (at least 100 characters).");
+        if (!isUsingNcertOnly && (!sourceContent || sourceContent.trim().length < 50)) {
+            toast.error("Please provide content OR select an NCERT source.");
             return;
         }
 
@@ -129,14 +150,25 @@ const ContentTransformer = () => {
         toast.info(`Generating ${numberOfModules} micro-modules with AI...`);
 
         try {
+            let ncertContext = "";
+            if (isNcertMode && selectedNcertSource) {
+                ncertContext = await loadNcertContext(selectedNcertSource);
+                // If we have no primary content, use NCERT context as the primary content too
+                if (!sourceContent || sourceContent.trim().length < 50) {
+                    sourceContent = ncertContext;
+                }
+            }
+
             const course = await generateCourseModules({
-                content: sourceContent,
-                title: uploadedFileName || selectedManual?.title,
+                content: sourceContent || "",
+                title: uploadedFileName || selectedManual?.title || selectedNcertSource?.title,
                 subject: subject,
                 gradeLevel: grade,
                 numberOfModules: numberOfModules,
                 language: languageName,
-                region: region
+                region: region,
+                isNcertMode: isNcertMode,
+                ncertContext: ncertContext
             });
 
             setGeneratedCourse(course);
@@ -172,6 +204,56 @@ const ContentTransformer = () => {
         setCustomContent("");
         setUploadedFileName("");
         setActiveModuleIndex(0);
+        setIsNcertMode(false);
+        setSelectedNcertSource(null);
+    };
+
+    const loadNcertContext = async (source: NCERTSource): Promise<string> => {
+        setNcertLoading(true);
+        try {
+            if (source.type === 'json') {
+                // For JSON, we fetch it (it's in src/data/ncert/ but we need to treat it as a module or fetch)
+                // Since it was converted to JSON, we can import it or fetch it if moved to public
+                // For now, let's assume it's fetched from the public path if we moved it, 
+                // but actually, I'll use a dynamic import for simplicity if it's in src
+                const pathParts = source.path.split('/');
+                const fileName = pathParts[pathParts.length - 1];
+
+                const response = await fetch(`/ncert/${fileName}`);
+                const data = await response.json();
+                // Filter out fragments and join meaningful answers
+                return data
+                    .map((item: any) => {
+                        const q = item.question && item.question.length > 10 ? `Discussion: ${item.question}\n` : '';
+                        return `${q}Insight: ${item.answer}`;
+                    })
+                    .join('\n\n');
+            } else {
+                // For PDF, fetch from public path and extract text
+                const fileName = source.path.split('/').pop();
+                const response = await fetch(`/ncert/${fileName}`);
+                const blob = await response.blob();
+                const arrayBuffer = await blob.arrayBuffer();
+
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdf = await loadingTask.promise;
+                let fullText = '';
+                // Limit to first 10 pages for demo performance/context limits
+                const pagesToRead = Math.min(pdf.numPages, 10);
+                for (let i = 1; i <= pagesToRead; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map((item: any) => item.str).join(' ') + '\n\n';
+                }
+                return fullText;
+            }
+        } catch (error) {
+            console.error('Error loading NCERT context:', error);
+            toast.error('Failed to load NCERT source content.');
+            return "";
+        } finally {
+            setNcertLoading(false);
+        }
     };
 
     // Course Builder View
@@ -279,6 +361,57 @@ const ContentTransformer = () => {
 
                 {/* LEFT: Input Configuration */}
                 <div className="space-y-6">
+
+                    {/* NCERT Mode Toggle & Selector */}
+                    <div className="bg-slate-900/60 border border-brand-cyan/20 rounded-2xl p-6 relative overflow-hidden">
+                        <div className={`absolute top-0 right-0 p-2 ${isNcertMode ? 'opacity-100' : 'opacity-20'}`}>
+                            <BookOpen className="w-12 h-12 text-brand-cyan -rotate-12 translate-x-4 -translate-y-4" />
+                        </div>
+
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                                    <BookOpen className="w-5 h-5 text-brand-cyan" />
+                                    NCERT RAG Mode
+                                </h2>
+                                <p className="text-xs text-slate-400">Align content strictly with NCERT syllabus</p>
+                            </div>
+                            <button
+                                onClick={() => setIsNcertMode(!isNcertMode)}
+                                className={`w-12 h-6 rounded-full transition-all relative ${isNcertMode ? 'bg-brand-cyan' : 'bg-slate-700'
+                                    }`}
+                            >
+                                <motion.div
+                                    animate={{ x: isNcertMode ? 26 : 4 }}
+                                    className="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-lg"
+                                />
+                            </button>
+                        </div>
+
+                        <AnimatePresence>
+                            {isNcertMode && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="pt-4 border-t border-white/5">
+                                        <NCERTSourceSelector
+                                            selectedSource={selectedNcertSource}
+                                            onSelect={(source) => {
+                                                setSelectedNcertSource(source);
+                                                if (source) {
+                                                    setSubject(source.subject);
+                                                    setGrade(`Grade ${source.grade}`);
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {/* Source Content Selection */}
                     <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6">
@@ -532,13 +665,16 @@ const ContentTransformer = () => {
                     {!microModule && (
                         <Button
                             onClick={mode === 'course' ? handleCourseGeneration : handleQuickTransform}
-                            disabled={isTransforming || (!selectedManual && !customContent.trim())}
+                            disabled={isTransforming || ncertLoading || (!selectedManual && !customContent.trim() && !selectedNcertSource)}
                             className="w-full h-14 text-lg bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold relative overflow-hidden disabled:opacity-50"
                         >
-                            {isTransforming ? (
+                            {isTransforming || ncertLoading ? (
                                 <div className="flex items-center gap-2">
                                     <Loader2 className="w-6 h-6 animate-spin" />
-                                    {mode === 'course' ? 'Generating Course Modules...' : 'Transforming Content...'}
+                                    {ncertLoading
+                                        ? 'Loading NCERT Context...'
+                                        : (mode === 'course' ? 'Generating Course Modules...' : 'Transforming Content...')
+                                    }
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-2">

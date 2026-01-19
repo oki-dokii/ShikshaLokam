@@ -25,6 +25,7 @@ export interface CourseModule {
   keyPoints: string[];
   visualization: ModuleVisualization;
   quiz: QuizQuestion[];
+  videoQuery?: string;
   isCompleted: boolean;
 }
 
@@ -49,6 +50,17 @@ export interface CourseGenerationInput {
   numberOfModules?: number;
   language: string;
   region: string;
+  ncertContext?: string;
+  isNcertMode?: boolean;
+}
+
+export interface NCERTSource {
+  id: string;
+  title: string;
+  type: 'json' | 'pdf';
+  subject: string;
+  grade: string;
+  path: string;
 }
 
 export interface FileUploadState {

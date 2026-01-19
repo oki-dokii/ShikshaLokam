@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { KnowledgeProvider } from "./context/KnowledgeContext";
 import Index from "./pages/Index";
-import HeatmapDashboard from "./pages/HeatmapDashboard";
 import ModuleGenerator from "./pages/ModuleGenerator";
 import FrugalRecommender from "./pages/FrugalRecommender";
 import SimulationArena from "./pages/SimulationArena";
@@ -16,6 +15,7 @@ import PredictiveTraining from "./pages/PredictiveTraining";
 import AgencyEngine from "./pages/AgencyEngine";
 import ContentTransformer from "./pages/ContentTransformer";
 import ClusterDashboard from "./pages/ClusterDashboard";
+import LiveQuizStudentView from "./components/content/LiveQuizStudentView";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,7 +28,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/heatmap" element={<HeatmapDashboard />} />
+
             <Route path="/module-generator" element={<ModuleGenerator />} />
             <Route path="/frugal-tlm" element={<FrugalRecommender />} />
             <Route path="/simulation" element={<SimulationArena />} />
@@ -39,6 +39,7 @@ const App = () => (
             <Route path="/predictive-training" element={<PredictiveTraining />} />
             <Route path="/agency-engine" element={<AgencyEngine />} />
             <Route path="/content-transformer" element={<ContentTransformer />} />
+            <Route path="/quiz-join/:sessionId" element={<LiveQuizStudentView />} />
             <Route path="/cluster/:clusterId" element={<ClusterDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

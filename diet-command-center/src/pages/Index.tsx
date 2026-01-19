@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Map, Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle } from "lucide-react";
+import { Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
@@ -152,23 +152,6 @@ const Index = () => {
                 </Button>
               </div>
 
-              {/* Heatmap Card */}
-              <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-purple/50 transition-all group">
-                <div className="w-12 h-12 bg-brand-purple/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <Map className="w-6 h-6 text-brand-purple" />
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Geospatial Heatmap</h3>
-                <p className="text-slate-400 mb-6">
-                  Analyze district-wise performance and identify priority clusters.
-                </p>
-                <Button
-                  onClick={() => navigate('/heatmap')}
-                  variant="outline"
-                  className="w-full border-brand-purple/20 text-brand-purple hover:bg-brand-purple hover:text-white"
-                >
-                  View Heatmap
-                </Button>
-              </div>
 
               {/* Frugal TLM Card */}
               <div className="glass-card p-8 rounded-2xl border border-white/10 hover:border-brand-cyan/50 transition-all group">
@@ -334,12 +317,6 @@ const Index = () => {
             </motion.p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
               <CTAButton onClick={handleGenerate} />
-              <button
-                onClick={() => navigate('/heatmap')}
-                className="px-8 py-3 rounded-full border border-white/20 hover:bg-white/10 text-white font-orbitron tracking-widest transition-all"
-              >
-                View Geospatial Heatmap
-              </button>
             </div>
           </div>
         </section>

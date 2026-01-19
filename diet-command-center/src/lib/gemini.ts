@@ -983,10 +983,16 @@ COURSE CONTEXT
 - Region: ${input.region}
 - Target: Government school teachers in India
 
-========================
-SOURCE CONTENT (TRUNCATED)
-========================
 ${truncatedContent}
+
+${input.isNcertMode && input.ncertContext ? `
+========================
+NCERT CURRICULUM CONTEXT (RAG SOURCE)
+========================
+The following content is taken directly from NCERT textbooks/source material. 
+PRIORITIZE this information for accuracy and structure.
+${input.ncertContext}
+` : ''}
 
 ========================
 OUTPUT REQUIREMENTS
@@ -998,6 +1004,18 @@ Create EXACTLY ${numberOfModules} modules. Each module should:
 4. Build progressively on previous modules
 5. End with 1-2 quiz questions
 6. IMPORTANT: Keep "content" field between 80-100 words to respect token limits.
+7. NEW: Provide a "videoQuery" string for EACH module (e.g., "NCERT Grade 11 Physics Chapter 2 Motion calculation explanation").
+
+${input.isNcertMode ? `
+========================
+STRICT NCERT GROUNDING (MANDATORY)
+========================
+- You are in NCERT MODE. 
+- All content MUST be derived from the NCERT CURRICULUM CONTEXT provided below.
+- DO NOT use general knowledge about the subject if it contradicts or adds information not present in the RAG source.
+- For literature chapters (like English), focus specifically on the analysis, characters, and themes found in the text provided.
+- If the RAG source is about a specific story (e.g., 'The Portrait of a Lady'), every module MUST relate to that story.
+` : ''}
 
 ========================
 STRICT OUTPUT FORMAT (JSON ONLY)
@@ -1023,7 +1041,8 @@ Return ONLY valid JSON:
                     "correctIndex": 0,
                     "explanation": "Brief explanation"
                 }
-            ]
+            ],
+            "videoQuery": "NCERT [Subject] [Grade] [Chapter] [Topic] explanation for teachers"
         }
     ]
 }
@@ -1221,5 +1240,33 @@ Do not add any analysis or commentary - just extract the text exactly as it appe
     } catch (error) {
         console.error("Image Text Extraction Error:", error);
         throw new Error("Failed to extract text from image. Please try a clearer image or paste text directly.");
+    }
+};
+
+export const generateChatResponse = async (
+    query: string,
+    context: string,
+    topic: string
+): Promise<string> => {
+    const prompt = `You are an expert NCERT tutor for Indian teachers.
+CONTEXT FROM NCERT SOURCE ("${topic}"):
+${context}
+
+USER QUESTION:
+${query}
+
+INSTRUCTIONS:
+1. Answer the question STRICTLY using the provided context.
+2. If the answer is not in the context, say "I'm sorry, that specific information isn't available in this NCERT chapter, but I can help with what's provided above."
+3. Keep the answer concise and helpful for a teacher.
+4. Use a supportive, professional tone.
+`;
+
+    try {
+        const response = await callGroqAPI(prompt);
+        return response || "I couldn't process that. Please try again.";
+    } catch (error) {
+        console.error("Chat Error:", error);
+        throw error;
     }
 };

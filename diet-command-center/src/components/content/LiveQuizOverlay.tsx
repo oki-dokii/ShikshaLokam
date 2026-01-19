@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Users, Trophy, Timer, ChevronRight,
-    X, BarChart3, Star, Zap, Crown
+    X, BarChart3, Star, Zap, Crown, Copy, Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 import type { CourseModule, QuizParticipant } from '@/types/courseTypes';
 
 interface LiveQuizOverlayProps {
@@ -19,31 +20,73 @@ const LiveQuizOverlay = ({ module, onClose }: LiveQuizOverlayProps) => {
     const [participants, setParticipants] = useState<QuizParticipant[]>([]);
     const [timeLeft, setTimeLeft] = useState(15);
     const [isAnswering, setIsAnswering] = useState(true);
+    const [sessionId] = useState(() => Math.random().toString(36).substr(2, 6).toUpperCase());
 
+    const channelRef = useRef<BroadcastChannel | null>(null);
     const currentQuestion = module.quiz[currentQuestionIdx];
 
-    // Simulation: Add random participants in lobby
+    // Initialize BroadcastChannel
     useEffect(() => {
-        if (step === 'lobby') {
-            const interval = setInterval(() => {
-                if (participants.length < 12) {
-                    const names = ['Arjun', 'Meera', 'Rahul', 'Sita', 'Vikram', 'Ananya', 'Sameer', 'Priya', 'Karan', 'Sneha', 'Deepak', 'Anita'];
-                    const newParticipant: QuizParticipant = {
-                        id: Math.random().toString(36).substr(2, 9),
-                        name: names[participants.length % names.length],
-                        score: 0,
-                        lastAnsweredCorrectly: null,
-                        responseTime: 0,
-                        status: 'joined'
-                    };
-                    setParticipants(prev => [...prev, newParticipant]);
-                } else {
-                    clearInterval(interval);
-                }
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-    }, [step, participants.length]);
+        const channel = new BroadcastChannel(`quiz_${sessionId}`);
+        channelRef.current = channel;
+
+        channel.onmessage = (event) => {
+            const { type, payload } = event.data;
+
+            if (type === 'PARTICIPANT_JOINED') {
+                setParticipants(prev => {
+                    if (prev.find(p => p.id === payload.id)) return prev;
+                    return [...prev, payload];
+                });
+                toast.success(`${payload.name} joined the room!`);
+            } else if (type === 'PARTICIPANT_ANSWERED') {
+                setParticipants(prev => prev.map(p => {
+                    if (p.id === payload.id) {
+                        return {
+                            ...p,
+                            score: p.score + payload.points,
+                            lastAnsweredCorrectly: payload.correct,
+                            status: 'finished'
+                        };
+                    }
+                    return p;
+                }));
+            }
+        };
+
+        return () => {
+            channel.postMessage({ type: 'FORCE_DISCONNECT' });
+            channel.close();
+        };
+    }, [sessionId]);
+
+    // Broadcast session state updates
+    useEffect(() => {
+        channelRef.current?.postMessage({
+            type: 'SESSION_UPDATE',
+            payload: {
+                step,
+                currentQuestion,
+                questionIndex: currentQuestionIdx,
+                totalQuestions: module.quiz.length,
+                timeLeft
+            }
+        });
+    }, [step, currentQuestionIdx, timeLeft, currentQuestion]);
+
+    // Simulation: Add random participants in lobby (Now manual trigger)
+    const simulateStudent = () => {
+        const names = ['Arjun', 'Meera', 'Rahul', 'Sita', 'Vikram', 'Ananya', 'Sameer', 'Priya', 'Karan', 'Sneha', 'Deepak', 'Anita'];
+        const newParticipant: QuizParticipant = {
+            id: Math.random().toString(36).substr(2, 9),
+            name: names[participants.length % names.length],
+            score: 0,
+            lastAnsweredCorrectly: null,
+            responseTime: 0,
+            status: 'joined'
+        };
+        setParticipants(prev => [...prev, newParticipant]);
+    };
 
     // Timer logic for questions
     useEffect(() => {
@@ -64,8 +107,10 @@ const LiveQuizOverlay = ({ module, onClose }: LiveQuizOverlayProps) => {
     const handleTimeUp = () => {
         setIsAnswering(false);
 
-        // Simulate scoring for participants
+        // Simulate scoring ONLY for participants who didn't answer yet
         setParticipants(prev => prev.map(p => {
+            if (p.status === 'finished') return p; // Skip real student answers
+
             const isCorrect = Math.random() > 0.4;
             const speed = Math.random() * 10000;
             return {
@@ -137,9 +182,43 @@ const LiveQuizOverlay = ({ module, onClose }: LiveQuizOverlayProps) => {
                         >
                             <div className="space-y-4">
                                 <h1 className="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-brand-cyan to-purple-500">
-                                    Join at Menti.shiksha
+                                    Join the Live Quiz
                                 </h1>
-                                <p className="text-2xl text-slate-400">Entry Code: <span className="text-white font-mono tracking-widest">8842 1928</span></p>
+                                <div className="flex flex-col items-center gap-4">
+                                    <p className="text-2xl text-slate-400">Entry Code: <span className="text-white font-mono tracking-widest bg-white/5 px-4 py-1 rounded-lg border border-white/10">{sessionId}</span></p>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="outline"
+                                            className="border-white/10 hover:bg-white/5 text-slate-400"
+                                            onClick={() => {
+                                                const url = `${window.location.origin}/quiz-join/${sessionId}`;
+                                                navigator.clipboard.writeText(url);
+                                                toast.success('Join link copied!');
+                                            }}
+                                        >
+                                            <Copy className="w-4 h-4 mr-2" />
+                                            Copy Join Link
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="border-white/10 hover:bg-white/5 text-slate-400"
+                                            onClick={() => {
+                                                window.open(`${window.location.origin}/quiz-join/${sessionId}`, '_blank');
+                                            }}
+                                        >
+                                            <LinkIcon className="w-4 h-4 mr-2" />
+                                            Open Student Tab
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="border-white/10 hover:bg-white/5 text-slate-400"
+                                            onClick={simulateStudent}
+                                        >
+                                            <Users className="w-4 h-4 mr-2" />
+                                            Simulate Student
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-4 md:grid-cols-6 gap-6 max-w-4xl mx-auto">
