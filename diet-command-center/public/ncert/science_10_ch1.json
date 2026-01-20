@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is a chemical reaction?",
+    "answer": "A chemical reaction is a process where one or more substances (reactants) convert into new substances (products) with different properties by breaking and forming chemical bonds. Only rearrangement of atoms occurs."
+  },
+  {
+    "question": "What are the signs of a chemical reaction?",
+    "answer": "The signs include change in color, change in temperature (exothermic/endothermic), formation of a precipitate (insoluble solid), evolution of a gas, and change in state."
+  },
+  {
+    "question": "Why must chemical equations be balanced?",
+    "answer": "They must be balanced to satisfy the Law of Conservation of Mass, which states that mass can neither be created nor destroyed in a chemical reaction. The total number of atoms of each element remains constant."
+  },
+  {
+    "question": "Explain Combination and Decomposition reactions.",
+    "answer": "In a Combination reaction, two or more reactants form a single product (e.g., CaO + H2O -> Ca(OH)2). In a Decomposition reaction, a single compound breaks down into simpler substances via heat, light, or electricity."
+  },
+  {
+    "question": "What are Redox Reactions?",
+    "answer": "Redox reactions involve simultaneous oxidation (gain of oxygen or loss of electrons) and reduction (loss of oxygen or gain of electrons)."
+  }
+]
