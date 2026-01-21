@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle, Map } from "lucide-react";
+import { Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle, Map, Send } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
 import { ClusterCard } from "@/components/ClusterCard";
 import { IssueCard } from "@/components/IssueCard";
@@ -64,18 +64,19 @@ import { DropoutRadar } from "@/components/dashboard/DropoutRadar";
 const Index = () => {
   const navigate = useNavigate();
 
+  const handleGenerate = () => {
+    toast.success("Training Program Generated!", {
+      description: "Customized modules are being prepared based on your specific classroom needs.",
+    });
+  };
+
   const handleClusterClick = (id: string, title: string) => {
     toast.info(`Accessing ${title} data...`, {
       description: "Loading real-time analytics",
     });
-    navigate(`/ cluster / ${id} `);
+    navigate(`/cluster/${id}`);
   };
 
-  const handleGenerate = () => {
-    toast.success("Training Program Generated!", {
-      description: "Customized modules are being prepared based on current issues.",
-    });
-  };
   return (
     <KnowledgeProvider>
       <div className="min-h-screen bg-background overflow-hidden relative">
@@ -83,280 +84,382 @@ const Index = () => {
         {/* Hero Section */}
         <HeroSection />
 
-        {/* ... existing sections ... */}
+        {/* Sunita's Story - The Support Gap Section */}
+        <section className="relative py-24 px-4 bg-muted/20">
+          <div className="max-w-5xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
+            >
+              <div>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6 tracking-tight">
+                  The Implementation Gap: <br /><span className="text-primary italic">A Teacher's Reality</span>
+                </h2>
+                <div className="space-y-4 text-muted-foreground leading-relaxed font-inter">
+                  <p>
+                    Meet Sunita, a teacher in a rural school in Jharkhand. She tries a new group activity, but the class falls into chaos. She needs a strategy <strong>now</strong>—not in three weeks when her mentor visits.
+                  </p>
+                  <p>
+                    Without "just-in-time" support, the "spark" of innovation dies, replaced by rote instruction and professional burnout.
+                  </p>
+                  <p className="font-semibold text-foreground italic">
+                    Training happens in workshops; implementation happens in the classroom. We bridge that gap.
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <div className="absolute -inset-4 bg-primary/20 rounded-2xl blur-2xl animate-pulse" />
+                <div className="relative glass-card p-8 border border-primary/10">
+                  <h3 className="text-xl font-bold mb-4 text-primary">The Existing Gap</h3>
+                  <ul className="space-y-4 text-sm">
+                    <li className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center text-destructive flex-shrink-0">!</div>
+                      <span><strong>Lag Time:</strong> Support arrives weeks after the need has passed.</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center text-destructive flex-shrink-0">!</div>
+                      <span><strong>Generic Feedback:</strong> "Teach properly" lacks actionable granular detail.</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <div className="w-6 h-6 rounded-full bg-destructive/10 flex items-center justify-center text-destructive flex-shrink-0">!</div>
+                      <span><span><strong>Isolation:</strong> No peer to "knock on the door" of in remote areas.</span></span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Just-in-Time Coaching Highlights */}
+        <section className="py-20 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {[
+                {
+                  title: "Immediate Advice",
+                  desc: "Ask any question—from management to pedagogy—and get instant, helpful suggestions.",
+                  icon: <MessageSquare className="w-6 h-6 text-primary" />,
+                  bg: "bg-primary/5"
+                },
+                {
+                  title: "Small-Dose Learning",
+                  desc: "Quick training modules matched perfectly to the challenge you're facing right now.",
+                  icon: <BookOpen className="w-6 h-6 text-secondary" />,
+                  bg: "bg-secondary/5"
+                },
+                {
+                  title: "Flexible Feedback",
+                  desc: "Share quick updates and get advice within hours, not weeks.",
+                  icon: <Activity className="w-6 h-6 text-accent" />,
+                  bg: "bg-accent/5"
+                }
+              ].map((feature, i) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  className={`p-8 rounded-2xl border border-border/50 ${feature.bg} card-hover`}
+                >
+                  <div className="w-12 h-12 rounded-xl bg-background flex items-center justify-center shadow-sm mb-6">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Knowledge Feed Section */}
-        <section className="relative py-16 px-4 bg-muted/30">
+        <section className="relative py-16 px-4 bg-muted/10">
           <div className="max-w-7xl mx-auto">
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl font-bold mb-3">Teacher Insights Hub</h2>
+              <p className="text-muted-foreground">Peer-to-peer knowledge sharing for the classroom</p>
+            </div>
             <KnowledgeFeed />
           </div>
         </section>
 
-
-
-        <section className="relative py-16 px-4">
+        {/* Solutions Section */}
+        <section className="relative py-24 px-4">
           <div className="max-w-6xl mx-auto">
             {/* Section header */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mb-12"
+              className="text-center mb-16"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-                Our Solutions
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
+                Your Professional <span className="text-primary">Teaching Assistant</span>
               </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl">
-                Comprehensive tools to support teachers and improve learning outcomes
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Evidence-based tools to help you manage your classroom and master your craft.
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-              <div className="lg:col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Content Transformer Card */}
-                  <div className="clean-card p-6 card-hover">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                      <FileText className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">Content Transformer</h3>
-                      <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded font-medium">RAG</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      Convert manuals or NCERT books into micro-modules with AI visualizations and voice.
-                    </p>
-                    <Button
-                      onClick={() => navigate('/content-transformer')}
-                      className="w-full"
-                    >
-                      Transform Content
-                    </Button>
-                  </div>
-
-                  {/* Teacher Support Bot */}
-                  <div className="clean-card p-6 card-hover">
-                    <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-                      <MessageCircle className="w-6 h-6 text-secondary" />
-                    </div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">Teacher Support Bot</h3>
-                      <span className="px-2 py-0.5 bg-secondary/10 text-secondary text-xs rounded font-medium">LIVE</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-4">
-                      24/7 AI mentor on Telegram for immediate classroom support.
-                    </p>
-                    <Button
-                      onClick={() => window.open('https://t.me/DIETTeacherBot', '_blank')}
-                      variant="secondary"
-                      className="w-full"
-                    >
-                      Chat on Telegram
-                    </Button>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+              {/* Content Transformer Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                  <FileText className="w-7 h-7 text-primary" />
                 </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">Content Transformer</h3>
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded uppercase font-bold tracking-wider">Smart RAG</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Turn NCERT books or training manuals into interactive micro-modules with AI visualizations.
+                </p>
+                <Button
+                  onClick={() => navigate('/content-transformer')}
+                  className="w-full mt-auto rounded-xl shadow-lg shadow-primary/20"
+                >
+                  Transform Now
+                </Button>
               </div>
 
-              {/* Dropout Radar Widget */}
+              {/* Simulation Arena Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-secondary/20">
+                <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center mb-6">
+                  <MessageSquare className="w-7 h-7 text-secondary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Simulation Arena</h3>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Practice handling chaotic classroom scenarios or difficult parent conversations with AI role-play.
+                </p>
+                <Button
+                  onClick={() => navigate('/simulation')}
+                  variant="secondary"
+                  className="w-full mt-auto rounded-xl shadow-lg shadow-secondary/20"
+                >
+                  Enter Arena
+                </Button>
+              </div>
+
+              {/* AI Assessment Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-accent/20">
+                <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
+                  <BookOpen className="w-7 h-7 text-accent" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">AI Assessment Copilot</h3>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Analyze formative assessment data and generate personalized learning paths for every student.
+                </p>
+                <Button
+                  onClick={() => navigate('/assessment-ai')}
+                  variant="outline"
+                  className="w-full mt-auto rounded-xl"
+                >
+                  Analyze Learning
+                </Button>
+              </div>
+
+              {/* Telegram Bot Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                  <Send className="w-7 h-7 text-primary" />
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">24/7 Teacher Bot</h3>
+                  <span className="px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] rounded uppercase font-bold tracking-wider animate-pulse">Live Now</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Get instant classroom solutions on your phone via Telegram. Your 24/7 partner for "Just-in-Time" teaching breakthroughs.
+                </p>
+                <Button
+                  onClick={() => window.open('https://t.me/diet_teacher_support_bot', '_blank')}
+                  className="w-full mt-auto rounded-xl shadow-lg shadow-primary/20 gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  Open on Telegram
+                </Button>
+              </div>
+
+              {/* Real-Time Feedback Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start">
+                <div className="w-14 h-14 bg-destructive/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Activity className="w-7 h-7 text-destructive" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Just-in-Time Support</h3>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Facing a challenge right now? Describe the situation and get evidence-based interventions instantly.
+                </p>
+                <Button
+                  onClick={() => navigate('/real-time-feedback')}
+                  variant="destructive"
+                  className="w-full mt-auto rounded-xl shadow-lg shadow-destructive/20"
+                >
+                  Get Urgent Help
+                </Button>
+              </div>
+
+              {/* Frugal TLM Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start">
+                <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Recycle className="w-7 h-7 text-emerald-500" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Frugal TLM Guide</h3>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  No lab equipment? No problem. Turn household objects into powerful teaching learning materials.
+                </p>
+                <Button
+                  onClick={() => navigate('/frugal-tlm')}
+                  variant="outline"
+                  className="w-full mt-auto rounded-xl"
+                >
+                  Scan for Ideas
+                </Button>
+              </div>
+
+              {/* Implementation Copilot Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                  <MessageCircle className="w-7 h-7 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-3">Reflection Copilot</h3>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Reflect on your teaching day and build a personalized portfolio of your professional growth.
+                </p>
+                <Button
+                  onClick={() => navigate('/implementation-copilot')}
+                  variant="outline"
+                  className="w-full mt-auto rounded-xl"
+                >
+                  Start Reflection
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* District Support & Analytics Section (Older Features) */}
+        <section className="relative py-24 px-4 bg-muted/30">
+          <div className="max-w-6xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mb-12"
+            >
+              <h2 className="text-3xl font-bold text-foreground mb-3">
+                District Support & Analytics
+              </h2>
+              <p className="text-muted-foreground text-lg max-w-2xl">
+                Advanced monitoring and predictive tools for Resource Persons (CRP/ARP/BRP) and district administrators.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+              <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {clusters.map((cluster) => (
+                    <ClusterCard
+                      key={cluster.id}
+                      {...cluster}
+                      onClick={() => handleClusterClick(cluster.id, cluster.title)}
+                    />
+                  ))}
+                </div>
+              </div>
               <div className="lg:col-span-1">
                 <DropoutRadar />
               </div>
             </div>
 
+            {/* Predictive & Agency Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              {/* Frugal TLM Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Recycle className="w-6 h-6 text-secondary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Frugal TLM Recommender</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Turn classroom materials into teaching resources with AI.
-                </p>
-                <Button
-                  onClick={() => navigate('/frugal-tlm')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Scan Resources
-                </Button>
-              </div>
-
-              {/* Simulation Arena Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <MessageSquare className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Simulation Arena</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Practice handling difficult conversations with AI role-play.
-                </p>
-                <Button
-                  onClick={() => navigate('/simulation')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Start Practice
-                </Button>
-              </div>
-
-              {/* AI Assessment Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <BookOpen className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">AI Assessment</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Analyze student performance and generate personalized plans.
-                </p>
-                <Button
-                  onClick={() => navigate('/assessment-ai')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Analyze Data
-                </Button>
-              </div>
-
-              {/* Engagement Analysis Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Activity className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Engagement Tracker</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Analyze class dynamics and get engagement boosters.
-                </p>
-                <Button
-                  onClick={() => navigate('/engagement-analysis')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Check Pulse
-                </Button>
-              </div>
-
-              {/* Implementation Copilot Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-                  <MessageSquare className="w-6 h-6 text-secondary" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Implementation Copilot</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Your personal coach for reflecting on teaching strategies.
-                </p>
-                <Button
-                  onClick={() => navigate('/implementation-copilot')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Start Reflection
-                </Button>
-              </div>
-
-              {/* Real-Time Feedback Card */}
-              <div className="clean-card p-6 card-hover">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <Activity className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Live Pulse</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Immediate in-class interventions for urgent situations.
-                </p>
-                <Button
-                  onClick={() => navigate('/real-time-feedback')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Get Help Now
-                </Button>
-              </div>
-
-              {/* Predictive Training Card */}
-              <div className="clean-card p-6 card-hover">
+              <div className="clean-card p-6 card-hover flex flex-col items-start">
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
                   <LineChart className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Predictive Training</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Forecast and prevent training gaps with predictive AI.
-                </p>
-                <Button
-                  onClick={() => navigate('/predictive-training')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Forecast Needs
-                </Button>
+                <h3 className="text-lg font-semibold mb-2">Predictive Training</h3>
+                <p className="text-muted-foreground text-sm mb-4">Forecast and prevent training gaps with predictive AI.</p>
+                <Button onClick={() => navigate('/predictive-training')} variant="outline" className="w-full mt-auto">Forecast Needs</Button>
               </div>
 
-              {/* Agency Engine Card */}
-              <div className="clean-card p-6 card-hover">
+              <div className="clean-card p-6 card-hover flex flex-col items-start">
                 <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
                   <Flame className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Agency Engine</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Tell us what you really need through interactive challenges.
-                </p>
-                <Button
-                  onClick={() => navigate('/agency-engine')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Get Started
-                </Button>
+                <h3 className="text-lg font-semibold mb-2">Agency Engine</h3>
+                <p className="text-muted-foreground text-sm mb-4">Collect authentic teacher needs through interactive challenges.</p>
+                <Button onClick={() => navigate('/agency-engine')} variant="outline" className="w-full mt-auto">Open Engine</Button>
               </div>
 
+              {/* Heatmap Card (Implicit older feature) */}
+              <div className="clean-card p-6 card-hover flex flex-col items-start">
+                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
+                  <Map className="w-6 h-6 text-secondary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">District Heatmap</h3>
+                <p className="text-muted-foreground text-sm mb-4">Visual spatial analysis of training needs and performance.</p>
+                <Button onClick={() => navigate('/cluster/all')} variant="outline" className="w-full mt-auto">View Heatmap</Button>
+              </div>
             </div>
 
-            {/* Issue cards grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {issues.map((issue, i) => (
-                <IssueCard
-                  key={issue.title}
-                  {...issue}
-                  delay={i * 0.15}
-                />
+                <IssueCard key={issue.title} {...issue} delay={i * 0.15} />
               ))}
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="relative py-20 px-4 bg-gradient-to-br from-primary/5 to-secondary/5">
+        <section className="relative py-32 px-4 overflow-hidden">
+          <div className="absolute inset-0 bg-primary/5 -skew-y-3 origin-right" />
           <div className="relative z-10 text-center max-w-3xl mx-auto">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-4xl font-bold text-foreground mb-4"
+              className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight"
             >
-              Ready to Transform Your District?
+              Start Your Coaching Journey
             </motion.h2>
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-muted-foreground mb-8 text-lg"
+              className="text-muted-foreground mb-10 text-xl leading-relaxed"
             >
-              Join thousands of educators using AI-powered insights to create better learning experiences.
+              Join a community of 48,000+ teachers transforming their classrooms with ShikshaLokam.
             </motion.p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <CTAButton onClick={handleGenerate} />
+              <Button size="lg" onClick={handleGenerate} className="px-10 py-7 text-lg rounded-2xl">
+                Try Teacher Assistant
+              </Button>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-12 border-t border-border">
+        <footer className="py-20 border-t border-border bg-muted/30">
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <p className="text-muted-foreground mb-2">
-              ShikshaLokam • Empowering Educators with AI-Driven Insights
+            <div className="flex justify-center mb-8">
+              <span className="text-2xl font-bold">Shiksha<span className="text-primary">Lokam</span></span>
+            </div>
+            <p className="text-muted-foreground max-w-2xl mx-auto mb-8 font-inter">
+              Empowering teachers as skilled professionals with "Just-in-Time" support. We believe that every teacher deserves a professional assistant.
             </p>
-            <p className="text-sm text-muted-foreground/70">
-              Supporting 124 districts and 48,200+ teachers across India
-            </p>
+            <div className="border-t border-border pt-8 mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground/70">
+                © 2026 ShikshaLokam • Professional Teacher Development
+              </p>
+              <div className="flex gap-6 text-sm text-muted-foreground/70 font-medium">
+                <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+                <a href="#" className="hover:text-primary transition-colors">Terms</a>
+                <a href="#" className="hover:text-primary transition-colors">Support</a>
+              </div>
+            </div>
           </div>
         </footer>
       </div>

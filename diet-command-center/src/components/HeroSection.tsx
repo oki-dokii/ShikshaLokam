@@ -28,21 +28,21 @@ export const HeroSection = () => {
           >
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm text-primary font-semibold">
-              System Active
+              ShikshaLokam Teacher Assistant Active
             </span>
           </motion.div>
 
           {/* Main title */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-foreground">
-            <span className="block">DIET Training</span>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-foreground tracking-tight">
+            <span className="block">ShikshaLokam</span>
             <span className="block text-primary mt-2">
-              Command Center
+              Teacher Assistant
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed">
-            Empowering teachers with AI-driven insights and real-time solutions for better learning outcomes
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed font-inter">
+            Real-time, context-aware coaching for teachers. Get the "Just-in-Time" support you need to transform your classroom and ignite student potential.
           </p>
 
           {/* Stats bar */}
@@ -53,9 +53,9 @@ export const HeroSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             {[
-              { label: "Districts Connected", value: "124" },
-              { label: "Teachers Supported", value: "48.2K" },
-              { label: "Issues Resolved", value: "1.2K" },
+              { label: "Teachers Empowered", value: "48.2K+" },
+              { label: "Queries Resolved", value: "125K+" },
+              { label: "Innovations Sparked", value: "12K+" },
             ].map((stat, i) => (
               <motion.div 
                 key={stat.label} 
@@ -67,7 +67,7 @@ export const HeroSection = () => {
                 <p className="text-3xl md:text-4xl font-bold text-primary mb-1">
                   {stat.value}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground font-medium">
                   {stat.label}
                 </p>
               </motion.div>
