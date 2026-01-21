@@ -259,28 +259,26 @@ const ContentTransformer = () => {
     // Course Builder View
     if (generatedCourse) {
         return (
-            <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
-                <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
+            <div className="min-h-screen bg-background">
                 {/* Header */}
-                <header className="flex items-center gap-4 p-4 border-b border-white/10 relative z-10 bg-slate-900/80 backdrop-blur">
-                    <Button variant="ghost" onClick={resetForm} className="text-slate-400 hover:text-white">
+                <header className="flex items-center gap-4 p-4 border-b border-border bg-card">
+                    <Button variant="ghost" onClick={resetForm}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         New Course
                     </Button>
                     <div className="flex-1">
-                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Layers className="w-5 h-5 text-brand-cyan" />
+                        <h1 className="text-lg font-bold text-foreground flex items-center gap-2">
+                            <Layers className="w-5 h-5 text-primary" />
                             {generatedCourse.title}
                         </h1>
-                        <p className="text-xs text-slate-400">{generatedCourse.description}</p>
+                        <p className="text-xs text-muted-foreground">{generatedCourse.description}</p>
                     </div>
                 </header>
 
                 {/* Main Content - Course View */}
-                <div className="flex h-[calc(100vh-73px)] relative z-10">
+                <div className="flex h-[calc(100vh-73px)]">
                     {/* Left Sidebar - Course Outline */}
-                    <div className="w-80 flex-shrink-0 border-r border-white/10 p-4 overflow-hidden">
+                    <div className="w-80 flex-shrink-0 border-r border-border p-4 overflow-hidden">
                         <CourseOutline
                             course={generatedCourse}
                             activeModuleIndex={activeModuleIndex}
@@ -310,21 +308,19 @@ const ContentTransformer = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
+        <div className="min-h-screen bg-background p-8">
             {/* Header */}
-            <header className="flex items-center gap-4 mb-8 relative z-10">
-                <Button variant="ghost" onClick={() => navigate('/')} className="text-slate-400 hover:text-white">
+            <header className="flex items-center gap-4 mb-8 max-w-7xl mx-auto">
+                <Button variant="ghost" onClick={() => navigate('/')}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Home
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-brand-cyan" />
-                        Apposite Content Transformer
+                    <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                        <Sparkles className="w-6 h-6 text-primary" />
+                        Content Transformer
                     </h1>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-muted-foreground">
                         {mode === 'quick'
                             ? 'Convert training manuals into 5-minute micro-modules'
                             : 'Create Udemy-style courses with AI-generated visualizations'}
@@ -333,23 +329,23 @@ const ContentTransformer = () => {
             </header>
 
             {/* Mode Toggle */}
-            <div className="flex gap-2 mb-8 relative z-10">
+            <div className="flex gap-2 mb-8 max-w-7xl mx-auto">
                 <button
                     onClick={() => setMode('course')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'course'
-                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                 >
                     <Layers className="w-5 h-5" />
                     Course Builder
-                    <span className="text-xs px-2 py-0.5 bg-white/20 rounded">NEW</span>
+                    <span className="text-xs px-2 py-0.5 bg-background/20 rounded">NEW</span>
                 </button>
                 <button
                     onClick={() => setMode('quick')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'quick'
-                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
                         }`}
                 >
                     <Zap className="w-5 h-5" />
@@ -357,7 +353,7 @@ const ContentTransformer = () => {
                 </button>
             </div>
 
-            <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+            <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
 
                 {/* LEFT: Input Configuration */}
                 <div className="space-y-6">

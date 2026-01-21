@@ -38,79 +38,75 @@ const PredictiveTraining = () => {
 
     const handleGenerateModule = () => {
         if (prediction?.recommendedTopic) {
-            // Deep link to Generator with pre-filled topic and Cluster A (default/mock) context
-            // In a real app, we'd select the relevant cluster.
             navigate('/module-generator', {
                 state: {
                     prefilledTopic: prediction.recommendedTopic,
-                    clusterId: "cluster-a" // Defaulting to Cluster A for demo continuity
+                    clusterId: "cluster-a"
                 }
             });
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
+        <div className="min-h-screen bg-background p-8">
             {/* Header */}
-            <header className="flex items-center gap-4 mb-8 relative z-10">
-                <Button variant="ghost" onClick={() => navigate('/heatmap')} className="text-slate-400 hover:text-white">
+            <header className="flex items-center gap-4 mb-8 max-w-6xl mx-auto">
+                <Button variant="ghost" onClick={() => navigate('/heatmap')}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Dashboard
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white flex items-center gap-2">
-                        <TrendingUp className="w-6 h-6 text-brand-cyan" />
-                        Just-in-Time Accuracy Engine
+                    <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                        <TrendingUp className="w-6 h-6 text-primary" />
+                        Predictive Training Engine
                     </h1>
-                    <p className="text-sm text-slate-400">Predictive Training Needs & Risk Prevention</p>
+                    <p className="text-sm text-muted-foreground">Forecast training needs & prevent risks</p>
                 </div>
             </header>
 
-            <main className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto relative z-10">
+            <main className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
 
                 {/* Input Section */}
                 <div className="space-y-6">
-                    <div className="bg-slate-900/50 border border-white/10 rounded-2xl p-8">
-                        <h2 className="text-xl font-bold mb-6 text-cyan-400 flex items-center gap-2">
-                            <Activity className="w-5 h-5" />
+                    <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
+                        <h2 className="text-xl font-semibold mb-6 text-foreground flex items-center gap-2">
+                            <Activity className="w-5 h-5 text-primary" />
                             Input Classroom Signals
                         </h2>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="text-sm text-slate-400 mb-1 block">Attendance Trend</label>
+                                <label className="text-sm text-muted-foreground mb-1 block font-medium">Attendance Trend</label>
                                 <Input
                                     placeholder="e.g., Dropping by 15% this month"
                                     value={metrics.attendance}
                                     onChange={(e) => setMetrics({ ...metrics, attendance: e.target.value })}
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-background"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-slate-400 mb-1 block">Test Score Trajectory</label>
+                                <label className="text-sm text-muted-foreground mb-1 block font-medium">Test Score Trajectory</label>
                                 <Input
                                     placeholder="e.g., Math scores stagnant, Language improving"
                                     value={metrics.scores}
                                     onChange={(e) => setMetrics({ ...metrics, scores: e.target.value })}
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-background"
                                 />
                             </div>
                             <div>
-                                <label className="text-sm text-slate-400 mb-1 block">Engagement Observation</label>
+                                <label className="text-sm text-muted-foreground mb-1 block font-medium">Engagement Observation</label>
                                 <Input
                                     placeholder="e.g., Students seem distracted in afternoon"
                                     value={metrics.engagement}
                                     onChange={(e) => setMetrics({ ...metrics, engagement: e.target.value })}
-                                    className="bg-slate-950 border-white/10 text-white"
+                                    className="bg-background"
                                 />
                             </div>
 
                             <Button
                                 onClick={handlePredict}
                                 disabled={isLoading}
-                                className="w-full h-12 mt-4 bg-gradient-to-r from-brand-cyan to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-bold text-white border-0"
+                                className="w-full h-12 mt-4"
                             >
                                 {isLoading ? (
                                     <span className="flex items-center gap-2">Analyzing Patterns...</span>
@@ -131,26 +127,22 @@ const PredictiveTraining = () => {
                             className="space-y-6"
                         >
                             {/* Prediction Card */}
-                            <div className="bg-gradient-to-b from-slate-800 to-slate-900 border border-brand-cyan/30 rounded-2xl p-8 relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 right-0 p-4 opacity-50">
-                                    <Sparkles className="w-24 h-24 text-brand-cyan blur-2xl" />
-                                </div>
-
-                                <span className="inline-block px-3 py-1 bg-brand-cyan/20 text-cyan-400 text-xs font-bold rounded-full mb-4 border border-brand-cyan/30">
+                            <div className="bg-card border-2 border-primary/30 rounded-xl p-8 shadow-sm">
+                                <span className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full mb-4 border border-primary/30">
                                     RECOMMENDED INTERVENTION
                                 </span>
 
-                                <h2 className="text-3xl font-bold text-white mb-4 leading-tight">
+                                <h2 className="text-3xl font-bold text-foreground mb-4 leading-tight">
                                     {prediction.recommendedTopic}
                                 </h2>
 
-                                <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+                                <p className="text-muted-foreground text-base mb-8 leading-relaxed">
                                     {prediction.rationale}
                                 </p>
 
                                 <Button
                                     onClick={handleGenerateModule}
-                                    className="w-full bg-white text-brand-dark hover:bg-slate-200 font-bold h-14 text-lg shadow-lg hover:shadow-cyan-500/20 transition-all"
+                                    className="w-full h-14 text-base"
                                 >
                                     Generate This Module Now <ArrowRight className="w-5 h-5 ml-2" />
                                 </Button>
@@ -158,16 +150,16 @@ const PredictiveTraining = () => {
 
                             {/* Risk / Preventive Card */}
                             {prediction.riskAssessment && (
-                                <div className="bg-red-950/30 border border-red-500/30 rounded-2xl p-6 flex items-start gap-4">
-                                    <div className="bg-red-500/20 p-3 rounded-xl border border-red-500/30">
-                                        <ShieldAlert className="w-8 h-8 text-red-400" />
+                                <div className="bg-destructive/5 border-2 border-destructive/30 rounded-xl p-6 flex items-start gap-4">
+                                    <div className="bg-destructive/10 p-3 rounded-xl border border-destructive/30">
+                                        <ShieldAlert className="w-8 h-8 text-destructive" />
                                     </div>
                                     <div>
-                                        <h3 className="text-red-400 font-bold text-lg mb-1">Preventive Risk Alert</h3>
-                                        <p className="text-white font-medium mb-2">{prediction.riskAssessment}</p>
-                                        <div className="bg-black/40 p-3 rounded-lg border border-white/5">
-                                            <span className="text-xs text-slate-400 uppercase tracking-wider font-bold block mb-1">Suggested Interactive Action</span>
-                                            <p className="text-sm text-slate-200">{prediction.preventiveAction}</p>
+                                        <h3 className="text-destructive font-semibold text-lg mb-1">Preventive Risk Alert</h3>
+                                        <p className="text-foreground font-medium mb-2">{prediction.riskAssessment}</p>
+                                        <div className="bg-card p-3 rounded-lg border border-border">
+                                            <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium block mb-1">Suggested Action</span>
+                                            <p className="text-sm text-foreground">{prediction.preventiveAction}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -175,10 +167,10 @@ const PredictiveTraining = () => {
 
                         </motion.div>
                     ) : (
-                        <div className="text-center text-slate-500 border-2 border-dashed border-white/5 rounded-2xl p-12">
+                        <div className="text-center text-muted-foreground border-2 border-dashed border-border rounded-xl p-12">
                             <TrendingUp className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                            <h3 className="text-xl font-medium">Ready to Analyze</h3>
-                            <p className="max-w-xs mx-auto mt-2">Enter your classroom data to get AI-driven predictions for the most impactful training module.</p>
+                            <h3 className="text-xl font-semibold">Ready to Analyze</h3>
+                            <p className="max-w-xs mx-auto mt-2 text-sm">Enter your classroom data to get AI-driven predictions for the most impactful training module.</p>
                         </div>
                     )}
                 </div>

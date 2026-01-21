@@ -91,40 +91,38 @@ const SimulationArenaContent = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
-            <header className="flex items-center gap-4 mb-4 relative z-10">
-                <Button variant="ghost" onClick={() => navigate('/heatmap')} className="text-slate-400 hover:text-white">
+        <div className="min-h-screen bg-background p-8">
+            <header className="flex items-center gap-4 mb-4 max-w-4xl mx-auto">
+                <Button variant="ghost" onClick={() => navigate('/heatmap')}>
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Dashboard
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white flex items-center gap-2">
-                        <MessageSquare className="w-6 h-6 text-brand-purple" />
+                    <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                        <MessageSquare className="w-6 h-6 text-primary" />
                         Behavioral Simulation Arena
                     </h1>
                 </div>
             </header>
 
-            <main className="max-w-4xl mx-auto h-[600px] bg-slate-900 border border-white/10 rounded-2xl relative z-10 flex flex-col overflow-hidden shadow-2xl">
+            <main className="max-w-4xl mx-auto h-[600px] bg-card border border-border rounded-xl flex flex-col overflow-hidden shadow-sm">
 
                 {!scenario ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-8">
                         <div className="text-center">
-                            <h2 className="text-3xl font-bold text-white mb-2">Choose Your Challenge</h2>
-                            <p className="text-slate-400">Select a scenario to practice your soft skills.</p>
+                            <h2 className="text-3xl font-bold text-foreground mb-2">Choose Your Challenge</h2>
+                            <p className="text-muted-foreground">Select a scenario to practice your soft skills.</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                             {[
-                                { id: 'parent', title: 'Angry Parent', desc: 'Manage a conflict via empathy.', color: 'bg-red-500/20 text-red-400 border-red-500/50' },
-                                { id: 'student', title: 'Disruptive Student', desc: 'Handle disruption positively.', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' },
-                                { id: 'colleague', title: 'Resistant Colleague', desc: 'Persuade a senior peer.', color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' }
+                                { id: 'parent', title: 'Angry Parent', desc: 'Manage a conflict via empathy.', color: 'bg-destructive/10 text-destructive border-destructive/30' },
+                                { id: 'student', title: 'Disruptive Student', desc: 'Handle disruption positively.', color: 'bg-accent/10 text-accent border-accent/30' },
+                                { id: 'colleague', title: 'Resistant Colleague', desc: 'Persuade a senior peer.', color: 'bg-primary/10 text-primary border-primary/30' }
                             ].map((s) => (
                                 <button
                                     key={s.id}
                                     onClick={() => handleStart(s.id)}
-                                    className={`p-6 rounded-xl border ${s.color} hover:bg-white/5 transition-all text-left group`}
+                                    className={`p-6 rounded-xl border-2 ${s.color} hover:bg-opacity-20 transition-all text-left group`}
                                 >
                                     <h3 className="font-bold text-lg mb-2 group-hover:underline">{s.title}</h3>
                                     <p className="text-sm opacity-80">{s.desc}</p>
@@ -134,10 +132,10 @@ const SimulationArenaContent = () => {
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
-                            <div className="flex justify-between items-center pb-4 border-b border-white/5">
-                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Live Simulation</span>
-                                <Button variant="ghost" size="sm" onClick={() => setScenario(null)} className="text-slate-400 hover:text-white text-xs">
+                        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                            <div className="flex justify-between items-center pb-4 border-b border-border">
+                                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Live Simulation</span>
+                                <Button variant="ghost" size="sm" onClick={() => setScenario(null)} className="text-xs">
                                     <RefreshCw className="w-3 h-3 mr-1" /> End Session
                                 </Button>
                             </div>
@@ -151,8 +149,8 @@ const SimulationArenaContent = () => {
                                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                     >
                                         <div className={`max-w-[70%] p-4 rounded-2xl ${msg.role === 'user'
-                                                ? 'bg-brand-purple text-white rounded-tr-none'
-                                                : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/10'
+                                                ? 'bg-primary text-primary-foreground rounded-tr-none'
+                                                : 'bg-muted text-foreground rounded-tl-none border border-border'
                                             }`}>
                                             <p className="text-sm">{msg.text}</p>
                                         </div>
@@ -161,17 +159,17 @@ const SimulationArenaContent = () => {
                             </AnimatePresence>
                             {isLoading && (
                                 <div className="flex justify-start">
-                                    <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-none border border-white/10 flex gap-1">
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-75" />
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-150" />
+                                    <div className="bg-muted p-4 rounded-2xl rounded-tl-none border border-border flex gap-1">
+                                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-75" />
+                                        <span className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce delay-150" />
                                     </div>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <div className="p-4 bg-slate-950 border-t border-white/10">
+                        <div className="p-4 bg-background border-t border-border">
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -179,12 +177,12 @@ const SimulationArenaContent = () => {
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                     placeholder="Type your response..."
-                                    className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 text-white focus:outline-none focus:border-brand-purple"
+                                    className="flex-1 bg-background border border-border rounded-xl px-4 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                                 />
                                 <Button
                                     onClick={handleSend}
                                     disabled={isLoading || !input.trim()}
-                                    className="bg-brand-purple hover:bg-purple-600 text-white rounded-xl px-6"
+                                    className="rounded-xl px-6"
                                 >
                                     <Send className="w-5 h-5" />
                                 </Button>

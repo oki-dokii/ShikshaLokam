@@ -120,32 +120,29 @@ const AgencyEngine = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
+        <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
-            <header className="p-4 flex items-center gap-4 relative z-20">
+            <header className="p-4 flex items-center gap-4 border-b border-border">
                 <Button variant="ghost" onClick={() => navigate('/')}>
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div className="flex-1">
-                    <h1 className="font-orbitron font-bold text-lg flex items-center gap-2 text-pink-500">
+                    <h1 className="font-bold text-lg flex items-center gap-2 text-accent">
                         <Flame className="w-5 h-5" />
                         The Agency Engine
                     </h1>
-                    <p className="text-xs text-slate-400">Demand-Driven Training</p>
+                    <p className="text-xs text-muted-foreground">Demand-Driven Training</p>
                 </div>
 
                 {/* Progress indicator during swiping */}
                 {step === 'swiping' && (
                     <div className="text-right">
-                        <span className="text-sm text-slate-400">
+                        <span className="text-sm text-muted-foreground">
                             {currentIndex}/{CHALLENGES.length}
                         </span>
-                        <div className="w-24 h-1 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                        <div className="w-24 h-1 bg-muted rounded-full mt-1 overflow-hidden">
                             <motion.div
-                                className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+                                className="h-full bg-gradient-to-r from-accent to-primary"
                                 initial={{ width: 0 }}
                                 animate={{ width: `${progress}%` }}
                             />
@@ -155,7 +152,7 @@ const AgencyEngine = () => {
             </header>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
+            <main className="flex-1 flex flex-col items-center justify-center p-6">
                 <AnimatePresence mode="wait">
 
                     {/* Step 1: Profile Form */}

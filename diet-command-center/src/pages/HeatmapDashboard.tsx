@@ -60,35 +60,31 @@ const HeatmapDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 overflow-hidden relative">
-            {/* Background Grids */}
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
-
+        <div className="min-h-screen bg-background overflow-hidden">
             {/* Header */}
-            <header className="relative z-10 border-b border-white/10 p-4 flex items-center justify-between backdrop-blur-md bg-slate-950/50">
+            <header className="border-b border-border p-4 flex items-center justify-between bg-card">
                 <div className="flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate('/')} className="text-slate-400 hover:text-white">
+                    <Button variant="ghost" onClick={() => navigate('/')}>
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back
                     </Button>
                     <div>
-                        <h1 className="text-xl font-orbitron font-bold tracking-wider text-white">Geospatial Classroom Insights</h1>
-                        <p className="text-xs text-slate-400">Real-time Engagement & Clarity Heatmap</p>
+                        <h1 className="text-xl font-bold text-foreground">Geospatial Classroom Insights</h1>
+                        <p className="text-xs text-muted-foreground">Real-time Engagement & Clarity Heatmap</p>
                     </div>
                 </div>
 
                 <div className="flex gap-2">
-                    <div className="flex items-center gap-2 mr-6 text-xs text-green-400 font-mono">
+                    <div className="flex items-center gap-2 mr-6 text-xs text-secondary font-mono">
                         <span className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-secondary"></span>
                         </span>
                         LIVE DATA
                     </div>
 
                     <Button
                         variant={metric === "engagement" ? "default" : "outline"}
-                        className={cn(metric === "engagement" ? "bg-cyan-600 hover:bg-cyan-500" : "border-slate-700 text-slate-400")}
                         onClick={() => setMetric("engagement")}
                     >
                         <Users className="w-4 h-4 mr-2" />
@@ -96,7 +92,6 @@ const HeatmapDashboard = () => {
                     </Button>
                     <Button
                         variant={metric === "clarity" ? "default" : "outline"}
-                        className={cn(metric === "clarity" ? "bg-purple-600 hover:bg-purple-500" : "border-slate-700 text-slate-400")}
                         onClick={() => setMetric("clarity")}
                     >
                         <Layers className="w-4 h-4 mr-2" />
@@ -105,16 +100,16 @@ const HeatmapDashboard = () => {
                 </div>
             </header>
 
-            <main className="p-8 flex gap-8 relative z-10 h-[calc(100vh-80px)]">
+            <main className="p-8 flex gap-8 h-[calc(100vh-80px)]">
 
                 {/* LEFT: Map Visualization */}
-                <div className="flex-1 bg-slate-900/40 border border-white/5 rounded-2xl p-8 flex flex-col relative overflow-hidden group">
+                <div className="flex-1 bg-card border border-border rounded-xl p-8 flex flex-col relative overflow-hidden group">
                     <div className="absolute top-4 left-4 z-20">
-                        <h2 className="text-lg font-bold flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-cyan-400" />
+                        <h2 className="text-lg font-bold flex items-center gap-2 text-foreground">
+                            <TrendingUp className="w-5 h-5 text-primary" />
                             District Heatmap ({metric})
                         </h2>
-                        <p className="text-sm text-slate-500">Hover/Click regions for details</p>
+                        <p className="text-sm text-muted-foreground">Hover/Click regions for details</p>
                     </div>
 
                     <div className="flex-1 flex items-center justify-center relative">
@@ -171,11 +166,11 @@ const HeatmapDashboard = () => {
 
                 {/* RIGHT: Stats Panel */}
                 <motion.div
-                    className="w-96 bg-slate-900/60 border border-white/10 rounded-2xl p-6 flex flex-col glass-morphism sticky top-0"
+                    className="w-96 bg-card border border-border rounded-xl p-6 flex flex-col sticky top-0 shadow-sm"
                     initial={{ x: 50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                 >
-                    <h3 className="text-xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+                    <h3 className="text-xl font-bold mb-6 text-foreground">
                         District Insights
                     </h3>
 
