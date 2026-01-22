@@ -1196,6 +1196,9 @@ JSON FORMAT:
             const parsed = JSON.parse(jsonStr);
             let finalCode = parsed.mermaidCode || '';
 
+            // Sanitize the mermaid code to prevent parsing errors
+            finalCode = sanitizeMermaidCode(finalCode);
+
             // Prepend the type if not present
             if (finalCode && !finalCode.trim().match(/^(flowchart|graph|sequenceDiagram|mindmap|timeline)/i)) {
                 finalCode = `${mermaidType}\n${finalCode}`;
@@ -1238,6 +1241,46 @@ function generateFallbackMermaid(title: string, keyPoints: string[]): string {
     });
 
     return mermaid;
+}
+
+// Sanitize Mermaid code to prevent parsing errors from special characters
+function sanitizeMermaidCode(code: string): string {
+    if (!code) return code;
+
+    // Replace problematic patterns in node labels
+    // Pattern: [Label] - sanitize the content inside brackets
+    let sanitized = code.replace(/\[([^\]]+)\]/g, (match, label) => {
+        // Remove or replace problematic characters inside labels
+        const cleanLabel = label
+            .replace(/[\[\](){}|&<>]/g, '') // Remove brackets, parens, braces, pipes
+            .replace(/['"]/g, '')           // Remove quotes
+            .replace(/\s+/g, ' ')           // Normalize whitespace
+            .trim()
+            .substring(0, 40);              // Limit length
+        return `[${cleanLabel || 'Node'}]`;
+    });
+
+    // Also handle ((label)) for mindmap root
+    sanitized = sanitized.replace(/\(\(([^)]+)\)\)/g, (match, label) => {
+        const cleanLabel = label
+            .replace(/[\[\](){}|&<>'"]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 40);
+        return `((${cleanLabel || 'Root'}))`;
+    });
+
+    // Handle {label} for decision nodes
+    sanitized = sanitized.replace(/\{([^}]+)\}/g, (match, label) => {
+        const cleanLabel = label
+            .replace(/[\[\](){}|&<>'"]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .substring(0, 40);
+        return `{${cleanLabel || 'Decision'}}`;
+    });
+
+    return sanitized;
 }
 
 export const extractTextFromImage = async (base64Image: string): Promise<string> => {
