@@ -5,11 +5,12 @@ const RAPIDAPI_KEY = import.meta.env.VITE_RAPIDAPI_KEY;
 const RAPIDAPI_HOST = import.meta.env.VITE_RAPIDAPI_HOST;
 
 // Groq API Key (Primary and Only)
-const GROQ_API_KEY = "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";
+// Priority: Env Var -> Hardcoded Dev Key
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY || "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";
 const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Fallback Key (not used but kept for compatibility)
-const GOOGLE_API_KEY_FALLBACK = "AIzaSyB7ZVtt36jp6jP-1UDqFBvj48tqIpaB55A";
+const GOOGLE_API_KEY_FALLBACK = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyB7ZVtt36jp6jP-1UDqFBvj48tqIpaB55A";
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY_FALLBACK);
 
 // Call Groq API

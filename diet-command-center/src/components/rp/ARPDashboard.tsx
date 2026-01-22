@@ -1,0 +1,189 @@
+import {
+    BookOpen,
+    GraduationCap,
+    BrainCircuit,
+    TrendingUp,
+    FileText,
+    CheckSquare,
+    Sparkles,
+    Target
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+
+const TOPIC_HEATMAP = [
+    { topic: 'Fractions', code: 'M-7-04', mastery: 45, status: 'critical', students: 120 },
+    { topic: 'Geometry', code: 'M-7-08', mastery: 72, status: 'good', students: 340 },
+    { topic: 'Algebra', code: 'M-8-02', mastery: 58, status: 'warning', students: 210 },
+    { topic: 'Data Handling', code: 'M-6-11', mastery: 88, status: 'excellent', students: 450 },
+    { topic: 'Measurement', code: 'M-5-05', mastery: 30, status: 'critical', students: 90 },
+    { topic: 'Number System', code: 'M-9-01', mastery: 65, status: 'warning', students: 180 },
+];
+
+const TRAINING_SESSIONS = [
+    { id: 1, name: 'Effective Math Pedagogy', date: 'Oct 12', attendance: '92%', impact: '+15% Scores' },
+    { id: 2, name: 'Science Lab Safety', date: 'Oct 05', attendance: '85%', impact: 'Pending' },
+];
+
+export function ARPDashboard() {
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+            {/* Top Stat Row for Academic focus */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                    { label: 'Avg Student Score', val: '68%', color: 'text-brand-blue', icon: GraduationCap },
+                    { label: 'Curriculum Covered', val: '74%', color: 'text-emerald-400', icon: BookOpen },
+                    { label: 'Learning Gaps', val: '12', color: 'text-red-400', icon: AlertIcon },
+                    { label: 'Trainings Live', val: '3', color: 'text-orange-400', icon: Target }
+                ].map((stat, i) => (
+                    <div key={i} className="p-5 rounded-2xl bg-white dark:bg-[#0F1629]/90 border border-slate-200 dark:border-white/10 backdrop-blur-md flex flex-col items-start gap-4 hover:shadow-xl transition-all group shadow-lg">
+                        <div className={`p-2 rounded-lg bg-slate-100 dark:bg-white/5 ${stat.color} group-hover:scale-110 transition-transform`}>
+                            <stat.icon className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <span className={`text-3xl font-black font-orbitron ${stat.color} drop-shadow-lg`}>{stat.val}</span>
+                            <p className="text-[10px] uppercase tracking-widest text-slate-400 mt-1 font-bold">{stat.label}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* Heatmap Section */}
+                <Card className="lg:col-span-2 bg-white dark:bg-[#0A0F1E]/90 border-slate-200 dark:border-pink-500/20 backdrop-blur-xl shadow-2xl">
+                    <CardHeader className="border-b border-slate-200 dark:border-white/5 pb-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="flex items-center gap-3 text-slate-900 dark:text-white font-orbitron tracking-wide text-xl">
+                                    <div className="p-2 rounded-lg bg-pink-500/20 text-pink-400">
+                                        <BrainCircuit className="w-5 h-5" />
+                                    </div>
+                                    Concept Mastery Heatmap
+                                </CardTitle>
+                                <CardDescription className="text-pink-200/50 mt-1">
+                                    Live performance analysis by sub-topic across {TOPIC_HEATMAP.reduce((acc, curr) => acc + curr.students, 0)} students
+                                </CardDescription>
+                            </div>
+                            <div className="flex gap-2">
+                                <Badge variant="outline" className="border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300">Math</Badge>
+                                <Badge variant="outline" className="border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300">Science</Badge>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {TOPIC_HEATMAP.map((item, i) => (
+                                <motion.div
+                                    key={i}
+                                    whileHover={{ scale: 1.02, y: -2 }}
+                                    className={`p-5 rounded-xl border relative overflow-hidden flex items-center justify-between group cursor-pointer transition-all ${item.status === 'critical' ? 'bg-red-500/10 border-red-500/30 hover:bg-red-500/20' :
+                                        item.status === 'warning' ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20' :
+                                            item.status === 'good' ? 'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20' :
+                                                'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20'
+                                        }`}
+                                >
+                                    <div className="space-y-1 relative z-10">
+                                        <div className="flex items-center gap-2">
+                                            <h4 className="font-bold text-white text-base">{item.topic}</h4>
+                                            <span className="text-[10px] text-slate-300 bg-white/10 px-1.5 rounded font-mono">{item.code}</span>
+                                        </div>
+                                        <p className="text-xs text-slate-300 font-medium">{item.students} Students Tracked</p>
+                                    </div>
+
+                                    <div className="text-right relative z-10">
+                                        <div className={`text-2xl font-black font-orbitron ${item.status === 'critical' ? 'text-red-400' :
+                                            item.status === 'warning' ? 'text-orange-400' :
+                                                item.status === 'good' ? 'text-blue-400' :
+                                                    'text-emerald-400'
+                                            }`}>{item.mastery}%</div>
+                                        <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mastery</div>
+                                    </div>
+
+                                    {/* Abstract Glow */}
+                                    <div className={`absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l to-transparent opacity-20 group-hover:opacity-30 transition-opacity ${item.status === 'critical' ? 'from-red-500' :
+                                        item.status === 'warning' ? 'from-orange-500' :
+                                            item.status === 'good' ? 'from-blue-500' :
+                                                'from-emerald-500'
+                                        }`} />
+                                </motion.div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Training Impact & Quick Actions */}
+                <div className="space-y-6">
+                    <Card className="bg-white dark:bg-[#1e293b]/90 border-brand-cyan/20 backdrop-blur-xl h-fit shadow-lg">
+                        <CardHeader className="pb-4 border-b border-slate-200 dark:border-white/5">
+                            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-white font-orbitron tracking-wide text-sm">
+                                <TrendingUp className="w-4 h-4 text-brand-cyan" /> Training Impact
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 pt-4">
+                            {TRAINING_SESSIONS.map((session) => (
+                                <div key={session.id} className="p-4 bg-slate-950/50 rounded-xl border border-white/10 hover:border-brand-cyan/30 transition-all group">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h5 className="text-sm font-bold text-white group-hover:text-brand-cyan transition-colors">{session.name}</h5>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <Badge variant="outline" className="bg-slate-900 border-white/10 text-xs h-6 px-2 text-slate-300">{session.date}</Badge>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs text-slate-400">Attd: <span className="text-white font-bold">{session.attendance}</span></span>
+                                            <Badge className={`h-6 px-2 text-xs font-bold ${session.impact.includes('+') ? 'bg-green-500/20 text-green-400 border-green-500/20' : 'bg-slate-500/20 text-slate-400'}`}>
+                                                {session.impact}
+                                            </Badge>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            <Button variant="ghost" className="w-full text-xs text-brand-cyan hover:text-white hover:bg-brand-cyan/20 border border-brand-cyan/10">View All Analytics</Button>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-brand-purple/20 to-brand-blue/10 border-brand-purple/30 backdrop-blur-xl">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-white text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                <Sparkles className="w-3 h-3 text-brand-purple" /> Quick Tools
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-3">
+                            <Button className="h-24 flex flex-col gap-3 bg-[#0F1629]/80 hover:bg-brand-purple/20 border border-white/10 hover:border-brand-purple/50 transition-all group">
+                                <FileText className="w-6 h-6 text-slate-300 group-hover:text-brand-purple transition-colors" />
+                                <span className="text-[10px] font-bold text-slate-200">Upload Lesson Plan</span>
+                            </Button>
+                            <Button className="h-24 flex flex-col gap-3 bg-[#0F1629]/80 hover:bg-brand-blue/20 border border-white/10 hover:border-brand-blue/50 transition-all group">
+                                <CheckSquare className="w-6 h-6 text-slate-300 group-hover:text-brand-blue transition-colors" />
+                                <span className="text-[10px] font-bold text-slate-200">Create Quiz</span>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function AlertIcon(props: any) {
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" x2="12" y1="8" y2="12" />
+            <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+    )
+}

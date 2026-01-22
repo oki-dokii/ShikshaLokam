@@ -17,8 +17,13 @@ import PredictiveTraining from "./pages/PredictiveTraining";
 import AgencyEngine from "./pages/AgencyEngine";
 import ContentTransformer from "./pages/ContentTransformer";
 
+import ResourcePersonDashboard from "./pages/ResourcePersonDashboard";
 import LiveQuizStudentView from "./components/content/LiveQuizStudentView";
 import NotFound from "./pages/NotFound";
+import { ThemeProvider } from "./components/theme-provider";
+import { GlobalSettings } from "./components/common/GlobalSettings";
+import { LanguageSwitcher } from "./components/common/LanguageSwitcher";
+import GoogleTranslate from "./components/common/GoogleTranslate";
 
 const queryClient = new QueryClient();
 
@@ -29,34 +34,44 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <KnowledgeProvider>
-          <Toaster />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Index />} />
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <TooltipProvider>
+        <AuthProvider>
+          <KnowledgeProvider>
+            <Toaster />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<Index />} />
 
-              {/* Protected Routes */}
-              <Route path="/module-generator" element={<PrivateRoute><ModuleGenerator /></PrivateRoute>} />
-              <Route path="/frugal-tlm" element={<PrivateRoute><FrugalRecommender /></PrivateRoute>} />
-              <Route path="/simulation" element={<PrivateRoute><SimulationArena /></PrivateRoute>} />
-              <Route path="/assessment-ai" element={<PrivateRoute><AssessmentAI /></PrivateRoute>} />
-              <Route path="/engagement-analysis" element={<PrivateRoute><EngagementAnalysis /></PrivateRoute>} />
-              <Route path="/implementation-copilot" element={<PrivateRoute><ImplementationCopilot /></PrivateRoute>} />
-              <Route path="/real-time-feedback" element={<PrivateRoute><RealTimeFeedback /></PrivateRoute>} />
-              <Route path="/predictive-training" element={<PrivateRoute><PredictiveTraining /></PrivateRoute>} />
-              <Route path="/agency-engine" element={<PrivateRoute><AgencyEngine /></PrivateRoute>} />
-              <Route path="/content-transformer" element={<PrivateRoute><ContentTransformer /></PrivateRoute>} />
+                {/* Protected Routes */}
+                <Route path="/module-generator" element={<PrivateRoute><ModuleGenerator /></PrivateRoute>} />
+                <Route path="/frugal-tlm" element={<PrivateRoute><FrugalRecommender /></PrivateRoute>} />
+                <Route path="/simulation" element={<PrivateRoute><SimulationArena /></PrivateRoute>} />
+                <Route path="/assessment-ai" element={<PrivateRoute><AssessmentAI /></PrivateRoute>} />
+                <Route path="/engagement-analysis" element={<PrivateRoute><EngagementAnalysis /></PrivateRoute>} />
+                <Route path="/implementation-copilot" element={<PrivateRoute><ImplementationCopilot /></PrivateRoute>} />
+                <Route path="/real-time-feedback" element={<PrivateRoute><RealTimeFeedback /></PrivateRoute>} />
+                <Route path="/predictive-training" element={<PrivateRoute><PredictiveTraining /></PrivateRoute>} />
+                <Route path="/agency-engine" element={<PrivateRoute><AgencyEngine /></PrivateRoute>} />
+                <Route path="/content-transformer" element={<PrivateRoute><ContentTransformer /></PrivateRoute>} />
+                <Route path="/rp-dashboard" element={<PrivateRoute><ResourcePersonDashboard /></PrivateRoute>} />
 
-              <Route path="/quiz-join/:sessionId" element={<LiveQuizStudentView />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </KnowledgeProvider>
-      </AuthProvider>
-    </TooltipProvider>
+                <Route path="/quiz-join/:sessionId" element={<LiveQuizStudentView />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+
+              {/* Global Language Switcher */}
+              <div className="fixed top-4 right-4 z-50">
+                <LanguageSwitcher />
+              </div>
+            </BrowserRouter>
+            <GlobalSettings />
+            <GoogleTranslate />
+          </KnowledgeProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
