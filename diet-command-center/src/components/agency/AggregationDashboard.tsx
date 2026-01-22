@@ -38,93 +38,106 @@ export const AggregationDashboard: React.FC<AggregationDashboardProps> = ({
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-2xl mx-auto space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-2xl mx-auto space-y-8"
         >
             {/* Main Result Card */}
-            <div className="bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/30 p-8 rounded-3xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-4 opacity-20">
-                    <Flame className="w-24 h-24 text-pink-500" />
+            <div className="clean-card p-10 border-pink-500/20 bg-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 p-10 opacity-[0.03]">
+                    <Flame className="w-32 h-32 text-pink-500" />
                 </div>
 
-                <h3 className="text-pink-400 font-mono text-xs uppercase tracking-widest mb-2">
-                    Demand Profile Match
-                </h3>
-                <h2 className="text-3xl font-bold text-white mb-4">
+                <div className="flex items-center gap-2 mb-6">
+                    <span className="px-3 py-1 bg-pink-500/10 text-pink-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-pink-500/10">
+                        Synthesized Training Demand
+                    </span>
+                </div>
+
+                <h2 className="text-4xl font-outfit font-bold text-foreground mb-4 leading-tight tracking-tight">
                     {recommendedModule}
                 </h2>
-                <p className="text-slate-300 text-lg mb-6 italic">
+                <p className="text-muted-foreground text-xl mb-10 italic font-medium leading-relaxed">
                     "{demandProfile}"
                 </p>
 
                 {/* Stats Row */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                    <div className="bg-black/30 p-4 rounded-xl text-center">
-                        <TrendingUp className="w-6 h-6 text-emerald-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">{selectedRecords.length}</div>
-                        <div className="text-xs text-slate-400">Challenges</div>
+                <div className="grid grid-cols-3 gap-6">
+                    <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 text-center">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-3 border border-emerald-200">
+                            <TrendingUp className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-foreground mb-1">{selectedRecords.length}</div>
+                        <div className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Mapped</div>
                     </div>
-                    <div className="bg-black/30 p-4 rounded-xl text-center">
-                        <Flame className="w-6 h-6 text-pink-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">{urgentRecords.length}</div>
-                        <div className="text-xs text-slate-400">Urgent</div>
+                    <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 text-center">
+                        <div className="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center mx-auto mb-3 border border-pink-200">
+                            <Flame className="w-6 h-6 text-pink-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-foreground mb-1">{urgentRecords.length}</div>
+                        <div className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Urgent</div>
                     </div>
-                    <div className="bg-black/30 p-4 rounded-xl text-center">
-                        <BarChart3 className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-                        <div className="text-2xl font-bold text-white">{swipeRecords.length}</div>
-                        <div className="text-xs text-slate-400">Total Swiped</div>
+                    <div className="bg-muted/30 p-5 rounded-2xl border border-border/50 text-center">
+                        <div className="w-10 h-10 bg-cyan-100 rounded-xl flex items-center justify-center mx-auto mb-3 border border-cyan-200">
+                            <BarChart3 className="w-6 h-6 text-cyan-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-foreground mb-1">{swipeRecords.length}</div>
+                        <div className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Total Analyzed</div>
                     </div>
                 </div>
             </div>
 
             {/* Selected Challenges List */}
             {selectedRecords.length > 0 && (
-                <div className="bg-slate-900/50 border border-white/10 p-6 rounded-2xl">
-                    <h4 className="text-sm text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <Check className="w-4 h-4 text-emerald-400" />
-                        Your Selected Challenges
+                <div className="clean-card p-8 border-border/80 bg-white">
+                    <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <Check className="w-3 h-3 text-emerald-500" />
+                        Signal Input Summary
                     </h4>
-                    <ul className="space-y-2">
+                    <div className="space-y-3">
                         {selectedRecords.map((record, i) => (
-                            <li
+                            <div
                                 key={i}
-                                className={`flex items-start gap-3 p-3 rounded-lg ${record.swipe_direction === 'up'
-                                        ? 'bg-pink-500/10 border border-pink-500/30'
-                                        : 'bg-white/5'
+                                className={`flex items-start gap-4 p-4 rounded-[1.5rem] transition-colors ${record.swipe_direction === 'up'
+                                    ? 'bg-pink-50 border border-pink-100'
+                                    : 'bg-muted/30 border border-border/50'
                                     }`}
                             >
                                 {record.swipe_direction === 'up' ? (
-                                    <Flame className="w-4 h-4 text-pink-400 mt-0.5 flex-shrink-0" />
+                                    <div className="mt-1 flex-shrink-0">
+                                        <Flame className="w-5 h-5 text-pink-500" />
+                                    </div>
                                 ) : (
-                                    <Check className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                                    <div className="mt-1 flex-shrink-0">
+                                        <Check className="w-5 h-5 text-emerald-500" />
+                                    </div>
                                 )}
-                                <span className="text-slate-200">{record.challenge_text}</span>
+                                <span className="text-foreground font-medium text-base">{record.challenge_text}</span>
                                 {record.swipe_direction === 'up' && (
-                                    <span className="ml-auto text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full">
-                                        URGENT
+                                    <span className="ml-auto flex-shrink-0 text-[9px] bg-pink-500 text-white px-2 py-0.5 rounded-md font-black tracking-widest uppercase">
+                                        Urgent
                                     </span>
                                 )}
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-4">
+            <div className="flex gap-4 pt-4">
                 <Button
                     onClick={onRestart}
                     variant="outline"
-                    className="flex-1 border-white/20 text-slate-300 hover:bg-white/10"
+                    className="flex-1 h-16 rounded-2xl border-border hover:bg-muted text-muted-foreground font-bold transition-all"
                 >
                     Start Over
                 </Button>
                 <Button
                     onClick={onGenerateModule}
-                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 font-bold"
+                    className="flex-1 h-16 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white hover:from-pink-600 hover:to-purple-600 font-bold shadow-xl shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] gap-3"
                 >
-                    Generate Training Module <ArrowRight className="w-4 h-4 ml-2" />
+                    Generate Intervention <ArrowRight className="w-5 h-5" />
                 </Button>
             </div>
         </motion.div>

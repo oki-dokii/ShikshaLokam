@@ -60,58 +60,68 @@ export const SwipeCard: React.FC<SwipeCardProps> = ({ challenge, onSwipe, isTop 
             {/* Swipe Direction Indicators */}
             {/* Left - Skip */}
             <motion.div
-                className="absolute -left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-red-500/20 border-2 border-red-500"
+                className="absolute -left-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white border-4 border-red-500 shadow-2xl z-20"
                 style={{ opacity: leftGlow }}
             >
-                <X className="w-6 h-6 text-red-500" />
+                <X className="w-8 h-8 text-red-600" />
             </motion.div>
 
             {/* Right - Select */}
             <motion.div
-                className="absolute -right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-emerald-500/20 border-2 border-emerald-500"
+                className="absolute -right-6 top-1/2 -translate-y-1/2 p-4 rounded-full bg-white border-4 border-emerald-500 shadow-2xl z-20"
                 style={{ opacity: rightGlow }}
             >
-                <Check className="w-6 h-6 text-emerald-500" />
+                <Check className="w-8 h-8 text-emerald-600" />
             </motion.div>
 
             {/* Up - Urgent */}
             <motion.div
-                className="absolute left-1/2 -translate-x-1/2 -top-4 p-3 rounded-full bg-pink-500/20 border-2 border-pink-500"
+                className="absolute left-1/2 -translate-x-1/2 -top-6 p-4 rounded-full bg-white border-4 border-pink-500 shadow-2xl z-20"
                 style={{ opacity: upGlow }}
             >
-                <Flame className="w-6 h-6 text-pink-500" />
+                <Flame className="w-8 h-8 text-pink-600" />
             </motion.div>
 
             {/* Card Content */}
-            <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 min-h-[320px] flex flex-col relative overflow-hidden shadow-2xl">
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 ${categoryStyle.bg} opacity-30`} />
+            <div className="bg-white border border-border/80 rounded-[2.5rem] p-8 min-h-[400px] flex flex-col relative overflow-hidden shadow-2xl shadow-primary/5">
+                {/* Visual Accent */}
+                <div className={`absolute top-0 left-0 w-full h-2 ${categoryStyle.bg}`} />
+                <div className={`absolute -right-20 -top-20 w-64 h-64 ${categoryStyle.bg} opacity-[0.03] rounded-full blur-3xl`} />
 
                 {/* Category Badge */}
-                <div className={`relative z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-full ${categoryStyle.bg} ${categoryStyle.text} text-xs font-semibold uppercase tracking-wider w-fit mb-6`}>
+                <div className={`relative z-10 inline-flex items-center gap-2 px-4 py-2 rounded-xl ${categoryStyle.bg} ${categoryStyle.text} text-[10px] font-black uppercase tracking-[0.15em] w-fit mb-8 border border-current/10 shadow-sm`}>
                     <IconComponent className="w-3.5 h-3.5" />
                     {categoryStyle.label}
                 </div>
 
                 {/* Challenge Text */}
-                <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
-                    <h3 className="text-2xl font-bold text-center text-white leading-tight">
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-2">
+                    <h3 className="text-3xl font-outfit font-bold text-center text-foreground leading-[1.1] tracking-tight">
                         "{challenge.text}"
                     </h3>
                 </div>
 
                 {/* Swipe Hint */}
-                <div className="relative z-10 mt-6 pt-4 border-t border-white/10">
-                    <div className="flex justify-between text-xs text-slate-500">
-                        <span className="flex items-center gap-1">
-                            <X className="w-3 h-3 text-red-400" /> Skip
-                        </span>
-                        <span className="flex items-center gap-1 text-pink-400">
-                            <Flame className="w-3 h-3" /> Urgent ↑
-                        </span>
-                        <span className="flex items-center gap-1">
-                            Select <Check className="w-3 h-3 text-emerald-400" />
-                        </span>
+                <div className="relative z-10 mt-8 pt-6 border-t border-border/60">
+                    <div className="flex justify-between items-center px-2">
+                        <div className="flex flex-col items-center gap-1 opacity-60">
+                            <div className="w-8 h-8 rounded-full border border-red-200 bg-red-50 flex items-center justify-center">
+                                <X className="w-4 h-4 text-red-500" />
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Skip</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                            <div className="w-10 h-10 rounded-full border-2 border-pink-200 bg-pink-50 flex items-center justify-center shadow-sm">
+                                <Flame className="w-5 h-5 text-pink-500" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-pink-600">Urgent</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1 opacity-60">
+                            <div className="w-8 h-8 rounded-full border border-emerald-200 bg-emerald-50 flex items-center justify-center">
+                                <Check className="w-4 h-4 text-emerald-500" />
+                            </div>
+                            <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Select</span>
+                        </div>
                     </div>
                 </div>
             </div>

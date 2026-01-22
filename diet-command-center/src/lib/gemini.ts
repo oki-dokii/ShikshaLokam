@@ -1270,3 +1270,33 @@ INSTRUCTIONS:
         throw error;
     }
 };
+
+export const askAIAssistant = async (query: string, history: { role: string, text: string }[] = []) => {
+    const script = history.length > 0
+        ? history.map(msg => `${msg.role === 'assistant' ? 'AI' : 'Teacher'}: ${msg.text}`).join('\n')
+        : "";
+
+    const prompt = `
+    You are "Shiksha AI", a brilliant, supportive, and practical AI Assistant for teachers in India.
+    Your goal is to help teachers with pedagogy, classroom management, lesson planning, and professional growth.
+    
+    Context:
+    - Target: Teachers in rural/semi-urban Indian schools.
+    - Style: Professional yet warm, encouraging, and very practical.
+    - Constraints: Suggest low-resource or no-resource solutions where possible.
+    
+    ${script ? `CONVERSATION HISTORY:\n${script}` : ''}
+    
+    Current Teacher Query: "${query}"
+    
+    Shiksha AI: (Provide a concise, helpful response. Max 100 words.)
+    `;
+
+    try {
+        const text = await callGeminiProxy([{ role: "user", parts: [{ text: prompt }] }]);
+        return text.replace(/^Shiksha AI:\s*/i, '').trim();
+    } catch (error) {
+        console.error("AI Assistant Error:", error);
+        return "I'm sorry, I'm having trouble connecting right now. How else can I support you today?";
+    }
+};

@@ -1,86 +1,63 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle, Map, Send } from "lucide-react";
+import { Recycle, MessageSquare, BookOpen, Activity, LineChart, Flame, FileText, MessageCircle, Send, Sparkles } from "lucide-react";
 import { HeroSection } from "@/components/HeroSection";
-import { ClusterCard } from "@/components/ClusterCard";
-import { IssueCard } from "@/components/IssueCard";
 import { CTAButton } from "@/components/CTAButton";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-import clusterA from "@/assets/cluster-a.png";
-import clusterB from "@/assets/cluster-b.png";
-import clusterC from "@/assets/cluster-c.png";
 
-const clusters = [
-  {
-    id: "a",
-    title: "Cluster A",
-    subtitle: "Addressing Absenteeism & Behavior",
-    image: clusterA,
-    glowColor: "cyan" as const,
-  },
-  {
-    id: "b",
-    title: "Cluster B",
-    subtitle: "Advanced Science Materials",
-    image: clusterB,
-    glowColor: "purple" as const,
-  },
-  {
-    id: "c",
-    title: "Cluster C",
-    subtitle: "Contextualized Learning",
-    image: clusterC,
-    glowColor: "orange" as const,
-  },
-];
 
-const issues = [
-  {
-    title: "High Absenteeism in Cluster A",
-    metric: "35%",
-    icon: "alert" as const,
-    glowColor: "cyan" as const,
-  },
-  {
-    title: "No Lab Equipment in Cluster B",
-    icon: "activity" as const,
-    glowColor: "purple" as const,
-  },
-  {
-    title: "Language Barrier in Cluster C",
-    icon: "book" as const,
-    glowColor: "orange" as const,
-  },
-];
-
-import { CaptureFab } from "@/components/knowledge/CaptureFab";
+import { AIVoiceAssistant } from "@/components/AIVoiceAssistant";
 import { KnowledgeProvider } from "@/context/KnowledgeContext";
-import { KnowledgeFeed } from "@/components/knowledge/KnowledgeFeed";
-import { DropoutRadar } from "@/components/dashboard/DropoutRadar";
+import { TeacherTimetable } from "@/components/dashboard/TeacherTimetable";
+import { useAuth } from "@/context/AuthContext";
+
 
 
 const Index = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout, user } = useAuth();
 
   const handleGenerate = () => {
-    toast.success("Training Program Generated!", {
-      description: "Customized modules are being prepared based on your specific classroom needs.",
-    });
+    if (isAuthenticated) {
+      navigate("/agency-engine");
+    } else {
+      navigate("/login");
+    }
   };
 
-  const handleClusterClick = (id: string, title: string) => {
-    toast.info(`Accessing ${title} data...`, {
-      description: "Loading real-time analytics",
-    });
-    navigate(`/cluster/${id}`);
-  };
+
 
   return (
     <KnowledgeProvider>
       <div className="min-h-screen bg-background overflow-hidden relative">
-        <CaptureFab />
+        <header className="fixed top-0 left-0 right-0 z-[60] bg-white/70 backdrop-blur-xl border-b border-border/50 py-4 px-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <span className="text-xl font-outfit font-black tracking-tight">Shiksha<span className="text-primary">Assistant</span></span>
+          </div>
+          <div className="flex items-center gap-4">
+            {isAuthenticated ? (
+              <div className="flex items-center gap-4">
+                <div className="hidden md:flex flex-col items-end">
+                  <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Logged in as</span>
+                  <span className="text-sm font-bold text-foreground">{user?.name}</span>
+                </div>
+                <Button variant="outline" size="sm" onClick={logout} className="rounded-xl border-border/50 hover:bg-destructive/5 hover:text-destructive hover:border-destructive/20 transition-all font-bold">
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Button size="sm" onClick={() => navigate('/login')} className="rounded-xl font-bold px-6 shadow-lg shadow-primary/20">
+                Sign In
+              </Button>
+            )}
+          </div>
+        </header>
+        <AIVoiceAssistant />
         {/* Hero Section */}
         <HeroSection />
 
@@ -99,7 +76,7 @@ const Index = () => {
                 </h2>
                 <div className="space-y-4 text-muted-foreground leading-relaxed font-inter">
                   <p>
-                    Meet Sunita, a teacher in a rural school in Jharkhand. She tries a new group activity, but the class falls into chaos. She needs a strategy <strong>now</strong>—not in three weeks when her mentor visits.
+                    Meet {isAuthenticated ? user?.name : 'Sunita'}, a teacher {isAuthenticated ? 'like you' : 'in a rural school in Jharkhand'}. {isAuthenticated ? 'You try' : 'She tries'} a new group activity, but the class falls into chaos. {isAuthenticated ? 'You need' : 'She needs'} a strategy <strong>now</strong>—not in three weeks when a mentor visits.
                   </p>
                   <p>
                     Without "just-in-time" support, the "spark" of innovation dies, replaced by rote instruction and professional burnout.
@@ -176,15 +153,9 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Knowledge Feed Section */}
-        <section className="relative py-16 px-4 bg-muted/10">
-          <div className="max-w-7xl mx-auto">
-            <div className="mb-10 text-center">
-              <h2 className="text-3xl font-bold mb-3">Teacher Insights Hub</h2>
-              <p className="text-muted-foreground">Peer-to-peer knowledge sharing for the classroom</p>
-            </div>
-            <KnowledgeFeed />
-          </div>
+        {/* Teacher Timetable Section */}
+        <section className="relative py-12 px-4 bg-muted/20">
+          <TeacherTimetable />
         </section>
 
         {/* Solutions Section */}
@@ -206,14 +177,14 @@ const Index = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-              {/* Content Transformer Card */}
-              <div className="glass-card p-8 card-hover flex flex-col items-start">
+              {/* Resource Evolution Suite Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                 <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
                   <FileText className="w-7 h-7 text-primary" />
                 </div>
                 <div className="flex items-center gap-2 mb-3">
-                  <h3 className="text-xl font-bold text-foreground">Content Transformer</h3>
-                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded uppercase font-bold tracking-wider">Smart RAG</span>
+                  <h3 className="text-xl font-bold text-foreground">Resource Evolution Suite</h3>
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded uppercase font-bold tracking-wider">AI Content</span>
                 </div>
                 <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
                   Turn NCERT books or training manuals into interactive micro-modules with AI visualizations.
@@ -288,7 +259,7 @@ const Index = () => {
                 <div className="w-14 h-14 bg-destructive/10 rounded-2xl flex items-center justify-center mb-6">
                   <Activity className="w-7 h-7 text-destructive" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Just-in-Time Support</h3>
+                <h3 className="text-xl font-bold text-foreground mb-3">Live Pulse Advisor</h3>
                 <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
                   Facing a challenge right now? Describe the situation and get evidence-based interventions instantly.
                 </p>
@@ -301,19 +272,22 @@ const Index = () => {
                 </Button>
               </div>
 
-              {/* Frugal TLM Card */}
-              <div className="glass-card p-8 card-hover flex flex-col items-start">
+              {/* Frugal Science Lab Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent">
                 <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6">
                   <Recycle className="w-7 h-7 text-emerald-500" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-3">Frugal TLM Guide</h3>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">Frugal Science Lab</h3>
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded uppercase font-bold tracking-wider">Resourceful</span>
+                </div>
                 <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
                   No lab equipment? No problem. Turn household objects into powerful teaching learning materials.
                 </p>
                 <Button
                   onClick={() => navigate('/frugal-tlm')}
                   variant="outline"
-                  className="w-full mt-auto rounded-xl"
+                  className="w-full mt-auto rounded-xl border-emerald-200 hover:bg-emerald-50 text-emerald-600"
                 >
                   Scan for Ideas
                 </Button>
@@ -336,82 +310,72 @@ const Index = () => {
                   Start Reflection
                 </Button>
               </div>
+
+              {/* Session Reflection / Engagement Tracker Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-brand-cyan/20">
+                <div className="w-14 h-14 bg-brand-cyan/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Activity className="w-7 h-7 text-brand-cyan" />
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">Daily Session Reflection</h3>
+                  <span className="px-2 py-0.5 bg-brand-cyan/10 text-brand-cyan text-[10px] rounded uppercase font-bold tracking-wider">Most Used</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Describe how your day went and get AI-powered suggestions to improve student engagement and classroom dynamics.
+                </p>
+                <Button
+                  onClick={() => navigate('/engagement-analysis')}
+                  variant="outline"
+                  className="w-full mt-auto rounded-xl border-brand-cyan/30 hover:bg-brand-cyan/5 text-brand-cyan"
+                >
+                  Reflect on Today
+                </Button>
+              </div>
+
+              {/* Agency Engine Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-pink-500/20 bg-gradient-to-br from-pink-500/5 to-transparent">
+                <div className="w-14 h-14 bg-pink-500/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Flame className="w-7 h-7 text-pink-500" />
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">Agency Engine</h3>
+                  <span className="px-2 py-0.5 bg-pink-100 text-pink-700 text-[10px] rounded uppercase font-bold tracking-wider">Demand Driven</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Collect authentic teacher needs through interactive swipe-based pedagogical challenges.
+                </p>
+                <Button
+                  onClick={() => navigate('/agency-engine')}
+                  className="w-full mt-auto rounded-xl bg-pink-600 hover:bg-pink-700 shadow-lg shadow-pink-500/20"
+                >
+                  Open Engine
+                </Button>
+              </div>
+
+              {/* Training Demand Predictor Card */}
+              <div className="glass-card p-8 card-hover flex flex-col items-start border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6">
+                  <LineChart className="w-7 h-7 text-primary" />
+                </div>
+                <div className="flex items-center gap-2 mb-3">
+                  <h3 className="text-xl font-bold text-foreground">Training Demand Predictor</h3>
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded uppercase font-bold tracking-wider">Predictive AI</span>
+                </div>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Forecast and prevent training gaps with predictive classroom analytics and risk profiling.
+                </p>
+                <Button
+                  onClick={() => navigate('/predictive-training')}
+                  variant="outline"
+                  className="w-full mt-auto rounded-xl border-primary/20 hover:bg-primary/5 text-primary"
+                >
+                  Forecast Needs
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* District Support & Analytics Section (Older Features) */}
-        <section className="relative py-24 px-4 bg-muted/30">
-          <div className="max-w-6xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-12"
-            >
-              <h2 className="text-3xl font-bold text-foreground mb-3">
-                District Support & Analytics
-              </h2>
-              <p className="text-muted-foreground text-lg max-w-2xl">
-                Advanced monitoring and predictive tools for Resource Persons (CRP/ARP/BRP) and district administrators.
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
-              <div className="lg:col-span-2">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {clusters.map((cluster) => (
-                    <ClusterCard
-                      key={cluster.id}
-                      {...cluster}
-                      onClick={() => handleClusterClick(cluster.id, cluster.title)}
-                    />
-                  ))}
-                </div>
-              </div>
-              <div className="lg:col-span-1">
-                <DropoutRadar />
-              </div>
-            </div>
-
-            {/* Predictive & Agency Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-              <div className="clean-card p-6 card-hover flex flex-col items-start">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                  <LineChart className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Predictive Training</h3>
-                <p className="text-muted-foreground text-sm mb-4">Forecast and prevent training gaps with predictive AI.</p>
-                <Button onClick={() => navigate('/predictive-training')} variant="outline" className="w-full mt-auto">Forecast Needs</Button>
-              </div>
-
-              <div className="clean-card p-6 card-hover flex flex-col items-start">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4">
-                  <Flame className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">Agency Engine</h3>
-                <p className="text-muted-foreground text-sm mb-4">Collect authentic teacher needs through interactive challenges.</p>
-                <Button onClick={() => navigate('/agency-engine')} variant="outline" className="w-full mt-auto">Open Engine</Button>
-              </div>
-
-              {/* Heatmap Card (Implicit older feature) */}
-              <div className="clean-card p-6 card-hover flex flex-col items-start">
-                <div className="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4">
-                  <Map className="w-6 h-6 text-secondary" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2">District Heatmap</h3>
-                <p className="text-muted-foreground text-sm mb-4">Visual spatial analysis of training needs and performance.</p>
-                <Button onClick={() => navigate('/cluster/all')} variant="outline" className="w-full mt-auto">View Heatmap</Button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {issues.map((issue, i) => (
-                <IssueCard key={issue.title} {...issue} delay={i * 0.15} />
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* CTA Section */}
         <section className="relative py-32 px-4 overflow-hidden">

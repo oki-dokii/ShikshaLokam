@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Flame, X, Check, ChevronUp } from "lucide-react";
+import { ArrowLeft, Flame, X, Check, ChevronUp, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { analyzeDemand } from "@/lib/gemini";
 import { toast } from "sonner";
@@ -120,30 +120,45 @@ const AgencyEngine = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col relative overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+        <div className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
+            <div className="absolute inset-0 grid-pattern opacity-[0.03] pointer-events-none" />
+
+            {/* Background Decorative Blurs */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-pink-500/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 rounded-full blur-[120px]" />
+            </div>
 
             {/* Header */}
-            <header className="p-4 flex items-center gap-4 relative z-20">
-                <Button variant="ghost" onClick={() => navigate('/')}>
+            <header className="relative z-20 px-6 py-6 flex items-center gap-6 max-w-7xl mx-auto w-full">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/')}
+                    className="rounded-full hover:bg-pink-50 text-muted-foreground transition-colors"
+                >
                     <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div className="flex-1">
-                    <h1 className="font-orbitron font-bold text-lg flex items-center gap-2 text-pink-500">
-                        <Flame className="w-5 h-5" />
+                    <div className="flex items-center gap-2 mb-1">
+                        <Flame className="w-4 h-4 text-pink-500" />
+                        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-pink-600/70">Demand Intelligence</span>
+                    </div>
+                    <h1 className="text-xl md:text-2xl font-outfit font-bold text-foreground flex items-center gap-2 tracking-tight">
                         The Agency Engine
                     </h1>
-                    <p className="text-xs text-slate-400">Demand-Driven Training</p>
                 </div>
 
                 {/* Progress indicator during swiping */}
                 {step === 'swiping' && (
-                    <div className="text-right">
-                        <span className="text-sm text-slate-400">
-                            {currentIndex}/{CHALLENGES.length}
-                        </span>
-                        <div className="w-24 h-1 bg-slate-800 rounded-full mt-1 overflow-hidden">
+                    <div className="text-right hidden md:block">
+                        <div className="flex items-center gap-3 mb-1 justify-end">
+                            <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Pulse Gauge</span>
+                            <span className="text-sm font-bold text-pink-600">
+                                {currentIndex}/{CHALLENGES.length}
+                            </span>
+                        </div>
+                        <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden border border-border/20">
                             <motion.div
                                 className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
                                 initial={{ width: 0 }}
@@ -180,17 +195,17 @@ const AgencyEngine = () => {
                             className="w-full max-w-md"
                         >
                             {/* Instructions */}
-                            <div className="text-center mb-8">
-                                <h2 className="text-2xl font-bold mb-2">What holds you back?</h2>
-                                <p className="text-slate-400 text-sm">
-                                    Swipe <span className="text-emerald-400">RIGHT</span> if you face this •
-                                    <span className="text-red-400"> LEFT</span> to skip •
-                                    <span className="text-pink-400"> UP</span> if urgent
+                            <div className="text-center mb-10">
+                                <h2 className="text-3xl font-outfit font-bold text-foreground mb-3 tracking-tight">What holds you back?</h2>
+                                <p className="text-muted-foreground font-medium flex items-center justify-center gap-3 text-sm">
+                                    <span className="flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-600 rounded-md border border-emerald-100">Right → Face this</span>
+                                    <span className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 rounded-md border border-red-100">Left ← Skip</span>
+                                    <span className="flex items-center gap-1.5 px-2 py-1 bg-pink-50 text-pink-600 rounded-md border border-pink-100">Up ↑ Urgent</span>
                                 </p>
                             </div>
 
                             {/* Card Stack */}
-                            <div className="relative w-full h-[380px]">
+                            <div className="relative w-full h-[420px] mb-4">
                                 <AnimatePresence>
                                     {CHALLENGES.slice(currentIndex, currentIndex + 2).reverse().map((challenge, i, arr) => (
                                         <SwipeCard
@@ -204,27 +219,27 @@ const AgencyEngine = () => {
                             </div>
 
                             {/* Quick Action Buttons */}
-                            <div className="flex justify-center gap-6 mt-8">
+                            <div className="flex justify-center gap-8 mt-12 relative z-20">
                                 <Button
                                     size="lg"
-                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-red-500/20 text-red-500 border-2 border-red-500/50 hover:border-red-500 transition-all"
+                                    className="rounded-full w-16 h-16 bg-white hover:bg-red-50 text-red-500 border-2 border-border/80 hover:border-red-500 shadow-xl shadow-red-500/5 transition-all group active:scale-95"
                                     onClick={() => handleQuickSwipe('left')}
                                 >
-                                    <X className="w-6 h-6" />
+                                    <X className="w-8 h-8 group-hover:scale-110 transition-transform" />
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-pink-500/20 text-pink-500 border-2 border-pink-500/50 hover:border-pink-500 transition-all"
+                                    className="rounded-full w-16 h-16 bg-white hover:bg-pink-50 text-pink-500 border-2 border-border/80 hover:border-pink-500 shadow-xl shadow-pink-500/5 transition-all group active:scale-95"
                                     onClick={() => handleQuickSwipe('up')}
                                 >
-                                    <ChevronUp className="w-6 h-6" />
+                                    <ChevronUp className="w-8 h-8 group-hover:scale-110 transition-transform" />
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-full w-14 h-14 bg-slate-800 hover:bg-emerald-500/20 text-emerald-500 border-2 border-emerald-500/50 hover:border-emerald-500 transition-all"
+                                    className="rounded-full w-16 h-16 bg-white hover:bg-emerald-50 text-emerald-500 border-2 border-border/80 hover:border-emerald-500 shadow-xl shadow-emerald-500/5 transition-all group active:scale-95"
                                     onClick={() => handleQuickSwipe('right')}
                                 >
-                                    <Check className="w-6 h-6" />
+                                    <Check className="w-8 h-8 group-hover:scale-110 transition-transform" />
                                 </Button>
                             </div>
                         </motion.div>
@@ -236,26 +251,29 @@ const AgencyEngine = () => {
                             key="complete"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-center space-y-6"
+                            className="text-center space-y-8"
                         >
-                            <div className="w-20 h-20 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Flame className="w-10 h-10 text-pink-500" />
+                            <div className="w-24 h-24 bg-pink-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-pink-500/20 shadow-inner">
+                                <Flame className="w-12 h-12 text-pink-500" />
                             </div>
-                            <h2 className="text-2xl font-bold">All Done!</h2>
-                            <p className="text-slate-400">
-                                You identified <span className="text-pink-400 font-bold">
-                                    {swipeRecords.filter(r => r.swipe_direction !== 'left').length}
-                                </span> challenges
-                                {swipeRecords.filter(r => r.swipe_direction === 'up').length > 0 && (
-                                    <>, including <span className="text-pink-500 font-bold">
-                                        {swipeRecords.filter(r => r.swipe_direction === 'up').length}
-                                    </span> urgent ones</>
-                                )}
-                            </p>
+                            <div>
+                                <h2 className="text-3xl font-outfit font-bold text-foreground mb-3">Profile Mapped</h2>
+                                <p className="text-muted-foreground font-medium text-lg max-w-md mx-auto leading-relaxed">
+                                    You have identified <span className="text-pink-600 font-black">
+                                        {swipeRecords.filter(r => r.swipe_direction !== 'left').length}
+                                    </span> core challenges,
+                                    {swipeRecords.filter(r => r.swipe_direction === 'up').length > 0 && (
+                                        <> including <span className="text-pink-500 font-black">
+                                            {swipeRecords.filter(r => r.swipe_direction === 'up').length}
+                                        </span> urgent priorities.</>
+                                    )}
+                                </p>
+                            </div>
                             <Button
                                 onClick={runAnalysis}
-                                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold h-14 px-8 rounded-full text-lg shadow-lg shadow-pink-500/20"
+                                className="bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-bold h-16 px-12 rounded-2xl text-xl shadow-2xl shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] gap-3"
                             >
+                                <Sparkles className="w-6 h-6" />
                                 Find My Training Solution
                             </Button>
                         </motion.div>
@@ -267,11 +285,13 @@ const AgencyEngine = () => {
                             key="analyzing"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="text-center"
+                            className="text-center p-12 bg-white/50 backdrop-blur-sm rounded-[3rem] border border-border/40 shadow-2xl"
                         >
-                            <div className="w-20 h-20 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin mx-auto mb-6" />
-                            <h2 className="text-xl font-bold mb-2">Analyzing Your Needs...</h2>
-                            <p className="text-slate-400 text-sm">AI is matching your demands to the best training</p>
+                            <div className="w-24 h-24 border-4 border-pink-100 border-t-pink-500 rounded-full animate-spin mx-auto mb-8 shadow-inner" />
+                            <h2 className="text-2xl font-outfit font-bold text-foreground mb-3">Synthesizing Demand...</h2>
+                            <p className="text-muted-foreground font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                                AI is mapping your specific challenges to an optimal pedagogical intervention.
+                            </p>
                         </motion.div>
                     )}
 

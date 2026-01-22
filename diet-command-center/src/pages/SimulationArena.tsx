@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, Component, ErrorInfo } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageSquare, Send, Bot, User, RefreshCw } from "lucide-react";
+import { ArrowLeft, MessageSquare, Send, Bot, User, RefreshCw, Sparkles, UserCircle, BrainCircuit, Users, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { startSimulation, continueSimulation } from "@/lib/gemini";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,13 +23,17 @@ class ErrorBoundary extends Component<{ children: React.ReactNode }, { hasError:
     render() {
         if (this.state.hasError) {
             return (
-                <div className="p-8 bg-red-900 text-white min-h-screen flex flex-col items-center justify-center">
-                    <h1 className="text-3xl font-bold mb-4">Something went wrong.</h1>
-                    <div className="bg-black p-4 rounded overflow-auto max-w-2xl w-full">
-                        <code className="text-red-400 block whitespace-pre-wrap">
+                <div className="p-8 bg-destructive/10 text-foreground min-h-screen flex flex-col items-center justify-center font-inter">
+                    <AlertCircle className="w-16 h-16 text-destructive mb-6" />
+                    <h1 className="text-3xl font-outfit font-bold mb-4 text-foreground">Simulation Interrupted</h1>
+                    <div className="glass-card p-6 max-w-2xl w-full border-destructive/20">
+                        <code className="text-destructive block whitespace-pre-wrap font-mono text-sm">
                             {this.state.error?.toString()}
                         </code>
                     </div>
+                    <Button onClick={() => window.location.reload()} className="mt-8 px-8 py-6 rounded-2xl">
+                        Restart Arena
+                    </Button>
                 </div>
             );
         }
@@ -53,20 +57,18 @@ const SimulationArenaContent = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, isLoading]);
 
     const handleStart = async (selectedScenario: string) => {
         setIsLoading(true);
         setScenario(selectedScenario);
         setMessages([]);
         try {
-            console.log("Starting simulation for:", selectedScenario);
             const { text, personaPrompt } = await startSimulation(selectedScenario);
             setPersonaContext(personaPrompt);
             setMessages([{ role: 'bot', text }]);
         } catch (error) {
             console.error(error);
-            alert("Failed to start simulation. Check console.");
         } finally {
             setIsLoading(false);
         }
@@ -91,108 +93,203 @@ const SimulationArenaContent = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+        <div className="min-h-screen bg-background text-foreground font-inter selection:bg-primary/20 overflow-hidden">
+            {/* Background Decorative Blurs */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[120px]" />
+            </div>
 
-            <header className="flex items-center gap-4 mb-4 relative z-10">
-                <Button variant="ghost" onClick={() => navigate('/heatmap')} className="text-slate-400 hover:text-white">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Dashboard
+            <header className="relative z-10 px-6 py-8 flex items-center gap-6 max-w-7xl mx-auto">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/')}
+                    className="rounded-full hover:bg-primary/10 text-muted-foreground transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white flex items-center gap-2">
-                        <MessageSquare className="w-6 h-6 text-brand-purple" />
+                    <div className="flex items-center gap-2 mb-1">
+                        <BrainCircuit className="w-4 h-4 text-secondary" />
+                        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-secondary/70">Training Module</span>
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-outfit font-bold text-foreground tracking-tight">
                         Behavioral Simulation Arena
                     </h1>
                 </div>
             </header>
 
-            <main className="max-w-4xl mx-auto h-[600px] bg-slate-900 border border-white/10 rounded-2xl relative z-10 flex flex-col overflow-hidden shadow-2xl">
-
-                {!scenario ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-8 space-y-8">
-                        <div className="text-center">
-                            <h2 className="text-3xl font-bold text-white mb-2">Choose Your Challenge</h2>
-                            <p className="text-slate-400">Select a scenario to practice your soft skills.</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                            {[
-                                { id: 'parent', title: 'Angry Parent', desc: 'Manage a conflict via empathy.', color: 'bg-red-500/20 text-red-400 border-red-500/50' },
-                                { id: 'student', title: 'Disruptive Student', desc: 'Handle disruption positively.', color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50' },
-                                { id: 'colleague', title: 'Resistant Colleague', desc: 'Persuade a senior peer.', color: 'bg-blue-500/20 text-blue-400 border-blue-500/50' }
-                            ].map((s) => (
-                                <button
-                                    key={s.id}
-                                    onClick={() => handleStart(s.id)}
-                                    className={`p-6 rounded-xl border ${s.color} hover:bg-white/5 transition-all text-left group`}
-                                >
-                                    <h3 className="font-bold text-lg mb-2 group-hover:underline">{s.title}</h3>
-                                    <p className="text-sm opacity-80">{s.desc}</p>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
-                            <div className="flex justify-between items-center pb-4 border-b border-white/5">
-                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Live Simulation</span>
-                                <Button variant="ghost" size="sm" onClick={() => setScenario(null)} className="text-slate-400 hover:text-white text-xs">
-                                    <RefreshCw className="w-3 h-3 mr-1" /> End Session
-                                </Button>
+            <main className="relative z-10 max-w-6xl mx-auto px-6 pb-20 mt-4">
+                <AnimatePresence mode="wait">
+                    {!scenario ? (
+                        <motion.div
+                            key="grid"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="space-y-12"
+                        >
+                            <div className="text-center space-y-3">
+                                <h2 className="text-3xl md:text-4xl font-outfit font-black text-foreground">Choose Your Practice Arena</h2>
+                                <p className="text-muted-foreground max-w-lg mx-auto">
+                                    Master classroom management and stakeholder engagement in a risk-free AI-driven simulation.
+                                </p>
                             </div>
 
-                            <AnimatePresence>
-                                {messages.map((msg, idx) => (
-                                    <motion.div
-                                        key={idx}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                {[
+                                    {
+                                        id: 'parent',
+                                        title: 'The Concerned Parent',
+                                        desc: 'Navigate a challenging conversation with an anxious or unhappy guardian.',
+                                        icon: UserCircle,
+                                        color: 'from-amber-500/10 to-transparent border-amber-500/20 text-amber-600'
+                                    },
+                                    {
+                                        id: 'student',
+                                        title: 'Restless Classroom',
+                                        desc: 'Address disruptive behavior while keeping the lesson on track.',
+                                        icon: User,
+                                        color: 'from-primary/10 to-transparent border-primary/20 text-primary'
+                                    },
+                                    {
+                                        id: 'colleague',
+                                        title: 'Peer Conflict',
+                                        desc: 'Discuss sensitive curriculum matters with a resistant senior colleague.',
+                                        icon: Users,
+                                        color: 'from-secondary/10 to-transparent border-secondary/20 text-secondary'
+                                    }
+                                ].map((s) => (
+                                    <motion.button
+                                        whileHover={{ y: -8, scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        key={s.id}
+                                        onClick={() => handleStart(s.id)}
+                                        className={`glass-card p-8 border hover:border-foreground/20 text-left group overflow-hidden relative shadow-lg shadow-black/5 bg-gradient-to-br ${s.color}`}
                                     >
-                                        <div className={`max-w-[70%] p-4 rounded-2xl ${msg.role === 'user'
-                                                ? 'bg-brand-purple text-white rounded-tr-none'
-                                                : 'bg-slate-800 text-slate-200 rounded-tl-none border border-white/10'
-                                            }`}>
-                                            <p className="text-sm">{msg.text}</p>
+                                        <div className="w-14 h-14 rounded-2xl bg-white/50 backdrop-blur-sm flex items-center justify-center mb-6 shadow-inner">
+                                            <s.icon className={`w-7 h-7 ${s.color.split(' ').pop()}`} />
                                         </div>
-                                    </motion.div>
+                                        <h3 className="font-outfit font-bold text-xl mb-3 text-foreground">{s.title}</h3>
+                                        <p className="text-sm text-muted-foreground leading-relaxed italic pr-4">{s.desc}</p>
+                                        <div className="mt-8 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground/50 group-hover:text-foreground transition-colors">
+                                            <span>Enter Arena</span>
+                                            <ArrowLeft className="w-3 h-3 rotate-180" />
+                                        </div>
+                                        <div className="absolute top-0 right-0 p-4 opacity-10 scale-150 rotate-12">
+                                            <s.icon className="w-16 h-16" />
+                                        </div>
+                                    </motion.button>
                                 ))}
-                            </AnimatePresence>
-                            {isLoading && (
-                                <div className="flex justify-start">
-                                    <div className="bg-slate-800 p-4 rounded-2xl rounded-tl-none border border-white/10 flex gap-1">
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" />
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-75" />
-                                        <span className="w-2 h-2 bg-slate-500 rounded-full animate-bounce delay-150" />
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="chat"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[32px] overflow-hidden flex flex-col shadow-2xl h-[750px]"
+                        >
+                            {/* Chat Header */}
+                            <div className="px-8 py-6 border-b border-white/50 bg-white/20 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <Bot className="w-6 h-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-outfit font-bold text-foreground">Simulation: {scenario.charAt(0).toUpperCase() + scenario.slice(1)}</h3>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                            <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Live System</span>
+                                        </div>
                                     </div>
                                 </div>
-                            )}
-                            <div ref={messagesEndRef} />
-                        </div>
-
-                        <div className="p-4 bg-slate-950 border-t border-white/10">
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                                    placeholder="Type your response..."
-                                    className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-4 text-white focus:outline-none focus:border-brand-purple"
-                                />
                                 <Button
-                                    onClick={handleSend}
-                                    disabled={isLoading || !input.trim()}
-                                    className="bg-brand-purple hover:bg-purple-600 text-white rounded-xl px-6"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setScenario(null)}
+                                    className="rounded-full hover:bg-destructive/5 text-destructive/70 hover:text-destructive gap-2 text-xs font-bold"
                                 >
-                                    <Send className="w-5 h-5" />
+                                    <RefreshCw className="w-3 h-3" />
+                                    Exit Session
                                 </Button>
                             </div>
-                        </div>
-                    </>
-                )}
 
+                            {/* Chat Messages */}
+                            <div className="flex-1 overflow-y-auto px-8 py-10 space-y-8 scrollbar-thin scrollbar-thumb-primary/10">
+                                <AnimatePresence initial={false}>
+                                    {messages.map((msg, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                        >
+                                            <div className={`flex gap-4 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 shadow-sm ${msg.role === 'user' ? 'bg-secondary text-white' : 'bg-primary text-white'
+                                                    }`}>
+                                                    {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                                                </div>
+                                                <div className={`p-5 rounded-3xl shadow-sm leading-relaxed ${msg.role === 'user'
+                                                    ? 'bg-gradient-to-br from-primary to-secondary text-white rounded-tr-none'
+                                                    : 'glass-card bg-white/80 border-white/50 text-foreground rounded-tl-none'
+                                                    }`}>
+                                                    <p className="text-[15px]">{msg.text}</p>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
+
+                                {isLoading && (
+                                    <div className="flex justify-start">
+                                        <div className="flex gap-4 max-w-[85%]">
+                                            <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center animate-pulse">
+                                                <Bot className="w-4 h-4" />
+                                            </div>
+                                            <div className="glass-card bg-white/80 border-white/50 p-5 rounded-3xl rounded-tl-none flex gap-1.5 items-center">
+                                                <div className="w-2 h-2 rounded-full bg-primary/40 animate-bounce" />
+                                                <div className="w-2 h-2 rounded-full bg-primary/40 animate-bounce delay-150" />
+                                                <div className="w-2 h-2 rounded-full bg-primary/40 animate-bounce delay-300" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            {/* Chat Input */}
+                            <div className="px-8 py-8 border-t border-white/50 bg-white/20">
+                                <div className="max-w-4xl mx-auto flex gap-4">
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={input}
+                                            onChange={(e) => setInput(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                            placeholder="Shape your response here..."
+                                            className="w-full h-16 bg-white border-2 border-border/50 rounded-2xl px-8 pr-16 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-xl shadow-black/5 placeholder:text-muted-foreground/50"
+                                        />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 p-2">
+                                            <Sparkles className="w-5 h-5 text-primary/30" />
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={handleSend}
+                                        disabled={isLoading || !input.trim()}
+                                        className="h-16 w-16 rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center p-0"
+                                    >
+                                        <Send className="w-6 h-6" />
+                                    </Button>
+                                </div>
+                                <div className="mt-4 text-center">
+                                    <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Practice behavioral empathy in a safe space</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </main>
         </div>
     );

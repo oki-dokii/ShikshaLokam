@@ -1,9 +1,11 @@
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { KnowledgeProvider } from "./context/KnowledgeContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
 import ModuleGenerator from "./pages/ModuleGenerator";
 import FrugalRecommender from "./pages/FrugalRecommender";
 import SimulationArena from "./pages/SimulationArena";
@@ -14,37 +16,46 @@ import RealTimeFeedback from "./pages/RealTimeFeedback";
 import PredictiveTraining from "./pages/PredictiveTraining";
 import AgencyEngine from "./pages/AgencyEngine";
 import ContentTransformer from "./pages/ContentTransformer";
-import ClusterDashboard from "./pages/ClusterDashboard";
+
 import LiveQuizStudentView from "./components/content/LiveQuizStudentView";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <KnowledgeProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
+      <AuthProvider>
+        <KnowledgeProvider>
+          <Toaster />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<Index />} />
 
-            <Route path="/module-generator" element={<ModuleGenerator />} />
-            <Route path="/frugal-tlm" element={<FrugalRecommender />} />
-            <Route path="/simulation" element={<SimulationArena />} />
-            <Route path="/assessment-ai" element={<AssessmentAI />} />
-            <Route path="/engagement-analysis" element={<EngagementAnalysis />} />
-            <Route path="/implementation-copilot" element={<ImplementationCopilot />} />
-            <Route path="/real-time-feedback" element={<RealTimeFeedback />} />
-            <Route path="/predictive-training" element={<PredictiveTraining />} />
-            <Route path="/agency-engine" element={<AgencyEngine />} />
-            <Route path="/content-transformer" element={<ContentTransformer />} />
-            <Route path="/quiz-join/:sessionId" element={<LiveQuizStudentView />} />
-            <Route path="/cluster/:clusterId" element={<ClusterDashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </KnowledgeProvider>
+              {/* Protected Routes */}
+              <Route path="/module-generator" element={<PrivateRoute><ModuleGenerator /></PrivateRoute>} />
+              <Route path="/frugal-tlm" element={<PrivateRoute><FrugalRecommender /></PrivateRoute>} />
+              <Route path="/simulation" element={<PrivateRoute><SimulationArena /></PrivateRoute>} />
+              <Route path="/assessment-ai" element={<PrivateRoute><AssessmentAI /></PrivateRoute>} />
+              <Route path="/engagement-analysis" element={<PrivateRoute><EngagementAnalysis /></PrivateRoute>} />
+              <Route path="/implementation-copilot" element={<PrivateRoute><ImplementationCopilot /></PrivateRoute>} />
+              <Route path="/real-time-feedback" element={<PrivateRoute><RealTimeFeedback /></PrivateRoute>} />
+              <Route path="/predictive-training" element={<PrivateRoute><PredictiveTraining /></PrivateRoute>} />
+              <Route path="/agency-engine" element={<PrivateRoute><AgencyEngine /></PrivateRoute>} />
+              <Route path="/content-transformer" element={<PrivateRoute><ContentTransformer /></PrivateRoute>} />
+
+              <Route path="/quiz-join/:sessionId" element={<LiveQuizStudentView />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </KnowledgeProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

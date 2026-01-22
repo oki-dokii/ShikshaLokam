@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     ArrowLeft, Sparkles, Loader2, BookOpen, Lightbulb, Target,
-    HelpCircle, FileText, Globe, Layers, Zap, Upload
+    HelpCircle, FileText, Globe, Layers, Zap, Upload, GraduationCap,
+    LucideIcon, CheckCircle2, Layout, BookMarked, Globe2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -259,34 +260,62 @@ const ContentTransformer = () => {
     // Course Builder View
     if (generatedCourse) {
         return (
-            <div className="min-h-screen bg-slate-950 text-slate-100 relative overflow-hidden">
-                <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+            <div className="min-h-screen bg-background text-foreground relative overflow-hidden flex flex-col">
+                {/* Background Decorative Blurs */}
+                <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]" />
+                </div>
 
                 {/* Header */}
-                <header className="flex items-center gap-4 p-4 border-b border-white/10 relative z-10 bg-slate-900/80 backdrop-blur">
-                    <Button variant="ghost" onClick={resetForm} className="text-slate-400 hover:text-white">
+                <header className="flex items-center gap-6 px-8 py-5 border-b border-border/50 relative z-10 bg-white/60 backdrop-blur-xl">
+                    <Button
+                        variant="ghost"
+                        onClick={resetForm}
+                        className="text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-xl font-bold transition-all"
+                    >
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         New Course
                     </Button>
+                    <div className="w-[2px] h-8 bg-border/50" />
                     <div className="flex-1">
-                        <h1 className="text-lg font-bold text-white flex items-center gap-2">
-                            <Layers className="w-5 h-5 text-brand-cyan" />
+                        <div className="flex items-center gap-2 mb-1">
+                            <Layers className="w-4 h-4 text-primary" />
+                            <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-primary/70">Strategic Resource Course</span>
+                        </div>
+                        <h1 className="text-xl font-outfit font-extrabold text-foreground tracking-tight">
                             {generatedCourse.title}
                         </h1>
-                        <p className="text-xs text-slate-400">{generatedCourse.description}</p>
+                    </div>
+
+                    <div className="hidden md:flex items-center gap-4 px-4 py-2 bg-muted/50 rounded-2xl border border-border/50">
+                        <div className="flex -space-x-2">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center">
+                                    <GraduationCap className="w-3 h-3 text-primary/50" />
+                                </div>
+                            ))}
+                        </div>
+                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Immersion Mode</span>
                     </div>
                 </header>
 
                 {/* Main Content - Course View */}
-                <div className="flex h-[calc(100vh-73px)] relative z-10">
+                <div className="flex flex-1 relative z-10 overflow-hidden">
                     {/* Left Sidebar - Course Outline */}
-                    <div className="w-80 flex-shrink-0 border-r border-white/10 p-4 overflow-hidden">
-                        <CourseOutline
-                            course={generatedCourse}
-                            activeModuleIndex={activeModuleIndex}
-                            onSelectModule={setActiveModuleIndex}
-                        />
-                    </div>
+                    <aside className="w-[320px] flex-shrink-0 border-r border-border/50 bg-white/40 backdrop-blur-md overflow-hidden flex flex-col">
+                        <div className="p-6 border-b border-border/50 bg-muted/30">
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Architecture</h3>
+                            <p className="text-sm text-foreground/80 font-medium line-clamp-2">{generatedCourse.description}</p>
+                        </div>
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-3">
+                            <CourseOutline
+                                course={generatedCourse}
+                                activeModuleIndex={activeModuleIndex}
+                                onSelectModule={setActiveModuleIndex}
+                            />
+                        </div>
+                    </aside>
 
                     {/* Main Content - Module Viewer */}
                     <div className="flex-1 p-6 overflow-y-auto">
@@ -310,46 +339,54 @@ const ContentTransformer = () => {
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 text-slate-100 p-8 relative overflow-hidden">
-            <div className="absolute inset-0 grid-pattern opacity-10 pointer-events-none" />
+        <div className="min-h-screen bg-background text-foreground p-8 relative overflow-hidden">
+            <div className="absolute inset-0 grid-pattern opacity-[0.03] pointer-events-none" />
+
+            {/* Background Decorative Blurs */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]" />
+            </div>
 
             {/* Header */}
-            <header className="flex items-center gap-4 mb-8 relative z-10">
-                <Button variant="ghost" onClick={() => navigate('/')} className="text-slate-400 hover:text-white">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Home
+            <header className="relative z-10 px-6 py-8 flex items-center gap-6 max-w-7xl mx-auto">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/')}
+                    className="rounded-full hover:bg-primary/10 text-muted-foreground transition-colors"
+                >
+                    <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-orbitron font-bold text-white flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-brand-cyan" />
-                        Apposite Content Transformer
+                    <div className="flex items-center gap-2 mb-1">
+                        <GraduationCap className="w-4 h-4 text-primary" />
+                        <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-primary/70">Content Adaptation</span>
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-outfit font-bold text-foreground tracking-tight">
+                        Resource Evolution Suite
                     </h1>
-                    <p className="text-sm text-slate-400">
-                        {mode === 'quick'
-                            ? 'Convert training manuals into 5-minute micro-modules'
-                            : 'Create Udemy-style courses with AI-generated visualizations'}
-                    </p>
                 </div>
             </header>
 
             {/* Mode Toggle */}
-            <div className="flex gap-2 mb-8 relative z-10">
+            <div className="flex gap-4 mb-10 relative z-10 max-w-7xl mx-auto px-6">
                 <button
                     onClick={() => setMode('course')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'course'
-                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all shadow-sm border ${mode === 'course'
+                        ? 'bg-primary text-white border-primary shadow-primary/20 scale-100'
+                        : 'bg-white border-border text-muted-foreground hover:border-primary/30 hover:text-foreground scale-[0.98]'
                         }`}
                 >
-                    <Layers className="w-5 h-5" />
+                    <Layout className="w-5 h-5" />
                     Course Builder
-                    <span className="text-xs px-2 py-0.5 bg-white/20 rounded">NEW</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full ml-2 ${mode === 'course' ? 'bg-white/20' : 'bg-primary/10 text-primary'}`}>PREMIUM</span>
                 </button>
                 <button
                     onClick={() => setMode('quick')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${mode === 'quick'
-                        ? 'bg-gradient-to-r from-brand-cyan to-purple-500 text-white shadow-lg shadow-cyan-500/20'
-                        : 'bg-slate-800 text-slate-400 hover:text-white'
+                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all shadow-sm border ${mode === 'quick'
+                        ? 'bg-primary text-white border-primary shadow-primary/20 scale-100'
+                        : 'bg-white border-border text-muted-foreground hover:border-primary/30 hover:text-foreground scale-[0.98]'
                         }`}
                 >
                     <Zap className="w-5 h-5" />
@@ -357,33 +394,34 @@ const ContentTransformer = () => {
                 </button>
             </div>
 
-            <main className="grid grid-cols-1 lg:grid-cols-2 gap-8 relative z-10">
+            <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
 
                 {/* LEFT: Input Configuration */}
-                <div className="space-y-6">
+                <div className="lg:col-span-5 space-y-8 px-6 lg:px-0">
 
                     {/* NCERT Mode Toggle & Selector */}
-                    <div className="bg-slate-900/60 border border-brand-cyan/20 rounded-2xl p-6 relative overflow-hidden">
-                        <div className={`absolute top-0 right-0 p-2 ${isNcertMode ? 'opacity-100' : 'opacity-20'}`}>
-                            <BookOpen className="w-12 h-12 text-brand-cyan -rotate-12 translate-x-4 -translate-y-4" />
+                    <div className="clean-card p-8 border-border/80 relative overflow-hidden bg-white">
+                        <div className={`absolute top-0 right-0 p-4 ${isNcertMode ? 'opacity-100' : 'opacity-[0.05]'}`}>
+                            <BookOpen className="w-16 h-16 text-primary -rotate-12" />
                         </div>
 
-                        <div className="flex items-center justify-between mb-4">
-                            <div>
-                                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                                    <BookOpen className="w-5 h-5 text-brand-cyan" />
-                                    NCERT RAG Mode
-                                </h2>
-                                <p className="text-xs text-slate-400">Align content strictly with NCERT syllabus</p>
+                        <div className="flex items-center justify-between mb-6 relative z-10">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <BookMarked className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h2 className="text-xl font-outfit font-bold text-foreground">NCERT RAG Mode</h2>
+                                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Strict Syllabus Alignment</p>
+                                </div>
                             </div>
                             <button
                                 onClick={() => setIsNcertMode(!isNcertMode)}
-                                className={`w-12 h-6 rounded-full transition-all relative ${isNcertMode ? 'bg-brand-cyan' : 'bg-slate-700'
-                                    }`}
+                                className={`w-14 h-7 rounded-full transition-all relative shadow-inner ${isNcertMode ? 'bg-primary' : 'bg-muted-foreground/20'}`}
                             >
                                 <motion.div
-                                    animate={{ x: isNcertMode ? 26 : 4 }}
-                                    className="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow-lg"
+                                    animate={{ x: isNcertMode ? 30 : 4 }}
+                                    className="absolute top-1 left-0 w-5 h-5 bg-white rounded-full shadow-md"
                                 />
                             </button>
                         </div>
@@ -396,7 +434,7 @@ const ContentTransformer = () => {
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <div className="pt-4 border-t border-white/5">
+                                    <div className="pt-6 border-t border-primary/10 mt-2">
                                         <NCERTSourceSelector
                                             selectedSource={selectedNcertSource}
                                             onSelect={(source) => {
@@ -414,109 +452,102 @@ const ContentTransformer = () => {
                     </div>
 
                     {/* Source Content Selection */}
-                    <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6">
-                        <h2 className="text-lg font-bold mb-4 text-cyan-400 flex items-center gap-2">
-                            <FileText className="w-5 h-5" />
-                            {mode === 'course' ? 'Upload Course Content' : 'Source Training Content'}
-                        </h2>
+                    <div className="clean-card p-8 border-border/80 bg-white">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
+                                <FileText className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-outfit font-bold text-foreground">
+                                    {mode === 'course' ? 'Upload Course Content' : 'Training Content'}
+                                </h2>
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Source Material</p>
+                            </div>
+                        </div>
 
                         {mode === 'course' ? (
-                            /* Course Builder - File Upload */
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <FileUploader
                                     onContentExtracted={handleFileContentExtracted}
                                     isProcessing={isTransforming}
                                 />
 
-                                {/* Or paste content */}
                                 <div className="relative">
                                     <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-white/10"></div>
+                                        <div className="w-full border-t border-border/50"></div>
                                     </div>
                                     <div className="relative flex justify-center">
-                                        <span className="px-3 bg-slate-900 text-slate-500 text-sm">or paste content</span>
+                                        <span className="px-4 bg-card text-muted-foreground text-[10px] font-black uppercase tracking-widest">or paste content</span>
                                     </div>
                                 </div>
 
-                                <Textarea
+                                <textarea
                                     placeholder="Paste your syllabus, course outline, or teaching content here... (minimum 100 characters)"
                                     value={customContent}
                                     onChange={(e) => {
                                         setCustomContent(e.target.value);
                                         setUseCustomContent(true);
                                     }}
-                                    className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-32"
+                                    className="w-full h-40 bg-white/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
                                 />
-
-                                {customContent && (
-                                    <p className="text-xs text-slate-500">
-                                        {customContent.length} characters • Ready to generate
-                                    </p>
-                                )}
                             </div>
                         ) : (
-                            /* Quick Transform - Sample Manuals */
                             <>
-                                {/* Toggle between sample and custom */}
-                                <div className="flex gap-2 mb-4">
+                                <div className="flex p-1 bg-muted rounded-2xl mb-8">
                                     <button
                                         onClick={() => setUseCustomContent(false)}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${!useCustomContent
-                                            ? 'bg-brand-cyan text-brand-dark'
-                                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                                        className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${!useCustomContent
+                                            ? 'bg-white text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
                                         Sample Manuals
                                     </button>
                                     <button
                                         onClick={() => setUseCustomContent(true)}
-                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${useCustomContent
-                                            ? 'bg-brand-cyan text-brand-dark'
-                                            : 'bg-slate-800 text-slate-400 hover:text-white'
+                                        className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${useCustomContent
+                                            ? 'bg-white text-primary shadow-sm'
+                                            : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
-                                        Paste Custom Content
+                                        Custom Paste
                                     </button>
                                 </div>
 
                                 {!useCustomContent ? (
-                                    <div className="space-y-2">
-                                        <label className="text-sm text-slate-400">Select from sample training manuals:</label>
-                                        <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                                    <div className="space-y-3">
+                                        <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                                             {SAMPLE_MANUALS.map((manual) => (
                                                 <div
                                                     key={manual.id}
                                                     onClick={() => setSelectedManual(manual)}
-                                                    className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedManual?.id === manual.id
-                                                        ? 'border-brand-cyan bg-brand-cyan/10'
-                                                        : 'border-white/10 bg-slate-800/50 hover:border-white/30'
+                                                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${selectedManual?.id === manual.id
+                                                        ? 'border-primary bg-primary/5 shadow-md shadow-primary/5'
+                                                        : 'border-border/50 bg-white/40 hover:border-primary/30 hover:bg-white/60'
                                                         }`}
                                                 >
-                                                    <h4 className="font-medium text-white text-sm">{manual.title}</h4>
-                                                    <p className="text-xs text-slate-500 mt-1">{manual.source}</p>
-                                                    <div className="flex gap-1 mt-2">
-                                                        {manual.topics.slice(0, 2).map(topic => (
-                                                            <span key={topic} className="text-xs px-2 py-0.5 bg-slate-700 rounded text-slate-400">
-                                                                {topic}
-                                                            </span>
-                                                        ))}
+                                                    <div className="relative z-10">
+                                                        <h4 className="font-bold text-foreground text-[15px]">{manual.title}</h4>
+                                                        <p className="text-[11px] text-muted-foreground mt-1 font-medium">{manual.source}</p>
+                                                        <div className="flex gap-2 mt-4">
+                                                            {manual.topics.slice(0, 3).map(topic => (
+                                                                <span key={topic} className="text-[10px] px-2.5 py-1 bg-muted rounded-full text-muted-foreground font-bold uppercase tracking-wider">
+                                                                    {topic}
+                                                                </span>
+                                                            ))}
+                                                        </div>
                                                     </div>
+                                                    <CheckCircle2 className={`absolute top-4 right-4 w-5 h-5 text-primary transition-all ${selectedManual?.id === manual.id ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} />
                                                 </div>
                                             ))}
                                         </div>
-                                        {selectedManual && (
-                                            <div className="mt-3 p-3 bg-slate-800/50 rounded-lg border border-white/5">
-                                                <p className="text-xs text-slate-400 mb-1">Preview:</p>
-                                                <p className="text-sm text-slate-300 line-clamp-3">{selectedManual.content.substring(0, 200)}...</p>
-                                            </div>
-                                        )}
                                     </div>
                                 ) : (
-                                    <Textarea
+                                    <textarea
                                         placeholder="Paste your training manual content here... (minimum 50 characters)"
                                         value={customContent}
                                         onChange={(e) => setCustomContent(e.target.value)}
-                                        className="bg-slate-900 border-white/10 focus:border-brand-cyan text-slate-200 placeholder:text-slate-600 resize-none h-48"
+                                        className="w-full h-60 bg-white/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
                                     />
                                 )}
                             </>
@@ -524,19 +555,24 @@ const ContentTransformer = () => {
                     </div>
 
                     {/* Teacher Profile */}
-                    <div className="bg-slate-900/60 border border-white/10 rounded-2xl p-6">
-                        <h2 className="text-lg font-bold mb-4 text-purple-400 flex items-center gap-2">
-                            <Target className="w-5 h-5" />
-                            Target Teacher Profile
-                        </h2>
-
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="clean-card p-8 border-border/80 bg-white">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                <Target className="w-6 h-6" />
+                            </div>
                             <div>
-                                <label className="text-sm text-slate-400 block mb-1">Region/Context</label>
+                                <h2 className="text-xl font-outfit font-bold text-foreground">Target Profile</h2>
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Personalization Context</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Region/Context</label>
                                 <select
                                     value={region}
                                     onChange={(e) => setRegion(e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-purple-400 outline-none"
+                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
                                 >
                                     <option value="rural-chhattisgarh">Rural Chhattisgarh</option>
                                     <option value="tribal-bastar">Tribal Bastar</option>
@@ -545,12 +581,12 @@ const ContentTransformer = () => {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-sm text-slate-400 block mb-1">School Type</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">School Type</label>
                                 <select
                                     value={schoolType}
                                     onChange={(e) => setSchoolType(e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-purple-400 outline-none"
+                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
                                 >
                                     {SCHOOL_TYPES.map(type => (
                                         <option key={type} value={type}>{type}</option>
@@ -558,17 +594,17 @@ const ContentTransformer = () => {
                                 </select>
                             </div>
 
-                            <div className="col-span-2">
-                                <label className="text-sm text-slate-400 block mb-1 flex items-center gap-2">
-                                    <Globe className="w-4 h-4" />
-                                    Output Language ({showAllLanguages ? SUPPORTED_LANGUAGES.length : INDIAN_LANGUAGES.length + 1} options)
+                            <div className="col-span-2 space-y-3">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
+                                    <Globe2 className="w-3 h-3 text-primary" />
+                                    Output Language
                                 </label>
                                 <select
                                     value={languageCode}
                                     onChange={(e) => setLanguageCode(e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-purple-400 outline-none"
+                                    className="w-full bg-white border-2 border-primary/40 rounded-2xl p-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold appearance-none cursor-pointer shadow-sm"
                                 >
-                                    <option value="en">🌐 English (Default - No Translation)</option>
+                                    <option value="en">🌐 English (No Translation)</option>
                                     <optgroup label="━━ Indian Languages ━━">
                                         {INDIAN_LANGUAGES.map(lang => (
                                             <option key={lang.code} value={lang.code}>
@@ -591,18 +627,18 @@ const ContentTransformer = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowAllLanguages(!showAllLanguages)}
-                                    className="text-xs text-brand-cyan hover:text-cyan-300 mt-1"
+                                    className="text-xs font-bold text-primary hover:text-primary-dark transition-colors px-2"
                                 >
-                                    {showAllLanguages ? '← Show Indian Languages Only' : `Show All ${SUPPORTED_LANGUAGES.length} Languages →`}
+                                    {showAllLanguages ? '← Use Indian Languages Only' : `🌐 Show All ${SUPPORTED_LANGUAGES.length} Languages →`}
                                 </button>
                             </div>
 
-                            <div>
-                                <label className="text-sm text-slate-400 block mb-1">Grade Level</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Grade Level</label>
                                 <select
                                     value={grade}
                                     onChange={(e) => setGrade(e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-purple-400 outline-none"
+                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
                                 >
                                     {GRADE_LEVELS.map(g => (
                                         <option key={g} value={g}>{g}</option>
@@ -610,12 +646,12 @@ const ContentTransformer = () => {
                                 </select>
                             </div>
 
-                            <div>
-                                <label className="text-sm text-slate-400 block mb-1">Subject</label>
+                            <div className="space-y-2">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Subject</label>
                                 <select
                                     value={subject}
                                     onChange={(e) => setSubject(e.target.value)}
-                                    className="w-full bg-slate-900 border border-white/10 rounded-lg p-2.5 text-white text-sm focus:border-purple-400 outline-none"
+                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
                                 >
                                     {SUBJECTS.map(s => (
                                         <option key={s} value={s}>{s}</option>
@@ -623,37 +659,36 @@ const ContentTransformer = () => {
                                 </select>
                             </div>
 
-                            {/* Number of Modules (Course Builder Only) */}
                             {mode === 'course' && (
-                                <div className="col-span-2">
-                                    <label className="text-sm text-slate-400 block mb-1 flex items-center gap-2">
-                                        <Layers className="w-4 h-4" />
-                                        Number of Modules
-                                    </label>
-                                    <div className="flex items-center gap-4">
-                                        <input
-                                            type="range"
-                                            min="3"
-                                            max="30"
-                                            value={numberOfModules}
-                                            onChange={(e) => setNumberOfModules(Number(e.target.value))}
-                                            className="flex-1 accent-brand-cyan"
-                                        />
-                                        <span className="text-lg font-bold text-brand-cyan w-8">{numberOfModules}</span>
+                                <div className="col-span-2 pt-4">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Number of Modules</label>
+                                        <span className="text-lg font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{numberOfModules}</span>
                                     </div>
-                                    <p className="text-xs text-slate-500 mt-1">
-                                        Estimated duration: ~{numberOfModules * 7} minutes
+                                    <input
+                                        type="range"
+                                        min="3"
+                                        max="30"
+                                        value={numberOfModules}
+                                        onChange={(e) => setNumberOfModules(Number(e.target.value))}
+                                        className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground font-medium mt-3 uppercase tracking-widest">
+                                        Estimated duration: ~{numberOfModules * 7} minutes immersion
                                     </p>
                                 </div>
                             )}
                         </div>
 
                         {/* Local Context Preview */}
-                        <div className="mt-4 p-3 bg-slate-800/50 rounded-lg border border-white/5">
-                            <p className="text-xs text-slate-400 mb-2">Local context that will be applied:</p>
-                            <div className="flex flex-wrap gap-1">
-                                {getLocalContext().localMetaphors.slice(0, 3).map(m => (
-                                    <span key={m} className="text-xs px-2 py-0.5 bg-purple-900/30 border border-purple-500/30 rounded text-purple-300">
+                        <div className="mt-8 p-5 bg-muted/30 rounded-2xl border border-border/50 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-3 opacity-10">
+                                <Sparkles className="w-10 h-10 text-primary" />
+                            </div>
+                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground mb-3">AI Context Injection</p>
+                            <div className="flex flex-wrap gap-2">
+                                {getLocalContext().localMetaphors.slice(0, 4).map(m => (
+                                    <span key={m} className="text-[11px] px-3 py-1.5 bg-white border border-primary/10 rounded-full text-foreground/70 font-bold shadow-sm">
                                         {m}
                                     </span>
                                 ))}
@@ -666,120 +701,116 @@ const ContentTransformer = () => {
                         <Button
                             onClick={mode === 'course' ? handleCourseGeneration : handleQuickTransform}
                             disabled={isTransforming || ncertLoading || (!selectedManual && !customContent.trim() && !selectedNcertSource)}
-                            className="w-full h-14 text-lg bg-gradient-to-r from-brand-cyan to-purple-500 text-white hover:from-cyan-400 hover:to-purple-400 font-bold relative overflow-hidden disabled:opacity-50"
+                            className="w-full h-16 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] gap-4"
                         >
                             {isTransforming || ncertLoading ? (
-                                <div className="flex items-center gap-2">
+                                <>
                                     <Loader2 className="w-6 h-6 animate-spin" />
-                                    {ncertLoading
-                                        ? 'Loading NCERT Context...'
-                                        : (mode === 'course' ? 'Generating Course Modules...' : 'Transforming Content...')
-                                    }
-                                </div>
+                                    <span>
+                                        {ncertLoading
+                                            ? 'Loading NCERT Context...'
+                                            : (mode === 'course' ? `Generating ${numberOfModules} Modules...` : 'Transforming Content...')
+                                        }
+                                    </span>
+                                </>
                             ) : (
-                                <div className="flex items-center gap-2">
+                                <>
                                     {mode === 'course' ? (
                                         <>
                                             <Layers className="w-6 h-6" />
-                                            Generate {numberOfModules} Micro-Modules
+                                            <span>Build Resource Course</span>
                                         </>
                                     ) : (
                                         <>
                                             <Sparkles className="w-6 h-6" />
-                                            Transform to 5-Minute Micro-Module
+                                            <span>Transform to Micro-Module</span>
                                         </>
                                     )}
-                                </div>
+                                </>
                             )}
                         </Button>
                     )}
                 </div>
 
                 {/* RIGHT: Output */}
-                <div className="min-h-[500px]">
+                <div className="lg:col-span-7 min-h-[600px] px-6 lg:px-0 relative">
                     <AnimatePresence mode="wait">
                         {microModule ? (
                             <motion.div
                                 key="output"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-white/10"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="clean-card overflow-hidden shadow-2xl border-border bg-white"
                             >
                                 {/* Header */}
-                                <div className="bg-gradient-to-r from-brand-cyan/20 to-purple-500/20 p-6 border-b border-white/10">
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <span className="px-2 py-1 bg-brand-cyan text-brand-dark text-xs rounded font-bold">
-                                            5-MIN MICRO-MODULE
+                                <div className="bg-primary p-8 text-white relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                                        <Sparkles className="w-24 h-24" />
+                                    </div>
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest border border-white/30">
+                                            Immersion Module
                                         </span>
-                                        <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded font-medium">
-                                            {region.replace(/-/g, ' ').toUpperCase()}
+                                        <span className="px-3 py-1 bg-secondary/30 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
+                                            5 MINUTE READ
                                         </span>
                                     </div>
-                                    <h2 className="text-xl font-bold text-white">From: {microModule.sourceTitle}</h2>
-                                    <p className="text-sm text-slate-400 mt-1">
-                                        Adapted for {grade} • {subject} • {SUPPORTED_LANGUAGES.find(l => l.code === languageCode)?.name || 'English'}
-                                    </p>
-                                </div>
-
-                                {/* Content Sections */}
-                                <div className="p-6 space-y-6">
-
-                                    {/* Core Idea */}
-                                    <div className="bg-slate-800/50 rounded-xl p-5 border border-cyan-500/20">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center">
-                                                <Lightbulb className="w-4 h-4 text-cyan-400" />
-                                            </div>
-                                            <h3 className="font-bold text-cyan-400">One Core Idea</h3>
+                                    <h2 className="text-2xl font-outfit font-bold leading-tight">
+                                        {microModule.sourceTitle}
+                                    </h2>
+                                    <div className="flex items-center gap-4 mt-6 text-sm font-medium text-white/80">
+                                        <div className="flex items-center gap-1.5">
+                                            <Globe2 className="w-4 h-4" />
+                                            {SUPPORTED_LANGUAGES.find(l => l.code === languageCode)?.name || 'English'}
                                         </div>
-                                        <p className="text-slate-200 leading-relaxed">{microModule.coreIdea}</p>
-                                    </div>
-
-                                    {/* Classroom Example */}
-                                    <div className="bg-slate-800/50 rounded-xl p-5 border border-green-500/20">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                                <BookOpen className="w-4 h-4 text-green-400" />
-                                            </div>
-                                            <h3 className="font-bold text-green-400">One Classroom Example</h3>
+                                        <div className="flex items-center gap-1.5">
+                                            <GraduationCap className="w-4 h-4" />
+                                            {grade}
                                         </div>
-                                        <p className="text-slate-200 leading-relaxed">{microModule.classroomExample}</p>
-                                    </div>
-
-                                    {/* Action Step */}
-                                    <div className="bg-slate-800/50 rounded-xl p-5 border border-orange-500/20">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                                                <Target className="w-4 h-4 text-orange-400" />
-                                            </div>
-                                            <h3 className="font-bold text-orange-400">One Action Step</h3>
-                                        </div>
-                                        <p className="text-slate-200 leading-relaxed">{microModule.actionStep}</p>
-                                    </div>
-
-                                    {/* Reflection Question */}
-                                    <div className="bg-slate-800/50 rounded-xl p-5 border border-purple-500/20">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                                                <HelpCircle className="w-4 h-4 text-purple-400" />
-                                            </div>
-                                            <h3 className="font-bold text-purple-400">One Reflection Question</h3>
-                                        </div>
-                                        <p className="text-slate-200 leading-relaxed italic">{microModule.reflectionQuestion}</p>
                                     </div>
                                 </div>
 
-                                {/* Footer Actions */}
-                                <div className="p-6 border-t border-white/10 flex gap-4">
+                                {/* Content Grid */}
+                                <div className="p-8 space-y-6">
+                                    {[
+                                        { title: "Core Concept", content: microModule.coreIdea, color: "text-primary", icon: Lightbulb, bg: "bg-primary/5", border: "border-primary/10" },
+                                        { title: "Interactive Example", content: microModule.classroomExample, color: "text-emerald-600", icon: Layout, bg: "bg-emerald-500/5", border: "border-emerald-500/10" },
+                                        { title: "Practical Action", content: microModule.actionStep, color: "text-amber-600", icon: Target, bg: "bg-amber-500/5", border: "border-amber-500/10" },
+                                        { title: "Personal Reflection", content: microModule.reflectionQuestion, color: "text-secondary", icon: HelpCircle, bg: "bg-secondary/5", border: "border-secondary/10", italic: true }
+                                    ].map((section, idx) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: idx * 0.1 }}
+                                            className={`p-6 rounded-2xl border ${section.border} ${section.bg} group hover:shadow-md transition-all`}
+                                        >
+                                            <div className="flex items-center gap-3 mb-3">
+                                                <div className={`w-8 h-8 rounded-lg ${section.bg} border ${section.border} flex items-center justify-center ${section.color}`}>
+                                                    <section.icon className="w-4 h-4" />
+                                                </div>
+                                                <h3 className={`font-black text-[10px] uppercase tracking-widest ${section.color}`}>
+                                                    {section.title}
+                                                </h3>
+                                            </div>
+                                            <p className={`text-foreground/80 leading-relaxed text-sm ${section.italic ? 'italic font-medium' : ''}`}>
+                                                {section.content}
+                                            </p>
+                                        </motion.div>
+                                    ))}
+                                </div>
+
+                                {/* Actions */}
+                                <div className="p-8 pt-0 flex gap-4">
                                     <Button
                                         onClick={resetForm}
                                         variant="outline"
-                                        className="flex-1 border-white/20 text-slate-300 hover:text-white hover:bg-slate-800"
+                                        className="flex-1 h-14 rounded-2xl border-primary/20 hover:bg-primary/5 text-primary font-bold"
                                     >
-                                        Transform Another
+                                        Adapt Another
                                     </Button>
-                                    <Button className="flex-1 bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold">
+                                    <Button className="flex-1 h-14 rounded-2xl shadow-lg shadow-primary/20 font-bold gap-2">
+                                        <Upload className="w-4 h-4" />
                                         Save to Library
                                     </Button>
                                 </div>
@@ -789,70 +820,35 @@ const ContentTransformer = () => {
                                 key="placeholder"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="h-full flex flex-col items-center justify-center border-2 border-dashed border-white/10 rounded-2xl p-12 text-center text-slate-500"
+                                className="h-full flex flex-col items-center justify-center border-2 border-dashed border-primary/20 bg-primary/5 rounded-[2.5rem] p-12 text-center"
                             >
-                                {mode === 'course' ? (
-                                    <>
-                                        <Layers className="w-16 h-16 mb-4 opacity-20" />
-                                        <h3 className="text-xl font-medium mb-2">Course Builder Ready</h3>
-                                        <p className="max-w-md">
-                                            Upload your syllabus or course content. AI will create
-                                            Udemy-style micro-modules with visualizations for each topic.
-                                        </p>
-                                        <div className="mt-6 grid grid-cols-2 gap-4 text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-                                                <span>Structured Modules</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                                <span>Visual Diagrams</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                                                <span>Quiz Questions</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                                                <span>Progress Tracking</span>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-16 h-16 mb-4 opacity-20" />
-                                        <h3 className="text-xl font-medium mb-2">Ready to Transform</h3>
-                                        <p className="max-w-md">
-                                            Select a training manual, configure the teacher profile, and click transform.
-                                            The AI will create a practical 5-minute micro-module adapted to the local context.
-                                        </p>
-                                        <div className="mt-6 flex items-center gap-4 text-sm">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-cyan-500"></div>
-                                                <span>Core Idea</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                                <span>Example</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                                                <span>Action</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                                                <span>Reflection</span>
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
+                                <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mb-8">
+                                    <Sparkles className="w-12 h-12 text-muted-foreground/30" />
+                                </div>
+                                <h3 className="text-2xl font-outfit font-bold text-foreground mb-4">
+                                    {mode === 'course' ? 'Resource Strategy Ready' : 'Evolution Unit Pending'}
+                                </h3>
+                                <p className="text-muted-foreground max-w-sm leading-relaxed mb-8">
+                                    {mode === 'course'
+                                        ? "Fill in your content parameters to generate a deep-immersion pedagogical resource course."
+                                        : "Select your source material and target profile to evolve it into a localized micro-resource."}
+                                </p>
+                                <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
+                                    <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
+                                        <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Efficiency</p>
+                                        <p className="text-lg font-black text-foreground">5 Min</p>
+                                    </div>
+                                    <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
+                                        <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Adaptation</p>
+                                        <p className="text-lg font-black text-foreground">Local</p>
+                                    </div>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
                 </div>
             </main>
-        </div>
+        </div >
     );
 };
 
