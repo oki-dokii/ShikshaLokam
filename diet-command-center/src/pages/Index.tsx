@@ -36,11 +36,21 @@ const Index = () => {
     <KnowledgeProvider>
       <div className="min-h-screen bg-background overflow-hidden relative">
         <header className="fixed top-0 left-0 right-0 z-[60] bg-white/70 backdrop-blur-xl border-b border-border/50 py-4 px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <span className="text-xl font-outfit font-black tracking-tight">Shiksha<span className="text-primary">Assistant</span></span>
+
+            {/* Flashy Telegram Button */}
+            <button
+              onClick={() => window.open('https://t.me/teacher_support_321_bot', '_blank')}
+              className="hidden md:flex items-center gap-2 ml-4 px-4 py-2 bg-gradient-to-r from-[#0088cc] to-[#00a2e8] text-white rounded-full font-bold text-sm shadow-lg shadow-[#0088cc]/30 hover:shadow-xl hover:shadow-[#0088cc]/40 hover:scale-105 transition-all duration-300 group"
+            >
+              <Send className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              <span>24/7 Teacher Support</span>
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            </button>
           </div>
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
@@ -249,29 +259,6 @@ const Index = () => {
                   </div>
                 </TiltCard>
 
-                {/* Telegram Bot Card */}
-                <TiltCard className="h-full">
-                  <div className="glass-card p-8 card-hover flex flex-col items-start border-primary/20 bg-gradient-to-br from-primary/5 to-transparent h-full">
-                    <div className="w-14 h-14 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                      <Send className="w-7 h-7 text-primary" />
-                    </div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <h3 className="text-xl font-bold text-foreground">24/7 Teacher Bot</h3>
-                      <span className="px-2 py-0.5 bg-green-500/10 text-green-600 text-[10px] rounded uppercase font-bold tracking-wider animate-pulse">Live Now</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-                      Get instant classroom solutions on your phone via Telegram. Your 24/7 partner for "Just-in-Time" teaching breakthroughs.
-                    </p>
-                    <Button
-                      onClick={() => window.open('https://t.me/teacher_support_bot', '_blank')}
-                      className="w-full mt-auto rounded-xl shadow-lg shadow-primary/20 gap-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      Open on Telegram
-                    </Button>
-                  </div>
-                </TiltCard>
-
                 {/* Real-Time Feedback Card */}
                 <TiltCard className="h-full">
                   <div className="glass-card p-8 card-hover flex flex-col items-start h-full">
@@ -399,29 +386,6 @@ const Index = () => {
                       className="w-full mt-auto rounded-xl border-primary/20 hover:bg-primary/5 text-primary"
                     >
                       Forecast Needs
-                    </Button>
-                  </div>
-                </TiltCard>
-
-                {/* Resource Person Dashboard Card */}
-                <TiltCard className="h-full">
-                  <div className="glass-card p-8 card-hover flex flex-col items-start border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-transparent h-full">
-                    <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6">
-                      <LayoutDashboard className="w-7 h-7 text-indigo-500" />
-                    </div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <h3 className="text-xl font-bold text-foreground">RP Dashboard</h3>
-                      <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] rounded uppercase font-bold tracking-wider">Command Center</span>
-                    </div>
-                    <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
-                      A unified view for CRPs, BRPs, and ARPs to monitor detailed metrics, plan visits, and track compliance.
-                    </p>
-                    <Button
-                      onClick={() => navigate('/rp-dashboard')}
-                      variant="outline"
-                      className="w-full mt-auto rounded-xl border-indigo-200 hover:bg-indigo-50 text-indigo-600"
-                    >
-                      Open Dashboard
                     </Button>
                   </div>
                 </TiltCard>

@@ -583,147 +583,38 @@ const ContentTransformer = () => {
                         )}
                     </div>
 
-                    {/* Teacher Profile */}
-                    <div className="clean-card p-8 border-border/80 bg-white">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                <Target className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-outfit font-bold text-foreground">Target Profile</h2>
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Personalization Context</p>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Region/Context</label>
-                                <select
-                                    value={region}
-                                    onChange={(e) => setRegion(e.target.value)}
-                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
-                                >
-                                    <option value="rural-chhattisgarh">Rural Chhattisgarh</option>
-                                    <option value="tribal-bastar">Tribal Bastar</option>
-                                    <option value="semi-urban-raipur">Semi-Urban Raipur</option>
-                                    <option value="default">General Context</option>
-                                </select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">School Type</label>
-                                <select
-                                    value={schoolType}
-                                    onChange={(e) => setSchoolType(e.target.value)}
-                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
-                                >
-                                    {SCHOOL_TYPES.map(type => (
-                                        <option key={type} value={type}>{type}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="col-span-2 space-y-3">
-                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1 flex items-center gap-2">
-                                    <Globe2 className="w-3 h-3 text-primary" />
-                                    Output Language
-                                </label>
-                                <select
-                                    value={languageCode}
-                                    onChange={(e) => setLanguageCode(e.target.value)}
-                                    className="w-full bg-white border-2 border-primary/40 rounded-2xl p-4 text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold appearance-none cursor-pointer shadow-sm"
-                                >
-                                    <option value="en">🌐 English (No Translation)</option>
-                                    <optgroup label="━━ Indian Languages ━━">
-                                        {INDIAN_LANGUAGES.map(lang => (
-                                            <option key={lang.code} value={lang.code}>
-                                                {lang.nativeName} - {lang.name}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                    {showAllLanguages && (
-                                        <optgroup label="━━ Other Languages ━━">
-                                            {SUPPORTED_LANGUAGES.filter(l =>
-                                                l.code !== 'en' && !INDIAN_LANGUAGES.some(il => il.code === l.code)
-                                            ).map(lang => (
-                                                <option key={lang.code} value={lang.code}>
-                                                    {lang.nativeName} - {lang.name}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    )}
-                                </select>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAllLanguages(!showAllLanguages)}
-                                    className="text-xs font-bold text-primary hover:text-primary-dark transition-colors px-2"
-                                >
-                                    {showAllLanguages ? '← Use Indian Languages Only' : `🌐 Show All ${SUPPORTED_LANGUAGES.length} Languages →`}
-                                </button>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Grade Level</label>
-                                <select
-                                    value={grade}
-                                    onChange={(e) => setGrade(e.target.value)}
-                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
-                                >
-                                    {GRADE_LEVELS.map(g => (
-                                        <option key={g} value={g}>{g}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Subject</label>
-                                <select
-                                    value={subject}
-                                    onChange={(e) => setSubject(e.target.value)}
-                                    className="w-full bg-muted/30 border border-border/80 rounded-xl p-3.5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium appearance-none cursor-pointer text-sm shadow-sm"
-                                >
-                                    {SUBJECTS.map(s => (
-                                        <option key={s} value={s}>{s}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {mode === 'course' && (
-                                <div className="col-span-2 pt-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Number of Modules</label>
-                                        <span className="text-lg font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{numberOfModules}</span>
-                                    </div>
-                                    <input
-                                        type="range"
-                                        min="3"
-                                        max="30"
-                                        value={numberOfModules}
-                                        onChange={(e) => setNumberOfModules(Number(e.target.value))}
-                                        className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                                    />
-                                    <p className="text-[10px] text-muted-foreground font-medium mt-3 uppercase tracking-widest">
-                                        Estimated duration: ~{numberOfModules * 7} minutes immersion
-                                    </p>
+                    {/* Number of Modules Selector */}
+                    {mode === 'course' && (
+                        <div className="clean-card p-8 border-border/80 bg-white">
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                    <Layers className="w-6 h-6" />
                                 </div>
-                            )}
-                        </div>
+                                <div>
+                                    <h2 className="text-xl font-outfit font-bold text-foreground">Course Structure</h2>
+                                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Module Configuration</p>
+                                </div>
+                            </div>
 
-                        {/* Local Context Preview */}
-                        <div className="mt-8 p-5 bg-muted/30 rounded-2xl border border-border/50 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-3 opacity-10">
-                                <Sparkles className="w-10 h-10 text-primary" />
-                            </div>
-                            <p className="text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground mb-3">AI Context Injection</p>
-                            <div className="flex flex-wrap gap-2">
-                                {getLocalContext().localMetaphors.slice(0, 4).map(m => (
-                                    <span key={m} className="text-[11px] px-3 py-1.5 bg-white border border-primary/10 rounded-full text-foreground/70 font-bold shadow-sm">
-                                        {m}
-                                    </span>
-                                ))}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between mb-4">
+                                    <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Number of Modules</label>
+                                    <span className="text-lg font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{numberOfModules}</span>
+                                </div>
+                                <input
+                                    type="range"
+                                    min="3"
+                                    max="30"
+                                    value={numberOfModules}
+                                    onChange={(e) => setNumberOfModules(Number(e.target.value))}
+                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                                />
+                                <p className="text-[10px] text-muted-foreground font-medium mt-3 uppercase tracking-widest">
+                                    Estimated duration: ~{numberOfModules * 7} minutes immersion
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Transform Button */}
                     {!microModule && (

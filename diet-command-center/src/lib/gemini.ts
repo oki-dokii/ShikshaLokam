@@ -971,9 +971,9 @@ export const generateCourseModules = async (
         ? input.content.substring(0, 4000) + "..."
         : input.content;
 
-    const prompt = `You are an expert instructional designer creating Udemy-style course content for Indian government school teachers.
+    const prompt = `You are an expert instructional designer creating premium Udemy-style course content for Indian government school teachers.
 
-TASK: Break down the provided course content into ${numberOfModules} micro-learning modules.
+TASK: Break down the provided course content into ${numberOfModules} detailed, high-quality micro-learning modules.
 
 ========================
 COURSE CONTEXT
@@ -996,26 +996,36 @@ ${input.ncertContext}
 ` : ''}
 
 ========================
-OUTPUT REQUIREMENTS
+MODULE QUALITY REQUIREMENTS (CRITICAL)
 ========================
-Create EXACTLY ${numberOfModules} modules. Each module should:
-1. Be self-contained (5-10 minutes each)
-2. Have clear learning objectives
-3. Include practical classroom examples
-4. Build progressively on previous modules
-5. End with 1-2 quiz questions
-6. IMPORTANT: Keep "content" field between 80-100 words to respect token limits.
-7. NEW: Provide a "videoQuery" string for EACH module (e.g., "NCERT Grade 11 Physics Chapter 2 Motion calculation explanation").
+Each module MUST be:
+1. **HIGHLY DESCRIPTIVE**: Content should be 150-200 words with rich explanations, examples, and practical applications
+2. **VISUALLY ORGANIZED**: Include clear structure with headers, bullet points conceptually
+3. **EXAMPLE-RICH**: Include at least 2 real classroom examples or scenarios
+4. **PROGRESSIVE**: Build logically on previous modules
+5. **QUIZ-HEAVY**: Include 3-5 quiz questions per module (multiple choice)
+6. **ACTIONABLE**: End with specific things the teacher can do tomorrow
+
+========================
+VISUALIZATION REQUIREMENTS
+========================
+For each module, specify a "visualizationType" that BEST represents the content:
+- "flowchart": For processes, step-by-step procedures, cause-effect
+- "mindmap": For concept exploration, brainstorming, related ideas
+- "timeline": For historical events, sequences, project phases
+- "diagram": For systems, relationships, hierarchies
+- "sequence": For numbered steps, ordered procedures
+
+Also provide "visualizationNodes": An array of 4-8 key concepts/steps as strings that should appear in the visualization.
 
 ${input.isNcertMode ? `
 ========================
 STRICT NCERT GROUNDING (MANDATORY)
 ========================
 - You are in NCERT MODE. 
-- All content MUST be derived from the NCERT CURRICULUM CONTEXT provided below.
-- DO NOT use general knowledge about the subject if it contradicts or adds information not present in the RAG source.
-- For literature chapters (like English), focus specifically on the analysis, characters, and themes found in the text provided.
-- If the RAG source is about a specific story (e.g., 'The Portrait of a Lady'), every module MUST relate to that story.
+- All content MUST be derived from the NCERT CURRICULUM CONTEXT provided.
+- DO NOT use general knowledge if it contradicts the RAG source.
+- Focus specifically on the analysis, characters, themes, and facts from the text provided.
 ` : ''}
 
 ========================
@@ -1024,23 +1034,36 @@ STRICT OUTPUT FORMAT (JSON ONLY)
 Return ONLY valid JSON:
 {
     "courseTitle": "Descriptive course title",
-    "courseDescription": "2-3 sentence description of what teachers will learn",
+    "courseDescription": "2-3 sentence description of what teachers will learn and how they can apply it",
     "totalDuration": "Estimated total time (e.g., '45 minutes')",
     "modules": [
         {
             "order": 1,
-            "title": "Module title",
-            "duration": "5-10 mins",
-            "objectives": ["Objective 1", "Objective 2"],
-            "content": "A high-quality micro-lesson (80-100 words).",
-            "keyPoints": ["Key point 1", "Key point 2"],
+            "title": "Clear, descriptive module title",
+            "duration": "7-12 mins",
+            "objectives": ["Learning Objective 1", "Learning Objective 2", "Learning Objective 3"],
+            "content": "A DETAILED, HIGH-QUALITY micro-lesson with 150-200 words. Include specific examples, explanations, and practical tips. Write as if you are teaching a teacher how to teach this concept. Include real classroom scenarios.",
+            "keyPoints": ["Detailed key point 1", "Detailed key point 2", "Detailed key point 3", "Detailed key point 4"],
             "visualizationType": "flowchart|mindmap|diagram|timeline|sequence",
+            "visualizationNodes": ["Node 1", "Node 2", "Node 3", "Node 4", "Node 5"],
             "quiz": [
                 {
-                    "question": "Question text?",
+                    "question": "Thought-provoking question 1?",
                     "options": ["Option A", "Option B", "Option C", "Option D"],
                     "correctIndex": 0,
-                    "explanation": "Brief explanation"
+                    "explanation": "Detailed explanation of why this is correct and why other options are wrong"
+                },
+                {
+                    "question": "Application-based question 2?",
+                    "options": ["Option A", "Option B", "Option C", "Option D"],
+                    "correctIndex": 1,
+                    "explanation": "Explanation relating to classroom practice"
+                },
+                {
+                    "question": "Scenario-based question 3?",
+                    "options": ["Option A", "Option B", "Option C", "Option D"],
+                    "correctIndex": 2,
+                    "explanation": "Why this approach works best in a government school setting"
                 }
             ],
             "videoQuery": "NCERT [Subject] [Grade] [Chapter] [Topic] explanation for teachers"
@@ -1049,6 +1072,7 @@ Return ONLY valid JSON:
 }
 
 Return ONLY the JSON, no other text.`;
+
 
     try {
         const resultText = await callGeminiProxy([{
