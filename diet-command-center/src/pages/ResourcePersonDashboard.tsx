@@ -14,6 +14,7 @@ import { SpaceScene } from '@/components/layout/SpaceScene';
 import { CRPDashboard } from '@/components/rp/CRPDashboard';
 import { ARPDashboard } from '@/components/rp/ARPDashboard';
 import { BRPDashboard } from '@/components/rp/BRPDashboard';
+import { LanguageSwitcher } from '@/components/common/LanguageSwitcher';
 
 
 
@@ -68,6 +69,9 @@ export default function ResourcePersonDashboard() {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <LanguageSwitcher />
                     </div>
                 </div>
 

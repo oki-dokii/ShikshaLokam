@@ -19,6 +19,8 @@ import { TiltCard } from "@/components/ui/tilt-card";
 
 
 
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, logout, user } = useAuth();
@@ -54,6 +56,7 @@ const Index = () => {
             </button>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <div className="hidden md:flex flex-col items-end">

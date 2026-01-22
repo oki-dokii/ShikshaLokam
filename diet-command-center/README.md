@@ -32,6 +32,7 @@ Government school teachers in India receive training in workshops, but implement
 | 📝 **Daily Session Reflection** | AI-guided journaling with pattern detection and growth tracking |
 | 👆 **Agency Engine** | Tinder-style swipe interface to signal training needs |
 | 📱 **Telegram Bot** | 24/7 support on your phone via `@teacher_support_321_bot` |
+| 📅 **Dynamic Timetable** | Persisted daily roadmap with real-time editing and task tracking |
 
 ### For Resource Persons (ARP/BRP/CRP)
 
@@ -41,94 +42,85 @@ Government school teachers in India receive training in workshops, but implement
 | 🔮 **Predictive Training Analysis** | AI forecasts upcoming training demands 2-4 weeks early |
 | 🗺️ **Visit Priority Planner** | AI-ranked school visit list based on urgency |
 | 📊 **Cluster Health Heatmaps** | At-a-glance view of which schools need attention |
-| 🎙️ **Voice Report Generation** | Speak to generate compliance reports |
 
 ---
 
 ## 🏗️ Technical Architecture
 
+### System Architecture
 ```mermaid
 graph TD
-    subgraph Client["Client Layer (PWA)"]
-        App[React + Vite PWA]
+    subgraph Client["Client Layer (PWA & Mobile)"]
+        Web[React 18 + Vite PWA]
+        Storage[LocalStorage / IndexedDB]
+        Worker[Service Worker - Offline Cache]
         Voice[Web Speech API]
-        Offline[LocalStorage/IndexedDB]
     end
 
-    subgraph AI["AI Intelligence Layer"]
-        Groq[Groq - Llama 3.3 70B]
-        Gemini[Google Gemini 1.5]
+    subgraph AI["Intelligence Layer (LLM & Vision)"]
+        Groq[Groq: Llama 3.3 70B - < 1s inference]
+        Gemini[Google Gemini 1.5 - Vision & RAG]
     end
 
-    subgraph Bot["Telegram Bot"]
-        TelegramAPI[Telegram Bot API]
-        BotServer[Node.js Server]
+    subgraph Messaging["Connectivity Layer"]
+        BotServer[Node.js Bot Server]
+        TG[Telegram Bot API]
     end
 
-    App --> Groq
-    App --> Gemini
-    Voice --> App
-    App <--> Offline
+    Web <--> Worker
+    Worker <--> Storage
+    Web -- HTTPS/REST --> Groq
+    Web -- HTTPS/REST --> Gemini
+    Voice --> Web
     BotServer --> Groq
-    TelegramAPI --> BotServer
+    TG <--> BotServer
 ```
 
-**Tech Stack:**
-- **Frontend**: React 18, TypeScript, Vite, TailwindCSS, Framer Motion
-- **AI**: Groq (Llama 3.3 70B), Google Gemini 1.5 (Vision)
-- **Bot**: Node.js, node-telegram-bot-api
-- **PWA**: VitePWA for offline support
-- **Deployment**: Render (Web), Vercel-ready
+### UML Component Overview
+```mermaid
+classDiagram
+    class TeacherApp {
+        +TimetableContext
+        +AuthContext
+        +KnowledgeContext
+        +renderDashboard()
+        +trackSession()
+    }
+    class AIProcessor {
+        +generateAdvice()
+        +transformContent()
+        +predictDemand()
+    }
+    class OfflineStorage {
+        +saveModule()
+        +getCachedContent()
+        +syncWhenOnline()
+    }
+    class RPCommandCenter {
+        +clusterAanalytics()
+        +generateHeatmap()
+    }
 
----
-
-## 📦 Installation
-
-### Web Application
-
-```bash
-# Clone the repository
-git clone https://github.com/oki-dokii/ShikshaLokam.git
-cd ShikshaLokam/diet-command-center
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your API keys
-
-# Start development server
-npm run dev
+    TeacherApp --> AIProcessor : uses
+    TeacherApp --> OfflineStorage : persists
+    AIProcessor ..> RPCommandCenter : data provider
 ```
 
-### Telegram Bot
+### Data Flow (Interaction Sequence)
+```mermaid
+sequenceDiagram
+    participant Teacher
+    participant App
+    participant OfflineDB
+    participant AI_Engine
+    participant RP_Dashboard
 
-```bash
-cd telegram-bot
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Add your TELEGRAM_BOT_TOKEN and GROQ_API_KEY
-
-# Start the bot
-npm start
-```
-
-### Environment Variables
-
-```env
-# Web App (.env)
-VITE_GROQ_API_KEY=your_groq_api_key
-VITE_GOOGLE_API_KEY=your_google_api_key
-
-# Telegram Bot (.env)
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-GROQ_API_KEY=your_groq_api_key
-GROQ_API_KEY_BACKUP=your_backup_groq_key
+    Teacher->>App: Submits Classroom Crisis
+    App->>OfflineDB: Cache Query Locally
+    App->>AI_Engine: Fetch Immediate Intervention
+    AI_Engine-->>App: Return Actionable Steps
+    App-->>Teacher: Displays Advice ( < 2s )
+    App->>RP_Dashboard: Syncs Need for High-Level Oversight
 ```
 
 ---
@@ -143,138 +135,43 @@ Real-time AI support for classroom emergencies. Teachers describe their problem 
 - 💪 **You've Got This** - Encouragement
 
 ### 2. AI Module Generator (Resource Evolution Suite)
-Transforms any educational content into Udemy-style micro-courses:
-- PDF/text upload → Interactive modules
-- 150-200 word detailed lessons
-- Auto-generated visualizations (flowcharts, mindmaps)
-- 3-5 quiz questions per module
-- NCERT RAG Mode for curriculum alignment
+Transforms any educational content into micro-learning experiences:
+- **Mermaid Visualizations**: Automatically generates diagrams from text.
+- **Micro-assessments**: 3-5 quiz questions created per topic.
+- **NCERT Context**: RAG-enhanced responses for curriculum alignment.
 
 ### 3. Simulation Arena
-AI role-play for difficult scenarios:
-- Angry parent confrontations
-- Classroom discipline situations
-- Administrative conflicts
-- Post-scenario coaching feedback
+AI role-play for practicing high-stakes human interactions:
+- Parent meetings, student discipline, administrative conflicts.
+- Real-time scoring and pedagogical feedback.
 
 ### 4. Frugal Science Lab
 Computer vision-powered TLM generator:
-- Scan available objects
-- Get ₹0-cost science experiments
-- Curriculum-aligned activities
-- Step-by-step instructions
-
-### 5. Telegram Bot (@teacher_support_321_bot)
-24/7 teacher support on mobile:
-- No app download required
-- Works on 2G networks
-- Multi-language support (11 Indian languages)
-- Context-aware responses
-
-### 6. RP Command Center
-Unified dashboard for Resource Persons:
-- Role-based views (BRP/ARP/CRP)
-- Training demand heatmaps
-- Predictive analytics
-- Voice-enabled report generation
+- Recognizes household trash and suggests curriculum experiments.
+- Reduces dependency on high-cost laboratory equipment.
 
 ---
 
 ## 📱 Offline Capabilities
 
-ShikshaAssistant is built **Offline-First** for rural deployment:
-- ✅ PWA with service worker caching
-- ✅ Generated courses saved to localStorage
-- ✅ "Load Last Saved" for offline access
-- ✅ Works without internet after first load
+ShikshaAssistant is built **Offline-First**:
+- ✅ **PWA Service Workers**: All application logic is cached on the first visit.
+- ✅ **LocalDatabase**: User accounts, timetables, and generated modules are saved to `localStorage`.
+- ✅ **Seamless Sync**: Offline actions are queued and synced once connectivity is restored.
 
 ---
 
 ## 🌐 Multi-Language Support
 
-| Language | Code |
-|----------|------|
-| Hindi | hi |
-| Telugu | te |
-| Tamil | ta |
-| Marathi | mr |
-| Bengali | bn |
-| Gujarati | gu |
-| Kannada | kn |
-| Malayalam | ml |
-| Punjabi | pa |
-| Odia | or |
-| English | en |
+The platform uses a dedicated translation engine supporting **11+ Indian languages** including Hindi, Telugu, Tamil, Marathi, Bengali, and Kannada.
 
 ---
 
-## 📊 Demo Credentials
+## 📦 Installation & Setup
 
-For testing the application:
-- **Teacher Login**: Any email/password
-- **ARP/BRP Login**: Any email/password (redirects to Command Center)
-
----
-
-## 🔗 Live Links
-
-| Resource | URL |
-|----------|-----|
-| 🌐 Web App | [shikshalokam.onrender.com](https://shikshalokam.onrender.com) |
-| 📱 Telegram Bot | [t.me/teacher_support_321_bot](https://t.me/teacher_support_321_bot) |
-| 📂 GitHub Repo | [github.com/oki-dokii/ShikshaLokam](https://github.com/oki-dokii/ShikshaLokam) |
-
----
-
-## 📄 Documentation
-
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - System architecture and methodology
-- [COMPREHENSIVE_GUIDE.md](./COMPREHENSIVE_GUIDE.md) - Full feature documentation
-- [SOLUTION_DEFINITION.md](./SOLUTION_DEFINITION.md) - Problem statement and solution
-- [REQUIREMENT_MAPPING.md](./REQUIREMENT_MAPPING.md) - Requirement compliance matrix
-
----
-
-## 🛠️ Development
-
-```bash
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
-
-# Run linting
-npm run lint
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🙏 Acknowledgments
-
-- **ShikshaLokam** for the problem statement and vision
-- **Groq** for blazing-fast LLM inference
-- **Google Gemini** for vision capabilities
-- All the government school teachers whose challenges inspired this solution
+1. **Clone & Install**: `git clone https://github.com/oki-dokii/ShikshaLokam.git && cd diet-command-center && npm install`
+2. **Environment**: Setup `.env` with `VITE_GROQ_API_KEY` and `VITE_GOOGLE_API_KEY`.
+3. **Run**: `npm run dev`
 
 ---
 

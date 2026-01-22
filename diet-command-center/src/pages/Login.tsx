@@ -10,6 +10,8 @@ import { Sparkles, ArrowRight, ShieldCheck, User, Lock, GraduationCap, LayoutDas
 
 type UserRole = 'Teacher' | 'ARP/BRP';
 
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -65,6 +67,11 @@ const Login = () => {
     if (!selectedRole) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+                {/* Top Right Actions */}
+                <div className="absolute top-6 right-6 z-50">
+                    <LanguageSwitcher />
+                </div>
+
                 {/* Background Orbs */}
                 <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] animate-pulse delay-700" />
@@ -136,6 +143,11 @@ const Login = () => {
     // Login Form Screen
     return (
         <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+            {/* Top Right Actions */}
+            <div className="absolute top-6 right-6 z-50">
+                <LanguageSwitcher />
+            </div>
+
             {/* Background Orbs */}
             <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse" />
             <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] animate-pulse delay-700" />
