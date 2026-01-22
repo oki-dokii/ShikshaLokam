@@ -9,7 +9,7 @@
 
 ## 🌟 The Problem We Solve
 
-Government school teachers in India receive training in workshops, but implementation happens alone in the classroom. When a lesson fails or a student misbehaves, there's no mentor to call. This **"Implementation Gap"** leads to:
+Government school teachers in India receive training in workshops, but implementation happens alone in the classroom. When a lesson fails or a student misbehaves, there's no mentor to call. Our project targets a **500+ teacher pilot** to bridge this **"Implementation Gap"**:
 - Pedagogical innovation dying after training
 - Teacher burnout and isolation
 - No data on what teachers actually need

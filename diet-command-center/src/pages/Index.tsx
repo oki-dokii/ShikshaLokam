@@ -421,7 +421,7 @@ const Index = () => {
               viewport={{ once: true }}
               className="text-muted-foreground mb-10 text-xl leading-relaxed"
             >
-              Join a community of 48,000+ teachers transforming their classrooms with ShikshaLokam.
+              Join a community of 500+ teachers transforming their classrooms with ShikshaAssistant.
             </motion.p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={handleGenerate} className="px-10 py-7 text-lg rounded-2xl">

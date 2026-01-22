@@ -5,7 +5,7 @@ export const HeroSection = () => {
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-white">
       {/* Background image with subtle overlay */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
@@ -20,7 +20,7 @@ export const HeroSection = () => {
           transition={{ duration: 0.6 }}
         >
           {/* Status badge */}
-          <motion.div 
+          <motion.div
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -46,19 +46,19 @@ export const HeroSection = () => {
           </p>
 
           {/* Stats bar */}
-          <motion.div 
+          <motion.div
             className="flex flex-wrap justify-center gap-8 md:gap-12 mt-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             {[
-              { label: "Teachers Empowered", value: "48.2K+" },
-              { label: "Queries Resolved", value: "125K+" },
-              { label: "Innovations Sparked", value: "12K+" },
+              { label: "Teachers in Pilot", value: "500+" },
+              { label: "Queries Handled", value: "2.5K+" },
+              { label: "Schools Reached", value: "150+" },
             ].map((stat, i) => (
-              <motion.div 
-                key={stat.label} 
+              <motion.div
+                key={stat.label}
                 className="text-center"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
