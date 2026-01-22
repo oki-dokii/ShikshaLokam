@@ -11,11 +11,16 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // Configuration
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GROQ_API_KEYS = [
+    process.env.GROQ_API_KEY,
+    process.env.GROQ_API_KEY_BACKUP
+].filter(Boolean);
+const GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Initialize Telegram Bot
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
-// Initialize Gemini AI
+// Initialize Gemini AI (Fallback)
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY);
 
 // Store user sessions (for context)
@@ -46,7 +51,49 @@ const LANGUAGES = {
 };
 
 /**
+ * Call Groq API with automatic key rotation (Primary - Fast)
+ */
+async function callGroqAPI(prompt) {
+    let lastError = null;
+
+    for (let i = 0; i < GROQ_API_KEYS.length; i++) {
+        const apiKey = GROQ_API_KEYS[i];
+        try {
+            console.log(`[Groq] Trying key ${i + 1}/${GROQ_API_KEYS.length}...`);
+            const response = await fetch(GROQ_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'llama-3.3-70b-versatile',
+                    messages: [{ role: 'user', content: prompt }],
+                    temperature: 0.7,
+                    max_tokens: 1024,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Groq API error: ${response.status} - ${errorData}`);
+            }
+
+            const data = await response.json();
+            console.log(`[Groq] Key ${i + 1} SUCCESS!`);
+            return data.choices[0]?.message?.content || '';
+        } catch (error) {
+            console.error(`[Groq] Key ${i + 1} failed:`, error.message);
+            lastError = error;
+        }
+    }
+
+    throw lastError || new Error('All Groq API keys exhausted');
+}
+
+/**
  * Generate AI response using the Frustration-to-Breakthrough prompt
+ * Uses Groq as primary, Gemini as fallback
  */
 async function generateBreakthroughResponse(teacherMessage, context) {
     const prompt = `You are a calm, experienced mentor for Indian government school teachers.
@@ -129,16 +176,28 @@ TEACHER MESSAGE
 ====================================
 ${teacherMessage}`;
 
+    // Try Groq first (faster)
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
-    } catch (error) {
-        console.error('Gemini API Error:', error);
+        console.log('[Groq] Attempting primary API...');
+        const result = await callGroqAPI(prompt);
+        console.log('[Groq] Success!');
+        return result;
+    } catch (groqError) {
+        console.error('[Groq] Failed:', groqError.message);
 
-        // Fallback response
-        return `🤝 **I Understand**
+        // Fallback to Gemini
+        try {
+            console.log('[Gemini] Trying fallback API...');
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            console.log('[Gemini] Success!');
+            return response.text();
+        } catch (geminiError) {
+            console.error('[Gemini] Also failed:', geminiError.message);
+
+            // Ultimate fallback response
+            return `🤝 **I Understand**
 I can see this is frustrating, and it's completely normal to feel this way.
 
 🎯 **The Issue**
@@ -153,6 +212,7 @@ You're facing a challenging situation that needs immediate attention.
 You've handled difficult situations before, and you'll handle this one too. Every experienced teacher has been exactly where you are right now.
 
 (Note: I'm having a temporary connection issue. Please try again in a moment for a more specific response.)`;
+        }
     }
 }
 
