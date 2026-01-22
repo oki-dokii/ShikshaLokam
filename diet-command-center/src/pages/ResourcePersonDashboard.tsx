@@ -31,7 +31,7 @@ export default function ResourcePersonDashboard() {
             new Promise((resolve) => setTimeout(resolve, 2000)),
             {
                 loading: `Generating ${reportType} for ${selectedCluster.name}...`,
-                success: (data) => `${reportType} has been generated and sent to your DIET email.`,
+                success: (data) => `${reportType} has been generated and sent to your email.`,
                 error: 'Failed to generate report. Please try again.',
             }
         );
@@ -60,7 +60,7 @@ export default function ResourcePersonDashboard() {
                             </div>
                             <div className="space-y-0.5">
                                 <h1 className="text-4xl md:text-5xl font-black font-orbitron tracking-tighter text-slate-900 dark:text-white uppercase drop-shadow-2xl">
-                                    Diet <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">Command</span>
+                                    Resource <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">Command</span>
                                 </h1>
                                 <p className="text-slate-400 text-sm font-medium tracking-wide flex items-center gap-2">
                                     <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

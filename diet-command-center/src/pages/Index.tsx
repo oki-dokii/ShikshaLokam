@@ -263,7 +263,7 @@ const Index = () => {
                       Get instant classroom solutions on your phone via Telegram. Your 24/7 partner for "Just-in-Time" teaching breakthroughs.
                     </p>
                     <Button
-                      onClick={() => window.open('https://t.me/diet_teacher_support_bot', '_blank')}
+                      onClick={() => window.open('https://t.me/teacher_support_bot', '_blank')}
                       className="w-full mt-auto rounded-xl shadow-lg shadow-primary/20 gap-2"
                     >
                       <Send className="w-4 h-4" />
