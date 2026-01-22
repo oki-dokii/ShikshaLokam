@@ -3,7 +3,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface AuthContextType {
     isAuthenticated: boolean;
     user: any | null;
-    login: (userData: any) => void;
+    login: (email: string, password: string) => Promise<boolean>;
+    register: (userData: any) => Promise<boolean>;
     logout: () => void;
 }
 
@@ -21,10 +22,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
-    const login = (userData: any) => {
-        localStorage.setItem('shiksha_user', JSON.stringify(userData));
+    const login = async (email: string, password: string): Promise<boolean> => {
+        const storedUsers = JSON.parse(localStorage.getItem('shiksha_users') || '[]');
+        const existingUser = storedUsers.find((u: any) => u.email === email && u.password === password);
+
+        if (existingUser) {
+            localStorage.setItem('shiksha_user', JSON.stringify(existingUser));
+            setIsAuthenticated(true);
+            setUser(existingUser);
+            return true;
+        }
+        return false;
+    };
+
+    const register = async (userData: any): Promise<boolean> => {
+        const storedUsers = JSON.parse(localStorage.getItem('shiksha_users') || '[]');
+        const existingUser = storedUsers.find((u: any) => u.email === userData.email);
+
+        if (existingUser) {
+            return false; // Already exists
+        }
+
+        const newUser = { ...userData, id: Date.now().toString() };
+        localStorage.setItem('shiksha_users', JSON.stringify([...storedUsers, newUser]));
+
+        // Auto-login after register
+        localStorage.setItem('shiksha_user', JSON.stringify(newUser));
         setIsAuthenticated(true);
-        setUser(userData);
+        setUser(newUser);
+        return true;
     };
 
     const logout = () => {
@@ -34,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, user, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

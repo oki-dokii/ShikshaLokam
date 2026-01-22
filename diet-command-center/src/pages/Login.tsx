@@ -6,16 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Sparkles, ArrowRight, ShieldCheck, User, Lock, GraduationCap, LayoutDashboard, ArrowLeft } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, User, Lock, GraduationCap, LayoutDashboard, ArrowLeft, UserPlus } from 'lucide-react';
 
 type UserRole = 'Teacher' | 'ARP/BRP';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [isSignUp, setIsSignUp] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-    const { login } = useAuth();
+    const { login, register } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -24,29 +25,40 @@ const Login = () => {
 
         setIsLoading(true);
 
-        // Simulate API call - accepts any email/password
-        setTimeout(() => {
-            if (email && password) {
-                login({ email, name: email.split('@')[0], role: selectedRole });
+        // Artificial delay for premium feel
+        await new Promise(resolve => setTimeout(resolve, 800));
 
-                if (selectedRole === 'ARP/BRP') {
-                    toast.success('Welcome, Resource Person!', {
-                        description: 'Accessing your Command Center...',
+        try {
+            if (isSignUp) {
+                const success = await register({ email, password, name: email.split('@')[0], role: selectedRole });
+                if (success) {
+                    toast.success('Account created successfully!', {
+                        description: `Welcome to the ShikshaAssistant family, ${email.split('@')[0]}!`
                     });
-                    navigate('/rp-dashboard');
+                    navigate(selectedRole === 'ARP/BRP' ? '/rp-dashboard' : '/');
                 } else {
-                    toast.success('Welcome back, Teacher!', {
-                        description: 'Accessing your Teaching Assistant suite...',
+                    toast.error('Registration failed', {
+                        description: 'An account with this email already exists.'
                     });
-                    navigate('/');
                 }
             } else {
-                toast.error('Invalid credentials', {
-                    description: 'Please enter both email and password.',
-                });
+                const success = await login(email, password);
+                if (success) {
+                    toast.success(`Welcome back!`, {
+                        description: `Accessing your ${selectedRole === 'ARP/BRP' ? 'Command Center' : 'Teaching Assistant suite'}...`
+                    });
+                    navigate(selectedRole === 'ARP/BRP' ? '/rp-dashboard' : '/');
+                } else {
+                    toast.error('Log in failed', {
+                        description: 'Invalid email or password. Please try again or sign up.'
+                    });
+                }
             }
+        } catch (error) {
+            toast.error('An unexpected error occurred');
+        } finally {
             setIsLoading(false);
-        }, 1500);
+        }
     };
 
     // Role Selection Screen
@@ -140,14 +152,16 @@ const Login = () => {
                         transition={{ type: "spring", damping: 12 }}
                         className={`w-16 h-16 ${selectedRole === 'ARP/BRP' ? 'bg-indigo-500/10' : 'bg-primary/10'} rounded-2xl flex items-center justify-center mx-auto mb-6 border ${selectedRole === 'ARP/BRP' ? 'border-indigo-500/20' : 'border-primary/20'} shadow-lg ${selectedRole === 'ARP/BRP' ? 'shadow-indigo-500/10' : 'shadow-primary/10'}`}
                     >
-                        {selectedRole === 'ARP/BRP' ? (
+                        {isSignUp ? (
+                            <UserPlus className={`w-8 h-8 ${selectedRole === 'ARP/BRP' ? 'text-indigo-500' : 'text-primary'}`} />
+                        ) : selectedRole === 'ARP/BRP' ? (
                             <LayoutDashboard className="w-8 h-8 text-indigo-500" />
                         ) : (
                             <GraduationCap className="w-8 h-8 text-primary" />
                         )}
                     </motion.div>
                     <h1 className="text-4xl font-outfit font-black tracking-tight mb-2">
-                        {selectedRole === 'ARP/BRP' ? 'Resource Person' : 'Teacher'} Sign In
+                        {isSignUp ? 'Create Account' : (selectedRole === 'ARP/BRP' ? 'Resource Person' : 'Teacher') + ' Sign In'}
                     </h1>
                     <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-[10px]">
                         {selectedRole === 'ARP/BRP' ? 'Command Center Access' : 'Teaching Assistant Suite'}
@@ -208,14 +222,23 @@ const Login = () => {
                                 />
                             ) : (
                                 <div className="flex items-center justify-center gap-2">
-                                    <span>Sign In</span>
+                                    <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
                                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             )}
                         </Button>
                     </form>
 
-                    <div className="mt-8 pt-8 border-t border-border/50 text-center">
+                    <div className="mt-8 pt-6 border-t border-border/50 text-center">
+                        <button
+                            onClick={() => setIsSignUp(!isSignUp)}
+                            className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors"
+                        >
+                            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+                        </button>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-border/50 text-center">
                         <div className="flex items-center justify-center gap-2 text-muted-foreground mb-1">
                             <ShieldCheck className="w-3 h-3" />
                             <span className="text-[10px] font-bold uppercase tracking-widest">Secured for Educators Only</span>
