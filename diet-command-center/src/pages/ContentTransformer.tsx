@@ -174,6 +174,16 @@ const ContentTransformer = () => {
 
             setGeneratedCourse(course);
             setActiveModuleIndex(0);
+
+            // SAVE FOR OFFLINE USE
+            try {
+                localStorage.setItem('shiksha_saved_course', JSON.stringify(course));
+                localStorage.setItem('shiksha_last_saved', new Date().toISOString());
+                toast.success(`Course saved for offline access!`);
+            } catch (e) {
+                console.warn("Quota exceeded", e);
+            }
+
             toast.success(`Course generated with ${course.modules.length} modules!`);
         } catch (error) {
             console.error(error);
@@ -391,6 +401,25 @@ const ContentTransformer = () => {
                 >
                     <Zap className="w-5 h-5" />
                     Quick Transform
+                </button>
+            </div>
+
+            {/* Offline Access Helper */}
+            <div className="max-w-7xl mx-auto px-6 mb-8 flex items-center justify-end">
+                <button
+                    onClick={() => {
+                        const saved = localStorage.getItem('shiksha_saved_course');
+                        if (saved) {
+                            setGeneratedCourse(JSON.parse(saved));
+                            toast.success("Loaded offline course!");
+                        } else {
+                            toast.error("No saved course found.");
+                        }
+                    }}
+                    className="text-xs font-bold text-muted-foreground hover:text-primary flex items-center gap-2 transition-colors"
+                >
+                    <BookOpen className="w-4 h-4" />
+                    Load Last Saved (Offline Mode)
                 </button>
             </div>
 
