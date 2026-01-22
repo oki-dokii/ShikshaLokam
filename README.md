@@ -14,7 +14,7 @@ Government school teachers in India receive training in workshops, but implement
 - Teacher burnout and isolation
 - No data on what teachers actually need
 
-**ShikshaAssistant** bridges this gap with **instant, AI-powered support** available 24/7.
+**ShikshaAssistant** bridges this gap with **Just-in-Time support** designed for the **Last-Mile**, available 24/7.
 
 ---
 

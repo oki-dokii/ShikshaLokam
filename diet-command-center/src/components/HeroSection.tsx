@@ -53,21 +53,21 @@ export const HeroSection = () => {
             transition={{ delay: 0.4, duration: 0.6 }}
           >
             {[
-              { label: "Teachers in Pilot", value: "500+" },
-              { label: "Queries Handled", value: "2.5K+" },
-              { label: "Schools Reached", value: "150+" },
+              { label: "Immediate Interventions", value: "Just-in-Time" },
+              { label: "Built for Rural Connectivity", value: "Last-Mile" },
+              { label: "Hands-Free Coaching", value: "Voice-Enabled" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                className="text-center"
+                className="text-center group"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 + i * 0.1 }}
               >
-                <p className="text-3xl md:text-4xl font-bold text-primary mb-1">
+                <p className="text-2xl md:text-3xl font-black text-primary mb-1 tracking-tight uppercase">
                   {stat.value}
                 </p>
-                <p className="text-sm text-muted-foreground font-medium">
+                <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity">
                   {stat.label}
                 </p>
               </motion.div>
