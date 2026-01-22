@@ -18,6 +18,7 @@ import { TiltCard } from "@/components/ui/tilt-card";
 
 
 
+
 const Index = () => {
   const navigate = useNavigate();
   const { isAuthenticated, logout, user } = useAuth();

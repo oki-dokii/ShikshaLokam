@@ -61,8 +61,8 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
 
-              {/* Global Language Switcher */}
-              <div className="fixed top-4 right-4 z-50">
+              {/* Global Language Switcher - Fixed on top of all headers */}
+              <div className="fixed top-4 right-4 md:right-6 md:top-6 z-[100]">
                 <LanguageSwitcher />
               </div>
             </BrowserRouter>
