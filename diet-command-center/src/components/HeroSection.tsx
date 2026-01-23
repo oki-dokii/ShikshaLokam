@@ -3,13 +3,13 @@ import heroBg from "@/assets/hero-bg.jpg";
 
 export const HeroSection = () => {
   return (
-    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 to-white">
+    <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-primary/5 via-background to-background">
       {/* Background image with subtle overlay */}
       <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.03] dark:opacity-[0.05]"
         style={{ backgroundImage: `url(${heroBg})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/60 to-white" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background" />
       </div>
 
       {/* Content */}

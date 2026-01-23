@@ -100,7 +100,7 @@ const Login = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setSelectedRole('Teacher')}
-                            className="glass-card p-8 border border-border/50 rounded-3xl bg-white/50 backdrop-blur-xl hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all text-left group"
+                            className="glass-card p-8 border border-border/50 rounded-3xl hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all text-left group"
                         >
                             <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                                 <GraduationCap className="w-7 h-7 text-primary" />
@@ -120,7 +120,7 @@ const Login = () => {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => setSelectedRole('ARP/BRP')}
-                            className="glass-card p-8 border border-border/50 rounded-3xl bg-white/50 backdrop-blur-xl hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left group"
+                            className="glass-card p-8 border border-border/50 rounded-3xl hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all text-left group"
                         >
                             <div className="w-14 h-14 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-indigo-500/20 transition-colors">
                                 <LayoutDashboard className="w-7 h-7 text-indigo-500" />
@@ -180,7 +180,7 @@ const Login = () => {
                     </p>
                 </div>
 
-                <div className="glass-card p-8 border border-border/50 relative overflow-hidden bg-white/50 backdrop-blur-xl rounded-[2.5rem]">
+                <div className="glass-card p-8 border border-border/50 relative overflow-hidden rounded-[2.5rem]">
                     {/* Back Button */}
                     <button
                         onClick={() => setSelectedRole(null)}
@@ -200,7 +200,7 @@ const Login = () => {
                                     placeholder={selectedRole === 'ARP/BRP' ? "arp@shikshalokam.org" : "teacher@shikshalokam.org"}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="pl-12 h-14 rounded-2xl border-border/50 bg-background/50 focus:ring-primary/20 focus:border-primary/50 transition-all font-outfit"
+                                    className="pl-12 h-14 rounded-2xl border-border/50 bg-background focus:ring-primary/20 focus:border-primary/50 transition-all font-outfit"
                                     required
                                 />
                             </div>
@@ -215,7 +215,7 @@ const Login = () => {
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-12 h-14 rounded-2xl border-border/50 bg-background/50 focus:ring-primary/20 focus:border-primary/50 transition-all font-outfit"
+                                    className="pl-12 h-14 rounded-2xl border-border/50 bg-background focus:ring-primary/20 focus:border-primary/50 transition-all font-outfit"
                                     required
                                 />
                             </div>

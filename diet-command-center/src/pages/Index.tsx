@@ -38,7 +38,7 @@ const Index = () => {
   return (
     <KnowledgeProvider>
       <div className="min-h-screen bg-background overflow-hidden relative">
-        <header className="fixed top-0 left-0 right-0 z-[60] bg-white/70 backdrop-blur-xl border-b border-border/50 py-4 px-6 flex items-center justify-between">
+        <header className="fixed top-0 left-0 right-0 z-[60] bg-background/70 backdrop-blur-xl border-b border-border/50 py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
               <Sparkles className="w-5 h-5 text-primary" />

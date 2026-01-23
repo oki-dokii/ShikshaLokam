@@ -74,18 +74,18 @@ export const PublicFeatures = () => {
     ];
 
     return (
-        <section className="py-24 px-4 relative overflow-hidden bg-slate-50/50">
+        <section className="py-24 px-4 relative overflow-hidden bg-background/50 border-y border-border/40">
             {/* Decorative background elements */}
-            <div className="absolute top-0 left-0 w-full h-full bg-grid-slate-100/[0.04] -z-10" />
+            <div className="absolute top-0 left-0 w-full h-full bg-grid-slate-500/[0.02] -z-10" />
             <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary/5 rounded-full blur-3xl opacity-50" />
-            <div className="absolute top-1/2 -left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl opacity-50" />
+            <div className="absolute top-1/2 -left-20 w-72 h-72 bg-secondary/5 rounded-full blur-3xl opacity-50 overflow-hidden" />
 
             <div className="max-w-7xl mx-auto">
                 <div className="text-center mb-16 max-w-3xl mx-auto">
-                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-6">
-                        Capabilities that <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">Empower You</span>
+                    <h2 className="text-4xl md:text-5xl font-black text-foreground tracking-tight mb-6">
+                        Capabilities that <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600 dark:to-blue-400">Empower You</span>
                     </h2>
-                    <p className="text-lg text-slate-600 leading-relaxed">
+                    <p className="text-lg text-muted-foreground leading-relaxed">
                         A complete suite of intelligent tools designed designed to handle the "heavy lifting" so you can focus on what matters most: your students.
                     </p>
                 </div>
@@ -94,23 +94,23 @@ export const PublicFeatures = () => {
                     {features.map((feature, i) => (
                         <TiltCard key={feature.title} className="h-full">
                             <div
-                                className={`group relative bg-white p-8 rounded-3xl border ${feature.borderColor} shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col`}
+                                className={`group relative bg-card p-8 rounded-3xl border ${feature.borderColor} shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col`}
                             >
                                 {/* Hover Glow Effect */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
+                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl pointer-events-none" />
 
                                 <div className={`w-16 h-16 rounded-2xl ${feature.color} flex items-center justify-center mb-6 shadow-inner`}>
                                     {feature.icon}
                                 </div>
 
-                                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors flex items-center gap-2">
+                                <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors flex items-center gap-2">
                                     {feature.title}
                                 </h3>
-                                <p className="text-slate-500 leading-relaxed mb-4 text-sm font-medium flex-grow">
+                                <p className="text-muted-foreground leading-relaxed mb-4 text-sm font-medium flex-grow">
                                     {feature.desc}
                                 </p>
 
-                                <div className="pt-4 border-t border-slate-100 flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest group-hover:text-primary/70 transition-colors mt-auto">
+                                <div className="pt-4 border-t border-border flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest group-hover:text-primary/70 transition-colors mt-auto">
                                     <Sparkles className="w-3 h-3" /> Professional Feature
                                 </div>
                             </div>

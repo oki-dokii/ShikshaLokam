@@ -24,7 +24,7 @@ export const Testimonials = () => {
     ];
 
     return (
-        <section className="py-24 px-4 bg-slate-50 relative overflow-hidden">
+        <section className="py-24 px-4 bg-background relative overflow-hidden">
             {/* Background decorations */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-bl-full" />
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/5 rounded-tr-full" />
@@ -35,11 +35,11 @@ export const Testimonials = () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="text-3xl md:text-4xl font-black text-slate-900 mb-4"
+                        className="text-3xl md:text-4xl font-black text-foreground mb-4"
                     >
                         Voices from the <span className="text-primary">Classroom</span>
                     </motion.h2>
-                    <p className="text-slate-500 max-w-2xl mx-auto">
+                    <p className="text-muted-foreground max-w-2xl mx-auto">
                         See how teachers across the state are transforming their daily practice.
                     </p>
                 </div>
@@ -52,21 +52,21 @@ export const Testimonials = () => {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.2 }}
                             viewport={{ once: true }}
-                            className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+                            className="bg-card p-8 rounded-3xl shadow-sm border border-border hover:shadow-md transition-shadow"
                         >
                             <div className="mb-6">
                                 <div className="text-6xl text-primary/20 font-serif leading-none">"</div>
-                                <p className="text-slate-700 font-medium leading-relaxed -mt-6 relative z-10">
+                                <p className="text-muted-foreground font-medium leading-relaxed -mt-6 relative z-10">
                                     {t.quote}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-4 pt-6 border-t border-slate-100">
+                            <div className="flex items-center gap-4 pt-6 border-t border-border">
                                 <div className={`w-10 h-10 rounded-full ${t.color} flex items-center justify-center`}>
                                     <User className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <div className="font-bold text-slate-900 text-sm">{t.author}</div>
-                                    <div className="text-xs text-slate-500 uppercase tracking-wider font-bold">{t.role}</div>
+                                    <div className="font-bold text-foreground text-sm">{t.author}</div>
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider font-bold">{t.role}</div>
                                 </div>
                             </div>
                         </motion.div>
