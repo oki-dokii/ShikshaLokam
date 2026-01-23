@@ -12,13 +12,15 @@ import {
     Navigation,
     Route,
     Map,
-    X as XIcon
+    X as XIcon,
+    Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { ClusterMetrics } from '@/types/courseTypes';
+import { DropoutRadar } from '@/components/dashboard/DropoutRadar';
 
 const OBSERVATION_DOMAINS = [
     { name: 'Classroom Mgmt', score: 78, trend: 'up' },
@@ -360,6 +362,28 @@ export function CRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Critical Success Layer: Dropout Radar */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
+                <div className="lg:col-span-2">
+                    <DropoutRadar />
+                </div>
+                <Card className="bg-gradient-to-br from-indigo-900/40 to-black/60 border-indigo-500/20 backdrop-blur-3xl rounded-[3rem] p-10 flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden group shadow-2xl">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/10 via-transparent to-transparent opacity-50" />
+                    <div className="w-24 h-24 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center relative z-10">
+                        <Sparkles className="w-12 h-12 text-indigo-400 animate-pulse" />
+                    </div>
+                    <div className="space-y-3 relative z-10">
+                        <h4 className="text-2xl font-black text-white font-orbitron uppercase tracking-tight">AI Intervention Engine</h4>
+                        <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-xs mx-auto">
+                            Our predictive models have identified a correlation between low attendance and quiz engagement in Grade 7.
+                        </p>
+                    </div>
+                    <Button className="w-full h-14 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-xs rounded-2xl relative z-10 shadow-xl shadow-indigo-600/20">
+                        Launch Cluster-wide Remedial
+                    </Button>
+                </Card>
+            </div>
 
             {/* Overlays */}
             <AnimatePresence>

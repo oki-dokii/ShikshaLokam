@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     AlertTriangle,
-    MessageCircle,
+    MessageSquare,
     TrendingDown,
     Calendar,
     ChevronRight,
     UserX,
     ShieldCheck,
-    ExternalLink
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,80 +28,91 @@ export const DropoutRadar = () => {
             s.id === student.id ? { ...s, interventionStatus: 'WhatsApp Sent' } : s
         ));
 
-        toast.success(`Intervention started for ${student.name}`);
+        toast.success(`Intervention started for ${student.name}`, {
+            description: "WhatsApp message draft opened with predictive insights.",
+            icon: <MessageSquare className="w-4 h-4 text-emerald-500" />
+        });
     };
 
     return (
-        <div className="bg-slate-900 rounded-3xl border border-white/10 overflow-hidden h-full flex flex-col">
+        <div className="bg-white/95 dark:bg-[#0A0F1E]/60 border border-slate-200 dark:border-white/5 backdrop-blur-3xl rounded-[3.5rem] overflow-hidden flex flex-col shadow-2xl relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/[0.03] via-transparent to-transparent pointer-events-none" />
+
             {/* Header */}
-            <div className="p-6 border-b border-white/10 bg-gradient-to-r from-red-500/10 to-transparent">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
-                            <AlertTriangle className="w-6 h-6 text-red-500" />
+            <div className="p-10 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/[0.02] relative z-10">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                        <div className="w-16 h-16 rounded-[1.25rem] bg-red-500/10 dark:bg-red-500/20 flex items-center justify-center border border-red-500/20 shadow-xl shadow-red-500/10">
+                            <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-500 animate-pulse" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-bold text-white">Dropout Radar</h3>
-                            <p className="text-xs text-slate-400">Early Warning System (Predictive AI)</p>
+                            <h3 className="text-2xl font-black text-slate-800 dark:text-white font-orbitron tracking-tight uppercase">Dropout Radar</h3>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping" />
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black tracking-[0.25em] uppercase">Predictive Student Risk AI v2.0</p>
+                            </div>
                         </div>
                     </div>
-                    <Badge variant="outline" className="bg-red-500/20 text-red-400 border-red-500/30">
-                        {students.filter(s => s.riskLevel === 'high').length} CRITICAL
+                    <Badge variant="outline" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30 px-4 py-1.5 font-black uppercase tracking-widest text-[9px]">
+                        {students.filter(s => s.riskLevel === 'high').length} CRITICAL ALERTS
                     </Badge>
                 </div>
             </div>
 
             {/* Student List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {students.map((student) => (
+            <div className="flex-1 overflow-y-auto p-8 space-y-4 max-h-[600px] relative z-10">
+                {students.map((student, i) => (
                     <motion.div
                         key={student.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className={`p-4 rounded-2xl border transition-all cursor-pointer group ${selectedStudent?.id === student.id
-                                ? 'bg-red-500/10 border-red-500/40'
-                                : 'bg-white/5 border-white/5 hover:border-white/20'
+                        transition={{ delay: i * 0.1 }}
+                        className={`p-6 rounded-[2rem] border transition-all cursor-pointer group relative overflow-hidden ${selectedStudent?.id === student.id
+                            ? 'bg-red-500/[0.05] border-red-500/40 shadow-inner'
+                            : 'bg-slate-50/50 dark:bg-white/[0.03] border-slate-200/60 dark:border-white/5 hover:border-red-500/30 hover:bg-white dark:hover:bg-red-500/[0.05]'
                             }`}
-                        onClick={() => setSelectedStudent(student)}
+                        onClick={() => setSelectedStudent(selectedStudent?.id === student.id ? null : student)}
                     >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${student.riskLevel === 'high' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'
+                        <div className="flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-5">
+                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-lg shadow-xl font-orbitron transform group-hover:scale-110 transition-transform ${student.riskLevel === 'high' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'
                                     }`}>
                                     {student.name.charAt(0)}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-white group-hover:text-red-400 transition-colors">
+                                    <h4 className="text-xl font-black text-slate-800 dark:text-white group-hover:text-red-600 transition-colors tracking-tight uppercase">
                                         {student.name}
                                     </h4>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <span className="flex items-center gap-0.5 text-[10px] text-slate-400">
-                                            <Calendar className="w-3 h-3" /> {student.attendance.consecutiveAbsences} days off
-                                        </span>
-                                        <span className="flex items-center gap-0.5 text-[10px] text-red-400 font-bold">
-                                            <TrendingDown className="w-3 h-3" /> {student.engagement.averageScore}% Score
+                                    <div className="flex items-center gap-4 mt-2">
+                                        <Badge variant="outline" className="bg-slate-200/50 dark:bg-white/5 text-slate-600 dark:text-slate-400 text-[9px] h-6 rounded-lg border-slate-200/50 dark:border-white/10 font-bold px-2 flex items-center gap-1.5">
+                                            <Calendar className="w-3 h-3" /> {student.attendance.consecutiveAbsences} Days Absent
+                                        </Badge>
+                                        <span className="text-[9px] text-red-400 font-bold uppercase tracking-widest flex items-center gap-1.5">
+                                            <TrendingDown className="w-3.5 h-3.5" /> Performance: {student.engagement.averageScore}%
                                         </span>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-4">
                                 {student.interventionStatus === 'WhatsApp Sent' ? (
-                                    <ShieldCheck className="w-5 h-5 text-green-500" />
+                                    <div className="flex items-center gap-2 text-emerald-500 font-black text-[10px] uppercase tracking-widest">
+                                        <ShieldCheck className="w-5 h-5" /> Intervention Sent
+                                    </div>
                                 ) : (
                                     <Button
                                         size="icon"
                                         variant="ghost"
-                                        className="h-8 w-8 rounded-full text-brand-cyan hover:bg-brand-cyan/20"
+                                        className="h-12 w-12 rounded-2xl bg-white/50 dark:bg-white/5 text-slate-400 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all border border-transparent hover:border-emerald-500/20 shadow-sm"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleIntervention(student);
                                         }}
                                     >
-                                        <MessageCircle className="w-4 h-4" />
+                                        <MessageSquare className="w-5 h-5" />
                                     </Button>
                                 )}
-                                <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-slate-400" />
+                                <ChevronRight className={`w-5 h-5 text-slate-300 transition-transform ${selectedStudent?.id === student.id ? 'rotate-90' : ''}`} />
                             </div>
                         </div>
 
@@ -113,33 +123,37 @@ export const DropoutRadar = () => {
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    className="overflow-hidden mt-4 pt-4 border-t border-white/10"
+                                    className="overflow-hidden mt-6 pt-6 border-t border-slate-100 dark:border-white/5 space-y-6"
                                 >
-                                    <p className="text-xs text-slate-300 mb-3 leading-relaxed">
-                                        AI Predictor flags {student.name} due to consecutive absences and a downward
-                                        trend in quiz engagement over the last 5 modules.
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">
+                                        "High probability of drop-out detected by Pattern Recognition Engine.
+                                        {student.name} is showing consistent score degradation from 80% to {student.engagement.averageScore}% over {student.engagement.lastFiveQuizScores.length} cycles."
                                     </p>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="bg-black/20 p-2 rounded-lg">
-                                            <p className="text-[10px] text-slate-500 uppercase font-bold">Risk Score</p>
-                                            <p className="text-lg font-bold text-red-500">{student.riskScore}%</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="bg-white dark:bg-black/40 p-5 rounded-[1.5rem] border border-slate-200/60 dark:border-white/5 shadow-xl">
+                                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2">Composite Risk Index</p>
+                                            <div className="flex items-end gap-3">
+                                                <span className="text-4xl font-black text-red-500 font-orbitron">{student.riskScore}%</span>
+                                                <Badge className="bg-red-500/10 text-red-600 border-0 mb-1">CRITICAL</Badge>
+                                            </div>
                                         </div>
-                                        <div className="bg-black/20 p-2 rounded-lg">
-                                            <p className="text-[10px] text-slate-500 uppercase font-bold">Trend</p>
-                                            <p className="text-lg font-bold text-orange-500 flex items-center gap-1">
-                                                DOWN <TrendingDown className="w-4 h-4" />
-                                            </p>
+                                        <div className="bg-white dark:bg-black/40 p-5 rounded-[1.5rem] border border-slate-200/60 dark:border-white/5 shadow-xl">
+                                            <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest mb-2">Engagement Velocity</p>
+                                            <div className="flex items-end gap-3 text-red-500">
+                                                <TrendingDown className="w-8 h-8 mb-1" />
+                                                <span className="text-4xl font-black font-orbitron uppercase">Neg.</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <Button
-                                        className="w-full mt-4 bg-red-500 hover:bg-red-600 text-white font-bold gap-2"
+                                        className="w-full h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-xs rounded-2xl gap-3 shadow-[0_15px_30px_-5px_rgba(16,185,129,0.3)]"
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleIntervention(student);
                                         }}
                                     >
-                                        <MessageCircle className="w-4 h-4" />
-                                        1-Click WhatsApp Intervention
+                                        <MessageSquare className="w-5 h-5" />
+                                        1-Click WhatsApp Parent Feedback
                                     </Button>
                                 </motion.div>
                             )}
@@ -148,11 +162,11 @@ export const DropoutRadar = () => {
                 ))}
             </div>
 
-            {/* Footer Info */}
-            <div className="p-4 bg-slate-800/50 border-t border-white/5">
-                <div className="flex items-center gap-2 text-[10px] text-slate-500 italic">
-                    <UserX className="w-3 h-3" />
-                    Predictions are based on Random Forest analysis of attendance & quiz data.
+            {/* Footer */}
+            <div className="p-8 border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/[0.01] relative z-10">
+                <div className="flex items-center gap-3 text-[10px] text-slate-500 dark:text-slate-500 font-black uppercase tracking-widest">
+                    <UserX className="w-4 h-4 text-red-500" />
+                    AI insight: Predictions synthesized by the Regional Intelligence Repository for Aurangabad.
                 </div>
             </div>
         </div>
