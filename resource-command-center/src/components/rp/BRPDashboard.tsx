@@ -55,10 +55,10 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
         toast.promise(
             new Promise((resolve) => setTimeout(resolve, 1500)),
             {
-                loading: 'Analyzing teacher requirements...',
+                loading: 'AI Engine analyzing teacher-student ratios and subject requirements...',
                 success: () => {
                     setStaffing(prev => prev.map(s => ({ ...s, status: 'balanced', value: 0, teachers: s.required })));
-                    return 'Optimization complete: Deployment orders drafted for better PTR.';
+                    return 'Optimization Successful: 3 teachers reassigned virtually to schools with critical Math/Science vacancies. Draft deployment order sent to BEO.';
                 },
                 error: 'Failed to balance staffing.',
             }
@@ -82,6 +82,16 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
             action: {
                 label: "Request Transfer",
                 onClick: () => toast.success(`Transfer request for ${school} submitted for BEO approval.`)
+            }
+        });
+    };
+
+    const handleEscalationDetails = (title: string, from: string) => {
+        toast.info(`Escalation Details: ${title}`, {
+            description: `Reported by ${from}. Status: Critical. Priority: High. Assigned to Block Resource Coordinator.`,
+            action: {
+                label: "View Report",
+                onClick: () => toast("Opening full incident report...")
             }
         });
     };
@@ -217,7 +227,14 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                     >
                                         Resolve
                                     </Button>
-                                    <Button size="sm" variant="outline" className="h-7 text-xs border-white/10 text-slate-400 hover:text-white hover:bg-white/5">Details</Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 text-xs border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
+                                        onClick={() => handleEscalationDetails(issue.title, issue.from)}
+                                    >
+                                        Details
+                                    </Button>
                                 </div>
                             </div>
                         ))}

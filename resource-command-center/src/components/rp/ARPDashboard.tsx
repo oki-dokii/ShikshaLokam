@@ -39,10 +39,14 @@ export function ARPDashboard({ cluster }: { cluster: ClusterMetrics }) {
 
     // Update heatmap based on cluster health to simulate dynamic data
     useEffect(() => {
-        setHeatmap(prev => prev.map(item => ({
-            ...item,
-            mastery: Math.min(100, Math.max(10, item.mastery + (cluster.overallHealth - 70) / 2 + (Math.random() * 10 - 5)))
-        })));
+        setHeatmap(prev => prev.map(item => {
+            const newMastery = Math.min(100, Math.max(10, item.mastery + (cluster.overallHealth - 70) / 2 + (Math.random() * 10 - 5)));
+            return {
+                ...item,
+                mastery: newMastery,
+                status: newMastery < 50 ? 'critical' : newMastery < 65 ? 'warning' : newMastery < 85 ? 'good' : 'excellent'
+            };
+        }));
     }, [cluster]);
 
     const handleTopicClick = (topic: string) => {
@@ -57,19 +61,26 @@ export function ARPDashboard({ cluster }: { cluster: ClusterMetrics }) {
     };
 
     const handleCreateQuiz = () => {
-        toast.success("AI is generating a diagnostic quiz for the 'Measurement' gap...");
-        setTimeout(() => {
-            navigate('/module-generator');
-        }, 1500);
+        toast.promise(
+            new Promise((resolve) => setTimeout(resolve, 2000)),
+            {
+                loading: "AI generating remedial assessment for the cluster's biggest learning gap...",
+                success: () => {
+                    navigate('/simulation-arena'); // Move to a simulation or quiz area
+                    return "Diagnostic Assessment generated! Redirecting to Simulation Arena.";
+                },
+                error: "System busy: Training model update in progress.",
+            }
+        );
     };
 
     const handleUploadPlan = () => {
         toast.promise(
-            new Promise((resolve) => setTimeout(resolve, 2000)),
+            new Promise((resolve) => setTimeout(resolve, 2500)),
             {
-                loading: 'AI analyzing lesson plan for pedagogical alignment...',
-                success: 'Lesson plan analyzed! Added to Cluster Resource Repository.',
-                error: 'Failed to upload plan.',
+                loading: 'AI analyzing lesson plan for pedagogical alignment with Cluster Goals...',
+                success: 'Lesson plan analyzed! 92% alignment with NIPUN standards. Added to Resource Repository.',
+                error: 'File format not supported.',
             }
         );
     };
