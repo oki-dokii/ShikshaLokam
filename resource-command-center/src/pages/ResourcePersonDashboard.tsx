@@ -127,72 +127,86 @@ Schedule a follow-up visit to the underperforming schools to reassess the implem
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#020617] relative overflow-x-hidden p-6 md:p-10 selection:bg-brand-blue/30 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#020617] relative overflow-x-hidden p-6 md:p-12 mb-12 selection:bg-brand-blue/30 font-sans text-slate-900 dark:text-slate-100 transition-colors duration-500">
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="hidden dark:block">
                     <SpaceScene />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/80 to-[#020617]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#020617]/40 to-[#020617]" />
                 </div>
                 <div className="dark:hidden absolute inset-0 bg-slate-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100 via-transparent to-transparent opacity-40" />
             </div>
 
-            <div className="max-w-7xl mx-auto relative z-10 space-y-8">
+            <div className="max-w-7xl mx-auto relative z-10 space-y-12">
                 {/* Header Section */}
-                <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 pb-8 border-b border-slate-200 dark:border-white/5">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-brand-blue/40 blur-xl rounded-full animate-pulse" />
-                                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-blue to-blue-600 flex items-center justify-center relative shadow-[0_0_30px_rgba(37,99,235,0.3)] border border-white/10">
-                                    <LayoutDashboard className="w-7 h-7 text-white" />
+                <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-10 pb-10 border-b border-slate-200 dark:border-white/5">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-6">
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-brand-blue/40 blur-2xl rounded-full animate-pulse group-hover:bg-brand-blue/60 transition-all" />
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-brand-blue to-blue-700 flex items-center justify-center relative shadow-[0_0_50px_rgba(37,99,235,0.4)] border border-white/20 transform group-hover:rotate-6 transition-transform">
+                                    <LayoutDashboard className="w-8 h-8 text-white" />
                                 </div>
                             </div>
-                            <div className="space-y-0.5">
-                                <h1 className="text-4xl md:text-5xl font-black font-orbitron tracking-tighter text-slate-900 dark:text-white uppercase drop-shadow-2xl">
-                                    Resource <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-cyan-400">Command</span>
+                            <div className="space-y-1">
+                                <h1 className="text-5xl md:text-6xl font-black font-orbitron tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
+                                    Resource <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-cyan-400 to-indigo-500">Command</span>
                                 </h1>
-                                <p className="text-slate-400 text-sm font-medium tracking-wide flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    OPERATIONAL DASHBOARD v2.0 • {MOCK_BLOCK_DATA.name.toUpperCase()} (BIDAR)
-                                </p>
+                                <div className="flex items-center gap-3 mt-2">
+                                    <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                        <span className="text-[10px] text-green-600 dark:text-green-400 font-black uppercase tracking-widest">Live Engine v2.0</span>
+                                    </div>
+                                    <span className="text-slate-400 text-xs font-bold tracking-[0.2em] uppercase">• {MOCK_BLOCK_DATA.name.toUpperCase()} REGION</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <select
-                            value={selectedCluster.id}
-                            onChange={(e) => {
-                                const cluster = MOCK_BLOCK_DATA.clusters.find(c => c.id === e.target.value);
-                                if (cluster) setSelectedCluster(cluster);
-                            }}
-                            className="bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-blue"
-                        >
-                            {MOCK_BLOCK_DATA.clusters.map(c => (
-                                <option key={c.id} value={c.id}>{c.name} Cluster</option>
-                            ))}
-                        </select>
+                    <div className="flex items-center gap-6">
+                        <div className="relative">
+                            <select
+                                value={selectedCluster.id}
+                                onChange={(e) => {
+                                    const cluster = MOCK_BLOCK_DATA.clusters.find(c => c.id === e.target.value);
+                                    if (cluster) setSelectedCluster(cluster);
+                                }}
+                                className="bg-white/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-2xl px-6 py-3.5 text-sm font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-blue appearance-none pr-12 min-w-[220px] shadow-sm backdrop-blur-xl transition-all hover:bg-white dark:hover:bg-white/5"
+                            >
+                                {MOCK_BLOCK_DATA.clusters.map(c => (
+                                    <option key={c.id} value={c.id} className="dark:bg-slate-900 dark:text-white">{c.name} Cluster</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        </div>
                         <LanguageSwitcher />
                     </div>
                 </div>
 
-                {/* Role Switcher - HUD Style */}
-                <div className="flex p-2 bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden ring-1 ring-slate-200/50 dark:ring-white/5 max-w-2xl">
-                    <div className="absolute inset-x-0 -top-full h-full bg-gradient-to-b from-slate-100/50 dark:from-white/5 to-transparent opacity-20" />
+                {/* Role Switcher - Premium HUD Style */}
+                <div className="inline-flex p-2 bg-white/90 dark:bg-black/40 backdrop-blur-3xl rounded-[2rem] border border-slate-200 dark:border-white/10 shadow-2xl relative overflow-hidden ring-1 ring-slate-200/50 dark:ring-white/5 w-fit mx-auto lg:mx-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/[0.05] to-transparent pointer-events-none" />
                     {(['BRP', 'ARP', 'CRP'] as RPRole[]).map((r) => (
                         <button
                             key={r}
                             onClick={() => setRole(r)}
                             className={`
-                                    flex-1 relative px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 ease-out
+                                    flex items-center gap-3 relative px-10 py-4 rounded-[1.5rem] text-[10px] font-black uppercase tracking-[0.3em] transition-all duration-500 ease-out z-10
                                     ${role === r
-                                    ? 'text-white shadow-[0_10px_25px_-5px_rgba(59,130,246,0.4)] bg-gradient-to-br from-brand-blue via-blue-600 to-blue-700 transform scale-[1.02] z-10'
+                                    ? 'text-white shadow-[0_15px_30px_-5px_rgba(59,130,246,0.5)] bg-gradient-to-br from-brand-blue via-blue-600 to-indigo-600 transform scale-[1.02]'
                                     : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
                                 }
                                 `}
                         >
-                            {r} View
+                            {r === 'BRP' && <LayoutDashboard className="w-4 h-4 opacity-50" />}
+                            {r === 'ARP' && <GraduationCap className="w-4 h-4 opacity-50" />}
+                            {r === 'CRP' && <MapIcon className="w-4 h-4 opacity-50" />}
+                            {r} Perspective
                             {role === r && (
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-xl" />
+                                <motion.div
+                                    layoutId="role-glow"
+                                    className="absolute inset-x-0 -bottom-1 h-px bg-white/40 blur-sm"
+                                />
                             )}
                         </button>
                     ))}
@@ -200,48 +214,55 @@ Schedule a follow-up visit to the underperforming schools to reassess the implem
 
                 {/* Main Content Area */}
                 <div className="w-full">
-                    <div className="bg-white/90 dark:bg-[#0A0F1E]/40 border border-slate-200/60 dark:border-white/5 rounded-3xl p-1 md:p-8 backdrop-blur-xl relative overflow-hidden min-h-[600px] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] dark:shadow-none">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-slate-50/50 via-transparent to-blue-50/30 pointer-events-none dark:hidden" />
+                    <div className="bg-white/95 dark:bg-[#0A0F1E]/60 border border-slate-200 dark:border-white/5 rounded-[3.5rem] p-1 md:p-12 backdrop-blur-3xl relative overflow-hidden min-h-[600px] shadow-2xl dark:shadow-none">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/[0.02] via-transparent to-brand-blue/[0.02] pointer-events-none" />
 
                         {/* Dashboard Role Context Header */}
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-slate-200 dark:border-white/5 gap-4 relative z-10">
-                            <div>
-                                <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3 tracking-tighter uppercase">
-                                    {role === 'CRP' ? (
-                                        <div className="p-2.5 bg-brand-blue/10 dark:bg-brand-blue/20 rounded-xl text-brand-blue shadow-sm"><MapIcon className="w-6 h-6" /></div>
-                                    ) : role === 'ARP' ? (
-                                        <div className="p-2.5 bg-pink-500/10 dark:bg-pink-500/20 rounded-xl text-pink-500 shadow-sm"><GraduationCap className="w-6 h-6" /></div>
-                                    ) : (
-                                        <div className="p-2.5 bg-purple-500/10 dark:bg-purple-500/20 rounded-xl text-purple-500 shadow-sm"><LayoutDashboard className="w-6 h-6" /></div>
-                                    )}
-                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:to-slate-400">
-                                        {role === 'BRP' ? 'Block Operations Center' :
-                                            role === 'ARP' ? 'Academic Excellence Hub' :
-                                                'Field Mentor Cockpit'}
-                                    </span>
-                                </h2>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 ml-14 font-medium max-w-2xl leading-relaxed italic border-l-2 border-slate-100 dark:border-white/5 pl-4">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-12 pb-10 border-b border-slate-100 dark:border-white/5 gap-8 relative z-10 px-4">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-5">
+                                    <div className={`p-4 rounded-2xl shadow-xl transition-all duration-500 transform hover:rotate-6 ${role === 'CRP' ? 'bg-brand-blue/10 text-brand-blue' :
+                                            role === 'ARP' ? 'bg-pink-500/10 text-pink-500' :
+                                                'bg-purple-500/10 text-purple-500'
+                                        }`}>
+                                        {role === 'CRP' ? <MapIcon className="w-8 h-8" /> : role === 'ARP' ? <GraduationCap className="w-8 h-8" /> : <LayoutDashboard className="w-8 h-8" />}
+                                    </div>
+                                    <div>
+                                        <h2 className="text-4xl font-black text-slate-900 dark:text-white font-orbitron tracking-tight leading-none uppercase">
+                                            {role === 'BRP' ? 'Operations Center' :
+                                                role === 'ARP' ? 'Academic Hub' :
+                                                    'Mentorship Cockpit'}
+                                        </h2>
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-500 font-black uppercase tracking-[0.4em] mt-2">
+                                            Strategy & Deployment Engine
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium max-w-2xl leading-relaxed italic pl-6 border-l-2 border-slate-200 dark:border-white/10">
                                     {role === 'BRP' ? 'Administrative oversight, resource allocation, and compliance monitoring across all clusters.' :
                                         role === 'ARP' ? 'Pedagogical planning, teacher training analytics, and learning outcome tracking.' :
                                             'Daily visit planning, classroom observation tools, and peer mentorship management.'}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3 ml-14 md:ml-0 relative z-10">
+
+                            <div className="flex items-center gap-4 relative z-10">
                                 <Button
                                     size="lg"
                                     disabled={isExporting}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 font-bold uppercase tracking-wider text-xs h-12 px-8 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.3)] dark:shadow-white/10 transition-all flex items-center gap-2 rounded-xl"
+                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 font-black uppercase tracking-[0.2em] text-[10px] h-16 px-10 shadow-2xl transition-all flex items-center gap-3 rounded-[1.5rem] relative overflow-hidden group"
                                     onClick={handleGenerateReport}
                                 >
-                                    {isExporting ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />}
-                                    Export {role} Report
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent skew-x-[-20deg] animate-shimmer pointer-events-none" />
+                                    {isExporting ? <div className="w-5 h-5 border-3 border-current border-t-transparent rounded-full animate-spin" /> : <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse" />}
+                                    Export Analysis
                                 </Button>
                                 <Button
                                     size="icon"
-                                    className="h-12 w-12 rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white border border-slate-200 dark:border-white/5 shadow-sm"
+                                    variant="outline"
+                                    className="h-16 w-16 rounded-[1.5rem] border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 text-slate-400 hover:text-brand-blue hover:border-brand-blue/50 transition-all shadow-lg backdrop-blur-xl group"
                                     onClick={() => setShowMentorCopilot(true)}
                                 >
-                                    <Mic className="w-5 h-5" />
+                                    <Mic className="w-6 h-6 group-hover:scale-110 transition-transform" />
                                 </Button>
                             </div>
                         </div>
@@ -250,11 +271,11 @@ Schedule a follow-up visit to the underperforming schools to reassess the implem
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={role + selectedCluster.id}
-                                initial={{ opacity: 0, y: 20 }}
+                                initial={{ opacity: 0, y: 30 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                transition={{ duration: 0.3 }}
-                                className="w-full"
+                                exit={{ opacity: 0, y: -30 }}
+                                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                                className="w-full relative z-10"
                             >
                                 {role === 'CRP' && <CRPDashboard cluster={selectedCluster} />}
                                 {role === 'ARP' && <ARPDashboard cluster={selectedCluster} />}
