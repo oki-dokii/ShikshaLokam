@@ -207,7 +207,7 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                     </CardHeader>
                     <CardContent className="space-y-4 pt-6">
                         {escalations.map((issue) => (
-                            <div key={issue.id} className="p-4 bg-red-500/[0.02] dark:bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/[0.05] dark:hover:bg-red-500/10 transition-all cursor-pointer group relative overflow-hidden shadow-sm">
+                            <div key={issue.id} className="p-4 bg-red-500/[0.02] dark:bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/[0.05] dark:hover:bg-red-500/10 transition-all group relative overflow-hidden shadow-sm">
                                 <div className="absolute left-0 top-0 w-1 h-full bg-red-500" />
                                 <div className="flex justify-between items-start pl-3">
                                     <div className="space-y-1">
@@ -222,7 +222,10 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                 <div className="flex gap-2 mt-4 pl-3">
                                     <Button
                                         size="sm"
-                                        onClick={() => handleResolveEscalation(issue.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleResolveEscalation(issue.id);
+                                        }}
                                         className="h-7 text-xs bg-red-600 hover:bg-red-500 text-white border-0 shadow-lg shadow-red-600/20 rounded-lg"
                                     >
                                         Resolve
@@ -231,7 +234,10 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                         size="sm"
                                         variant="outline"
                                         className="h-7 text-xs border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg"
-                                        onClick={() => handleEscalationDetails(issue.title, issue.from)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEscalationDetails(issue.title, issue.from);
+                                        }}
                                     >
                                         Details
                                     </Button>
