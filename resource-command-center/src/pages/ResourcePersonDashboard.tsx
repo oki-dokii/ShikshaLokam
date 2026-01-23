@@ -71,21 +71,50 @@ export default function ResourcePersonDashboard() {
         const reportType = role === 'BRP' ? 'Block Deployment Report' : role === 'ARP' ? 'Academic Mastery Analytics' : 'Field Visit Log';
         const fileName = `${role}_Report_${selectedCluster.name.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
 
+        const getRoleSpecificContent = () => {
+            switch (role) {
+                case 'BRP':
+                    return `This is a synthesized Block Operations Report for ${selectedCluster.name}. 
+                    
+ADMINISTRATIVE SUMMARY:
+- Personnel Deployment: The cluster is currently at ${selectedCluster.overallHealth}% staffing efficiency.
+- Infrastructure Status: ${selectedCluster.needsSupportCount} schools have flagged critical maintenance requirements.
+- Compliance: MDM and UDISE verification is at 88% completion for the current quarter.
+                    
+RECOMMENDATION:
+Prioritize the transfer of 2 surplus teachers to schools in the western sector to balance the Pupil-Teacher Ratio (PTR).`;
+                case 'ARP':
+                    return `This is a synthesized Academic Mastery Analytics report for ${selectedCluster.name}.
+                    
+PEDAGOGICAL INSIGHTS:
+- Concept Mastery: Grade 7 Math (Fractions) remains a cluster-wide gap with <45% mastery.
+- Training Impact: The recent 'Experiential Science' workshop has improved classroom engagement by 15%.
+- Resource Usage: Top performing school, ${selectedCluster.topPerformingSchool}, shows 92% utilization of digital library kits.
+                    
+RECOMMENDATION:
+Conduct a diagnostic remediation session for Grade 7 teachers focusing on visual aids for abstract mathematical concepts.`;
+                case 'CRP':
+                    return `This is a synthesized Field Visit & Observation Log for ${selectedCluster.name}.
+                    
+FIELD SUMMARY:
+- Visit Velocity: 12 schools visited this month with an average observation score of 72%.
+- Classroom Management: Significant improvement noted in 'Student Voice' and interactive questioning techniques.
+- Peer Mentorship: 2 new 'Math Circle' peer groups established across schools in the northern zone.
+                    
+RECOMMENDATION:
+Schedule a follow-up visit to the underperforming schools to reassess the implementation of the NIPUN Bharat pedagogical guidelines.`;
+                default:
+                    return `Synthesized report for ${selectedCluster.name}. All data is synchronized with the Resource Central Repository.`;
+            }
+        };
+
         toast.promise(
             new Promise((resolve) => setTimeout(resolve, 2500)),
             {
                 loading: `Synthesizing ${reportType} for ${selectedCluster.name}...`,
                 success: () => {
                     setIsExporting(false);
-                    const mockContent = `This is a synthesized AI report for the ${role} role in the ${selectedCluster.name} cluster. Data points analyzed include staffing ratios, school compliance status, academic master trends, and recent field pedagogical observations.
-
-                    Key Insights for ${selectedCluster.name}:
-                    - Average School Health Score: ${selectedCluster.overallHealth}%
-                    - Top Performing Institution: ${selectedCluster.topPerformingSchool}
-                    - Active Interventions: ${selectedCluster.needsSupportCount} schools currently flagged for support.
-                    
-                    Pedagogical observations indicate a shift towards experiential learning across the cluster, though specific gaps remain in language proficiency modules. All data is synchronized with the Resource Central Repository.`;
-
+                    const mockContent = getRoleSpecificContent();
                     triggerDownload(fileName, mockContent, reportType);
                     return `${reportType} for ${selectedCluster.name} has been generated.`;
                 },
