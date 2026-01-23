@@ -176,23 +176,23 @@ Schedule a follow-up visit to the underperforming schools to reassess the implem
                 </div>
 
                 {/* Role Switcher - HUD Style */}
-                <div className="flex p-1.5 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl relative overflow-hidden ring-1 ring-slate-200 dark:ring-white/5">
+                <div className="flex p-2 bg-white/90 dark:bg-slate-900/80 backdrop-blur-2xl rounded-2xl border border-slate-200 dark:border-white/10 shadow-[0_15px_35px_-10px_rgba(0,0,0,0.05)] relative overflow-hidden ring-1 ring-slate-200/50 dark:ring-white/5 max-w-2xl">
                     <div className="absolute inset-x-0 -top-full h-full bg-gradient-to-b from-slate-100/50 dark:from-white/5 to-transparent opacity-20" />
                     {(['BRP', 'ARP', 'CRP'] as RPRole[]).map((r) => (
                         <button
                             key={r}
                             onClick={() => setRole(r)}
                             className={`
-                                    relative px-8 py-3 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 ease-out
+                                    flex-1 relative px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-[0.2em] transition-all duration-500 ease-out
                                     ${role === r
-                                    ? 'text-white shadow-[0_0_30px_rgba(59,130,246,0.3)] bg-gradient-to-br from-brand-blue via-blue-600 to-blue-700 transform scale-105 z-10'
-                                    : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                    ? 'text-white shadow-[0_10px_25px_-5px_rgba(59,130,246,0.4)] bg-gradient-to-br from-brand-blue via-blue-600 to-blue-700 transform scale-[1.02] z-10'
+                                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
                                 }
                                 `}
                         >
                             {r} View
                             {role === r && (
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none rounded-xl" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none rounded-xl" />
                             )}
                         </button>
                     ))}
@@ -200,42 +200,45 @@ Schedule a follow-up visit to the underperforming schools to reassess the implem
 
                 {/* Main Content Area */}
                 <div className="w-full">
-                    <div className="bg-white/60 dark:bg-[#0A0F1E]/40 border border-slate-200 dark:border-white/5 rounded-3xl p-1 md:p-8 backdrop-blur-sm relative overflow-hidden min-h-[600px] shadow-sm dark:shadow-none">
+                    <div className="bg-white/90 dark:bg-[#0A0F1E]/40 border border-slate-200/60 dark:border-white/5 rounded-3xl p-1 md:p-8 backdrop-blur-xl relative overflow-hidden min-h-[600px] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] dark:shadow-none">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-slate-50/50 via-transparent to-blue-50/30 pointer-events-none dark:hidden" />
 
                         {/* Dashboard Role Context Header */}
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-slate-200 dark:border-white/5 gap-4">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-slate-200 dark:border-white/5 gap-4 relative z-10">
                             <div>
-                                <h2 className="text-3xl font-black text-slate-900 dark:text-white flex items-center gap-3 tracking-tighter uppercase">
+                                <h2 className="text-3xl font-black text-slate-800 dark:text-white flex items-center gap-3 tracking-tighter uppercase">
                                     {role === 'CRP' ? (
-                                        <div className="p-2 bg-brand-blue/20 rounded-lg text-brand-blue"><MapIcon className="w-6 h-6" /></div>
+                                        <div className="p-2.5 bg-brand-blue/10 dark:bg-brand-blue/20 rounded-xl text-brand-blue shadow-sm"><MapIcon className="w-6 h-6" /></div>
                                     ) : role === 'ARP' ? (
-                                        <div className="p-2 bg-pink-500/20 rounded-lg text-pink-500"><GraduationCap className="w-6 h-6" /></div>
+                                        <div className="p-2.5 bg-pink-500/10 dark:bg-pink-500/20 rounded-xl text-pink-500 shadow-sm"><GraduationCap className="w-6 h-6" /></div>
                                     ) : (
-                                        <div className="p-2 bg-purple-500/20 rounded-lg text-purple-500"><LayoutDashboard className="w-6 h-6" /></div>
+                                        <div className="p-2.5 bg-purple-500/10 dark:bg-purple-500/20 rounded-xl text-purple-500 shadow-sm"><LayoutDashboard className="w-6 h-6" /></div>
                                     )}
-                                    {role === 'BRP' ? 'Block Operations Center' :
-                                        role === 'ARP' ? 'Academic Excellence Hub' :
-                                            'Field Mentor Cockpit'}
+                                    <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-800 dark:from-white dark:to-slate-400">
+                                        {role === 'BRP' ? 'Block Operations Center' :
+                                            role === 'ARP' ? 'Academic Excellence Hub' :
+                                                'Field Mentor Cockpit'}
+                                    </span>
                                 </h2>
-                                <p className="text-slate-400 text-sm mt-2 ml-14 font-medium max-w-2xl leading-relaxed">
+                                <p className="text-slate-500 dark:text-slate-400 text-sm mt-3 ml-14 font-medium max-w-2xl leading-relaxed italic border-l-2 border-slate-100 dark:border-white/5 pl-4">
                                     {role === 'BRP' ? 'Administrative oversight, resource allocation, and compliance monitoring across all clusters.' :
                                         role === 'ARP' ? 'Pedagogical planning, teacher training analytics, and learning outcome tracking.' :
                                             'Daily visit planning, classroom observation tools, and peer mentorship management.'}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3 ml-14 md:ml-0">
+                            <div className="flex items-center gap-3 ml-14 md:ml-0 relative z-10">
                                 <Button
                                     size="lg"
                                     disabled={isExporting}
-                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 font-bold uppercase tracking-wider text-xs h-12 px-6 shadow-xl dark:shadow-white/10 transition-all flex items-center gap-2"
+                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 font-bold uppercase tracking-wider text-xs h-12 px-8 shadow-[0_10px_20px_-5px_rgba(0,0,0,0.3)] dark:shadow-white/10 transition-all flex items-center gap-2 rounded-xl"
                                     onClick={handleGenerateReport}
                                 >
-                                    {isExporting ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : null}
+                                    {isExporting ? <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />}
                                     Export {role} Report
                                 </Button>
                                 <Button
                                     size="icon"
-                                    className="h-12 w-12 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white border border-slate-200 dark:border-white/5"
+                                    className="h-12 w-12 rounded-xl bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white border border-slate-200 dark:border-white/5 shadow-sm"
                                     onClick={() => setShowMentorCopilot(true)}
                                 >
                                     <Mic className="w-5 h-5" />

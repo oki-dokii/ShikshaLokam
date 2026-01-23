@@ -100,24 +100,24 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
             {/* Staffing & PTR Balancer */}
-            <Card className="bg-[#0A0F1E]/80 border-blue-500/20 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <Card className="bg-white/90 dark:bg-[#0A0F1E]/80 border-slate-200 dark:border-blue-500/20 backdrop-blur-xl shadow-xl dark:shadow-2xl overflow-hidden group">
                 <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
-                <CardHeader className="flex flex-row items-center justify-between border-b border-white/5 pb-6">
+                <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 dark:border-white/5 pb-6">
                     <div>
                         <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
+                            <div className="p-2 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
                                 <Users className="w-5 h-5" />
                             </div>
-                            <CardTitle className="text-white font-orbitron tracking-wide text-xl">Staffing & PTR Balancer</CardTitle>
+                            <CardTitle className="text-slate-800 dark:text-white font-orbitron tracking-wide text-xl">Staffing & PTR Balancer</CardTitle>
                         </div>
-                        <CardDescription className="text-blue-200/50">
+                        <CardDescription className="text-slate-500 dark:text-blue-200/50">
                             Real-time analysis of teacher deployment vs requirement across 42 schools.
                         </CardDescription>
                     </div>
                     <Button
                         variant="outline"
                         onClick={handleAutoBalance}
-                        className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 font-bold uppercase tracking-wide text-xs"
+                        className="border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 font-bold uppercase tracking-wide text-xs rounded-xl"
                     >
                         <Activity className="w-4 h-4 mr-2" /> Auto-Balance
                     </Button>
@@ -125,17 +125,17 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                 <CardContent className="pt-6">
                     <div className="space-y-3">
                         {staffing.map((item, i) => (
-                            <div key={i} className="flex items-center justify-between p-5 bg-[#0F1629] rounded-xl border border-white/5 hover:border-blue-500/30 transition-all group">
+                            <div key={i} className="flex items-center justify-between p-5 bg-slate-50/50 dark:bg-[#0F1629] rounded-xl border border-slate-200/60 dark:border-white/5 hover:border-blue-500/30 hover:bg-white dark:hover:bg-blue-900/10 transition-all group shadow-sm">
                                 <div className="flex items-center gap-5">
-                                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center font-bold text-slate-300 border border-white/10 group-hover:bg-blue-900/50 group-hover:text-blue-300 transition-colors">
+                                    <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-500 dark:text-slate-300 border border-slate-200 dark:border-white/10 group-hover:bg-blue-600 dark:group-hover:bg-blue-900/50 group-hover:text-white transition-colors">
                                         {item.school.substring(0, 2)}
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-white text-base group-hover:text-blue-200 transition-colors">{item.school}</h4>
+                                        <h4 className="font-bold text-slate-800 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-200 transition-colors text-base">{item.school}</h4>
                                         <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 font-medium">
-                                            <span>Current: <span className="text-white">{item.teachers}</span></span>
-                                            <span className="w-1 h-1 rounded-full bg-slate-700" />
-                                            <span>Required: <span className="text-white">{item.required}</span></span>
+                                            <span>Current: <span className="text-slate-900 dark:text-white">{item.teachers}</span></span>
+                                            <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                                            <span>Required: <span className="text-slate-900 dark:text-white">{item.required}</span></span>
                                         </div>
                                     </div>
                                 </div>
@@ -145,7 +145,7 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                             size="icon"
                                             variant="ghost"
                                             onClick={() => handleWhatsAppSchool(item.school, item.value)}
-                                            className="h-8 w-8 text-emerald-500 hover:bg-emerald-500/10"
+                                            className="h-8 w-8 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-500/10"
                                         >
                                             <MessageSquare className="w-4 h-4" />
                                         </Button>
@@ -154,7 +154,7 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                         size="icon"
                                         variant="ghost"
                                         onClick={() => handleStaffAction(item.school)}
-                                        className="h-8 w-8 text-slate-400 hover:text-white"
+                                        className="h-8 w-8 text-slate-400 hover:text-slate-600 dark:hover:text-white"
                                     >
                                         <MoreHorizontal className="w-4 h-4" />
                                     </Button>
@@ -168,10 +168,10 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* Compliance Dashboard */}
-                <Card className="bg-[#0A0F1E]/80 border-emerald-500/20 backdrop-blur-xl h-full">
-                    <CardHeader className="border-b border-white/5 pb-4">
-                        <CardTitle className="flex items-center gap-3 text-white font-orbitron tracking-wide text-lg">
-                            <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
+                <Card className="bg-white/90 dark:bg-[#0A0F1E]/80 border-slate-200 dark:border-emerald-500/20 backdrop-blur-xl h-full shadow-lg">
+                    <CardHeader className="border-b border-slate-100 dark:border-white/5 pb-4">
+                        <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-white font-orbitron tracking-wide text-lg">
+                            <div className="p-2 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm">
                                 <FileCheck className="w-5 h-5" />
                             </div>
                             Compliance Tracker
@@ -181,13 +181,13 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                         {compliance.map((item, i) => (
                             <div key={i} className="space-y-3">
                                 <div className="flex justify-between text-sm items-end">
-                                    <span className="text-white font-bold">{item.task}</span>
-                                    <Badge variant="outline" className={`text-[10px] border-none ${item.due === 'Today' ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-400'
+                                    <span className="text-slate-800 dark:text-white font-bold">{item.task}</span>
+                                    <Badge variant="outline" className={`text-[10px] border-none ${item.due === 'Today' ? 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
                                         }`}>Due: {item.due}</Badge>
                                 </div>
                                 <div className="relative pt-1">
-                                    <Progress value={item.progress} className="h-2.5 bg-slate-800 rounded-full" />
-                                    <span className="absolute right-0 top-0 -mt-1 text-xs font-bold text-emerald-400">{item.progress}%</span>
+                                    <Progress value={item.progress} className="h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full" />
+                                    <span className="absolute right-0 top-0 -mt-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">{item.progress}%</span>
                                 </div>
                             </div>
                         ))}
@@ -195,24 +195,24 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                 </Card>
 
                 {/* Escalation Matrix */}
-                <Card className="bg-gradient-to-br from-red-950/20 to-[#0A0F1E] border-red-500/20 backdrop-blur-xl">
-                    <CardHeader className="border-b border-white/5 pb-4">
-                        <CardTitle className="flex items-center gap-3 text-white font-orbitron tracking-wide text-lg">
-                            <div className="p-2 rounded-lg bg-red-500/20 text-red-400 animate-pulse">
+                <Card className="bg-gradient-to-br from-red-50 via-white to-white dark:from-red-950/20 dark:to-[#0A0F1E] border-slate-200 dark:border-red-500/20 backdrop-blur-xl shadow-lg">
+                    <CardHeader className="border-b border-slate-100 dark:border-white/5 pb-4">
+                        <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-white font-orbitron tracking-wide text-lg">
+                            <div className="p-2 rounded-lg bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 animate-pulse shadow-sm">
                                 <AlertTriangle className="w-5 h-5" />
                             </div>
                             Escalation Matrix
                         </CardTitle>
-                        <CardDescription className="text-red-300/50">Actions Required: {escalations.length}</CardDescription>
+                        <CardDescription className="text-red-600/60 dark:text-red-300/50">Actions Required: {escalations.length}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4 pt-6">
                         {escalations.map((issue) => (
-                            <div key={issue.id} className="p-4 bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/10 transition-all cursor-pointer group relative overflow-hidden">
+                            <div key={issue.id} className="p-4 bg-red-500/[0.02] dark:bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/[0.05] dark:hover:bg-red-500/10 transition-all cursor-pointer group relative overflow-hidden shadow-sm">
                                 <div className="absolute left-0 top-0 w-1 h-full bg-red-500" />
                                 <div className="flex justify-between items-start pl-3">
                                     <div className="space-y-1">
-                                        <Badge variant="outline" className="text-[10px] py-0 border-red-500/20 text-red-400 bg-red-500/10">{issue.type}</Badge>
-                                        <h5 className="font-bold text-white text-sm group-hover:text-red-200 transition-colors">{issue.title}</h5>
+                                        <Badge variant="outline" className="text-[10px] py-0 border-red-500/20 text-red-600 dark:text-red-400 bg-red-500/10">{issue.type}</Badge>
+                                        <h5 className="font-bold text-slate-800 dark:text-white text-sm group-hover:text-red-600 dark:group-hover:text-red-200 transition-colors">{issue.title}</h5>
                                         <p className="text-xs text-slate-500 flex items-center gap-1">
                                             <ShieldCheck className="w-3 h-3" /> {issue.from}
                                         </p>
@@ -223,14 +223,14 @@ export function BRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
                                     <Button
                                         size="sm"
                                         onClick={() => handleResolveEscalation(issue.id)}
-                                        className="h-7 text-xs bg-red-600 hover:bg-red-500 text-white border-0 shadow-lg shadow-red-600/20"
+                                        className="h-7 text-xs bg-red-600 hover:bg-red-500 text-white border-0 shadow-lg shadow-red-600/20 rounded-lg"
                                     >
                                         Resolve
                                     </Button>
                                     <Button
                                         size="sm"
                                         variant="outline"
-                                        className="h-7 text-xs border-white/10 text-slate-400 hover:text-white hover:bg-white/5"
+                                        className="h-7 text-xs border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5 rounded-lg"
                                         onClick={() => handleEscalationDetails(issue.title, issue.from)}
                                     >
                                         Details
