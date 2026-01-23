@@ -154,7 +154,7 @@ const LiveQuizStudentView = () => {
                         </Button>
                     </form>
 
-                    <p className="text-xs text-slate-500 uppercase tracking-widest">Powered by ShikshaLokam DIET</p>
+                    <p className="text-xs text-slate-500 uppercase tracking-widest">Powered by ShikshaLokam Resource</p>
                 </motion.div>
             </div>
         );

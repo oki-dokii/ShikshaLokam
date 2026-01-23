@@ -49,7 +49,7 @@ Tools to align training with actual on-the-ground needs:
 
 *   **Agency Engine**:
     *   **Scope**: A "Tinder-like" interface for teachers to swipe on pedagogical needs and challenges.
-    *   **Value**: Aggregates authentic "demand data" to inform DIET (District Institute of Education and Training) training curriculums, moving from supply-driven to demand-driven training.
+    *   **Value**: Aggregates authentic "demand data" to inform Resource (District Institute of Education and Training) training curriculums, moving from supply-driven to demand-driven training.
 
 *   **Training Demand Predictor**:
     *   **Scope**: Predictive analytics to forecast future training needs based on classroom trends and risk profiles.

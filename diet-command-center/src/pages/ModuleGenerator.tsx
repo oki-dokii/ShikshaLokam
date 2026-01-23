@@ -226,7 +226,7 @@ const ModuleGenerator = () => {
 
                                 <div className="flex gap-4 pt-4 border-t border-white/10">
                                     <Button className="flex-1 bg-brand-cyan text-brand-dark hover:bg-cyan-400 font-bold">
-                                        <Share2 className="w-4 h-4 mr-2" /> Publish to DIET App
+                                        <Share2 className="w-4 h-4 mr-2" /> Publish to Resource App
                                     </Button>
                                     <Button variant="outline" className="border-white/20 text-slate-300 hover:text-white hover:bg-slate-800">
                                         <Download className="w-4 h-4 mr-2" /> PDF

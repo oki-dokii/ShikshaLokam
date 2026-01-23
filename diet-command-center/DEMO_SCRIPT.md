@@ -85,7 +85,7 @@ This script provides a comprehensive, detailed walkthrough of the **ShikshaAssis
 ### Scene 12: Live Pulse Advisor
 *   **Visual:** Navigate to `/real-time-feedback`.
 *   **Action:** Type: "My students are bored during a long math lecture. Suggest a 5-minute activity." Click **Get Advice**.
-*   **Narration:** "Classrooms are unpredictable. The Live Pulse Advisor is for those moments of 'help me now'. It provides pedagogical strategies, classroom management tips, and even quick energizers, all backed by DIET guidelines."
+*   **Narration:** "Classrooms are unpredictable. The Live Pulse Advisor is for those moments of 'help me now'. It provides pedagogical strategies, classroom management tips, and even quick energizers, all backed by Resource guidelines."
 
 ### Scene 13: Floating AI Voice Assistant (Minor Feature)
 *   **Visual:** Look at the bottom right corner of any page. Click the **Voice Icon**.
@@ -128,7 +128,7 @@ This script provides a comprehensive, detailed walkthrough of the **ShikshaAssis
 
 ### Scene 19: Predictive Training Demand (Predictive AI)
 *   **Visual:** Find the **"Predictive Training"** module on the RP dashboard.
-*   **Narration:** "We don't just react; we forecast. Based on swiping patterns, our AI predicts which training modules will be in high demand two weeks before the need becomes a crisis. This allows DIETs to pre-plan their resources."
+*   **Narration:** "We don't just react; we forecast. Based on swiping patterns, our AI predicts which training modules will be in high demand two weeks before the need becomes a crisis. This allows Resources to pre-plan their resources."
 
 ---
 

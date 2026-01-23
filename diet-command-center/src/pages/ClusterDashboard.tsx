@@ -132,7 +132,7 @@ const ClusterDashboard = () => {
       <footer className="relative z-10 py-8 border-t border-border/50 mt-12">
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            DIET Training Control Room • {cluster.title} Analytics Dashboard
+            Resource Training Control Room • {cluster.title} Analytics Dashboard
           </p>
         </div>
       </footer>
