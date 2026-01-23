@@ -20,6 +20,7 @@ const LiveQuizStudentView = () => {
         questionIndex: number;
         totalQuestions: number;
         timeLeft: number;
+        participants?: QuizParticipant[];
     } | null>(null);
 
     const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -41,12 +42,6 @@ const LiveQuizStudentView = () => {
             switch (type) {
                 case 'SESSION_UPDATE':
                     setSessionState(payload);
-                    // Reset answer state when a new question arrives
-                    if (payload.step === 'question' && payload.questionIndex !== sessionState?.questionIndex) {
-                        setSelectedAnswer(null);
-                        setHasAnswered(false);
-                        setIsCorrect(null);
-                    }
                     break;
                 case 'FORCE_DISCONNECT':
                     setIsJoined(false);
@@ -58,7 +53,16 @@ const LiveQuizStudentView = () => {
         return () => {
             channel.close();
         };
-    }, [sessionId, sessionState?.questionIndex]);
+    }, [sessionId]);
+
+    // Reset local answer state when questionIndex changes in sessionState
+    useEffect(() => {
+        if (sessionState?.step === 'question') {
+            setSelectedAnswer(null);
+            setHasAnswered(false);
+            setIsCorrect(null);
+        }
+    }, [sessionState?.questionIndex]);
 
     const handleJoin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -108,6 +112,11 @@ const LiveQuizStudentView = () => {
 
         toast.success(correct ? 'Excellent!' : 'Nice try!');
     };
+
+    // Calculate current rank
+    const currentRank = sessionState?.participants
+        ? sessionState.participants.findIndex(p => p.id === participantIdRef.current) + 1
+        : 0;
 
     if (!isJoined) {
         return (
@@ -220,9 +229,9 @@ const LiveQuizStudentView = () => {
                       `}
                                         >
                                             <span className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${idx === 0 ? 'bg-blue-500/20 text-blue-400' :
-                                                    idx === 1 ? 'bg-orange-500/20 text-orange-400' :
-                                                        idx === 2 ? 'bg-green-500/20 text-green-400' :
-                                                            'bg-purple-500/20 text-purple-400'
+                                                idx === 1 ? 'bg-orange-500/20 text-orange-400' :
+                                                    idx === 2 ? 'bg-green-500/20 text-green-400' :
+                                                        'bg-purple-500/20 text-purple-400'
                                                 }`}>
                                                 {String.fromCharCode(65 + idx)}
                                             </span>
@@ -263,7 +272,7 @@ const LiveQuizStudentView = () => {
                                 <div className="flex flex-col items-center">
                                     <Star className="w-8 h-8 text-brand-cyan mb-2" />
                                     <span className="text-slate-500 text-xs uppercase font-bold">Current Rank</span>
-                                    <span className="text-2xl font-black text-white">#--</span>
+                                    <span className="text-2xl font-black text-white">#{currentRank || '--'}</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <Zap className="w-8 h-8 text-orange-500 mb-2" />
