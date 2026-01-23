@@ -213,12 +213,12 @@ const FileUploader = ({ onContentExtracted, isProcessing = false }: FileUploader
                     relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer
                     transition-all duration-300
                     ${isDragging
-                        ? 'border-brand-cyan bg-brand-cyan/10 scale-[1.02]'
+                        ? 'border-primary bg-primary/10 scale-[1.02]'
                         : file
                             ? extracted
                                 ? 'border-green-500/50 bg-green-500/5'
-                                : 'border-cyan-500/50 bg-cyan-500/5'
-                            : 'border-white/20 bg-slate-800/30 hover:border-white/40 hover:bg-slate-800/50'
+                                : 'border-primary/50 bg-primary/5'
+                            : 'border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/30'
                     }
                 `}
                 whileHover={{ scale: file ? 1 : 1.01 }}
@@ -277,12 +277,12 @@ const FileUploader = ({ onContentExtracted, isProcessing = false }: FileUploader
                             exit={{ opacity: 0 }}
                             className="flex flex-col items-center gap-3"
                         >
-                            <Upload className={`w-12 h-12 ${isDragging ? 'text-brand-cyan' : 'text-slate-500'}`} />
+                            <Upload className={`w-12 h-12 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
                             <div>
-                                <p className="text-white font-medium">
+                                <p className="text-foreground font-medium">
                                     {isDragging ? 'Drop your file here' : 'Drag & drop your course content'}
                                 </p>
-                                <p className="text-sm text-slate-400 mt-1">
+                                <p className="text-sm text-muted-foreground mt-1">
                                     PDF, TXT, or Images
                                 </p>
                             </div>

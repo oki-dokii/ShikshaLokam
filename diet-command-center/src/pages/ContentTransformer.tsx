@@ -278,7 +278,7 @@ const ContentTransformer = () => {
                 </div>
 
                 {/* Header */}
-                <header className="flex items-center gap-6 px-8 py-5 border-b border-border/50 relative z-10 bg-white/60 backdrop-blur-xl">
+                <header className="flex items-center gap-6 px-8 py-5 border-b border-border/50 relative z-10 bg-background/60 backdrop-blur-xl">
                     <Button
                         variant="ghost"
                         onClick={resetForm}
@@ -429,7 +429,7 @@ const ContentTransformer = () => {
                 <div className="lg:col-span-5 space-y-8 px-6 lg:px-0">
 
                     {/* NCERT Mode Toggle & Selector */}
-                    <div className="clean-card p-8 border-border/80 relative overflow-hidden bg-white">
+                    <div className="glass-card p-8 border-border relative overflow-hidden bg-card">
                         <div className={`absolute top-0 right-0 p-4 ${isNcertMode ? 'opacity-100' : 'opacity-[0.05]'}`}>
                             <BookOpen className="w-16 h-16 text-primary -rotate-12" />
                         </div>
@@ -481,7 +481,7 @@ const ContentTransformer = () => {
                     </div>
 
                     {/* Source Content Selection */}
-                    <div className="clean-card p-8 border-border/80 bg-white">
+                    <div className="glass-card p-8 border-border bg-card">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
                                 <FileText className="w-6 h-6" />
@@ -526,7 +526,7 @@ const ContentTransformer = () => {
                                     <button
                                         onClick={() => setUseCustomContent(false)}
                                         className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${!useCustomContent
-                                            ? 'bg-white text-primary shadow-sm'
+                                            ? 'bg-card text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
@@ -535,7 +535,7 @@ const ContentTransformer = () => {
                                     <button
                                         onClick={() => setUseCustomContent(true)}
                                         className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${useCustomContent
-                                            ? 'bg-white text-primary shadow-sm'
+                                            ? 'bg-card text-primary shadow-sm'
                                             : 'text-muted-foreground hover:text-foreground'
                                             }`}
                                     >
@@ -552,7 +552,7 @@ const ContentTransformer = () => {
                                                     onClick={() => setSelectedManual(manual)}
                                                     className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${selectedManual?.id === manual.id
                                                         ? 'border-primary bg-primary/5 shadow-md shadow-primary/5'
-                                                        : 'border-border/50 bg-white/40 hover:border-primary/30 hover:bg-white/60'
+                                                        : 'border-border/50 bg-background/40 hover:border-primary/30 hover:bg-background/60'
                                                         }`}
                                                 >
                                                     <div className="relative z-10">
@@ -576,7 +576,7 @@ const ContentTransformer = () => {
                                         placeholder="Paste your training manual content here... (minimum 50 characters)"
                                         value={customContent}
                                         onChange={(e) => setCustomContent(e.target.value)}
-                                        className="w-full h-60 bg-white/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
+                                        className="w-full h-60 bg-background/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
                                     />
                                 )}
                             </>
@@ -585,7 +585,7 @@ const ContentTransformer = () => {
 
                     {/* Number of Modules Selector */}
                     {mode === 'course' && (
-                        <div className="clean-card p-8 border-border/80 bg-white">
+                        <div className="glass-card p-8 border-border bg-card">
                             <div className="flex items-center gap-4 mb-8">
                                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                     <Layers className="w-6 h-6" />

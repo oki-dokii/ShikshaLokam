@@ -37,7 +37,7 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-md mx-auto"
         >
-            <div className="clean-card p-8 border-border/80 bg-white relative overflow-hidden shadow-2xl">
+            <div className="glass-card p-8 border-border relative overflow-hidden shadow-2xl">
                 <div className="text-center mb-8">
                     <div className="w-16 h-16 bg-pink-500/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-pink-500/20">
                         <User className="w-8 h-8 text-pink-500" />
@@ -53,10 +53,10 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
                             <MapPin className="w-3 h-3" /> Geographical Context
                         </label>
                         <Select onValueChange={(v) => updateProfile('region', v)}>
-                            <SelectTrigger className="bg-muted/30 border-border/80 text-foreground h-12 focus:ring-pink-500/20">
+                            <SelectTrigger className="bg-background border-border text-foreground h-12 focus:ring-pink-500/20">
                                 <SelectValue placeholder="Select region type" />
                             </SelectTrigger>
-                            <SelectContent className="bg-white border-border shadow-2xl">
+                            <SelectContent className="bg-popover border-border shadow-2xl">
                                 {REGIONS.map(r => (
                                     <SelectItem key={r} value={r} className="text-foreground focus:bg-pink-50 focus:text-pink-700 font-medium">
                                         {r}
@@ -72,10 +72,10 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
                             <School className="w-3 h-3" /> Institution Category
                         </label>
                         <Select onValueChange={(v) => updateProfile('schoolType', v)}>
-                            <SelectTrigger className="bg-muted/30 border-border/80 text-foreground h-12 focus:ring-pink-500/20">
+                            <SelectTrigger className="bg-background border-border text-foreground h-12 focus:ring-pink-500/20">
                                 <SelectValue placeholder="Select school type" />
                             </SelectTrigger>
-                            <SelectContent className="bg-white border-border shadow-2xl">
+                            <SelectContent className="bg-popover border-border shadow-2xl">
                                 {SCHOOL_TYPES.map(s => (
                                     <SelectItem key={s} value={s} className="text-foreground focus:bg-pink-50 focus:text-pink-700 font-medium">
                                         {s}
@@ -91,10 +91,10 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
                             <Languages className="w-3 h-3" /> Language Medium
                         </label>
                         <Select onValueChange={(v) => updateProfile('language', v)}>
-                            <SelectTrigger className="bg-muted/30 border-border/80 text-foreground h-12 focus:ring-pink-500/20">
+                            <SelectTrigger className="bg-background border-border text-foreground h-12 focus:ring-pink-500/20">
                                 <SelectValue placeholder="Select instruction medium" />
                             </SelectTrigger>
-                            <SelectContent className="bg-white border-border shadow-2xl">
+                            <SelectContent className="bg-popover border-border shadow-2xl">
                                 {LANGUAGES.map(l => (
                                     <SelectItem key={l} value={l} className="text-foreground focus:bg-pink-50 focus:text-pink-700 font-medium">
                                         {l}
@@ -111,10 +111,10 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
                                 <GraduationCap className="w-3 h-3" /> Grade
                             </label>
                             <Select onValueChange={(v) => updateProfile('grade', v)}>
-                                <SelectTrigger className="bg-muted/30 border-border/80 text-foreground h-12 focus:ring-pink-500/20">
+                                <SelectTrigger className="bg-background border-border text-foreground h-12 focus:ring-pink-500/20">
                                     <SelectValue placeholder="Level" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-border shadow-2xl">
+                                <SelectContent className="bg-popover border-border shadow-2xl">
                                     {GRADES.map(g => (
                                         <SelectItem key={g} value={g} className="text-foreground focus:bg-pink-50 focus:text-pink-700 font-medium">
                                             {g}
@@ -130,10 +130,10 @@ export const TeacherProfileForm: React.FC<TeacherProfileFormProps> = ({ onComple
                                 <BookOpen className="w-3 h-3" /> Subject
                             </label>
                             <Select onValueChange={(v) => updateProfile('subject', v)}>
-                                <SelectTrigger className="bg-muted/30 border-border/80 text-foreground h-12 focus:ring-pink-500/20">
+                                <SelectTrigger className="bg-background border-border text-foreground h-12 focus:ring-pink-500/20">
                                     <SelectValue placeholder="Domain" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-border shadow-2xl">
+                                <SelectContent className="bg-popover border-border shadow-2xl">
                                     {SUBJECTS.map(s => (
                                         <SelectItem key={s} value={s} className="text-foreground focus:bg-pink-50 focus:text-pink-700 font-medium">
                                             {s}
