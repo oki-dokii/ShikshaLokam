@@ -2,30 +2,30 @@ import { BlockMetrics, ClusterMetrics, SchoolMetrics, ObservationReport } from '
 
 export const MOCK_BLOCK_DATA: BlockMetrics = {
     id: 'b1',
-    name: 'Bidar North Block',
+    name: 'Aurad Block',
     totalSchools: 42,
     criticalInterventionsCount: 8,
     clusters: [
         {
             id: 'c1',
-            name: 'Aurad Cluster',
+            name: 'Aurad Town',
             overallHealth: 78,
-            topPerformingSchool: 'GHS Aurad',
+            topPerformingSchool: 'GHS Aurad Main',
             needsSupportCount: 2,
             schools: [
-                { id: 's1', name: 'GHS Aurad', teacherCount: 12, averageEngagement: 92, atRiskCount: 1, lastVisitDate: '2024-03-10' },
+                { id: 's1', name: 'GHS Aurad Main', teacherCount: 12, averageEngagement: 92, atRiskCount: 1, lastVisitDate: '2024-03-10' },
                 { id: 's2', name: 'GLPS Aurad West', teacherCount: 5, averageEngagement: 65, atRiskCount: 3, lastVisitDate: '2024-03-12' },
                 { id: 's3', name: 'GMS Aurad Town', teacherCount: 8, averageEngagement: 77, atRiskCount: 2, lastVisitDate: '2024-03-05' }
             ]
         },
         {
             id: 'c2',
-            name: 'Kamalnagar Cluster',
+            name: 'Kushnoor',
             overallHealth: 62,
-            topPerformingSchool: 'GHS Kamalnagar',
+            topPerformingSchool: 'GHS Kushnoor',
             needsSupportCount: 5,
             schools: [
-                { id: 's4', name: 'GHS Kamalnagar', teacherCount: 15, averageEngagement: 85, atRiskCount: 2, lastVisitDate: '2024-03-08' },
+                { id: 's4', name: 'GHS Kushnoor', teacherCount: 15, averageEngagement: 85, atRiskCount: 2, lastVisitDate: '2024-03-08' },
                 { id: 's5', name: 'GLPS Border Area', teacherCount: 4, averageEngagement: 42, atRiskCount: 5, lastVisitDate: '2024-03-15' },
                 { id: 's6', name: 'GMS Hill Station', teacherCount: 6, averageEngagement: 58, atRiskCount: 4, lastVisitDate: '2024-03-14' }
             ]

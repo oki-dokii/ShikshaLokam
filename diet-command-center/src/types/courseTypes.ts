@@ -133,3 +133,44 @@ export interface StudentRiskProfile {
   interventionStatus: 'none' | 'WhatsApp Sent' | 'Pending Review';
   parentContact: string;
 }
+
+// Resource Person / Command Center Types
+export interface SchoolMetrics {
+  id: string;
+  name: string;
+  teacherCount: number;
+  averageEngagement: number;
+  atRiskCount: number;
+  lastVisitDate: string;
+  status?: string;
+}
+
+export interface ClusterMetrics {
+  id: string;
+  name: string;
+  overallHealth: number;
+  topPerformingSchool: string;
+  needsSupportCount: number;
+  schools: SchoolMetrics[];
+}
+
+export interface BlockMetrics {
+  id: string;
+  name: string;
+  totalSchools: number;
+  criticalInterventionsCount: number;
+  clusters: ClusterMetrics[];
+}
+
+export interface ObservationReport {
+  id: string;
+  teacherId: string;
+  date: string;
+  transcript: string;
+  aiAnalysis: {
+    strengths: string[];
+    improvements: string[];
+    pedagogicalScore: number;
+    recommendedResources: string[];
+  };
+}

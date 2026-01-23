@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Bell, PlayCircle, Clock, AlertTriangle, BookOpen } from 'lucide-react';
+import { Bell, PlayCircle, Clock, AlertTriangle, BookOpen, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { triggerData, Trigger } from '@/data/triggerData';
@@ -92,6 +92,13 @@ const TriggerCard: React.FC<TriggerCardProps> = ({ trigger, clusterId, glowClass
         }, 1500);
     };
 
+    const handleWhatsAppAlert = () => {
+        toast({
+            title: "📲 WhatsApp Alert Sent",
+            description: `Notification regarding ${trigger.type.replace('-', ' ')} sent to principals of ${trigger.affectedSchools} schools.`,
+        });
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -128,14 +135,24 @@ const TriggerCard: React.FC<TriggerCardProps> = ({ trigger, clusterId, glowClass
                         </div>
                     </div>
                 </div>
-                <Button
-                    size="sm"
-                    onClick={handleDeployModule}
-                    className={`w-full ${textClass} bg-white/5 hover:bg-white/10 border-white/10 hover:scale-105 transition-transform cursor-pointer`}
-                >
-                    <PlayCircle className="w-4 h-4 mr-2" />
-                    Deploy Module
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        size="sm"
+                        onClick={handleDeployModule}
+                        className={`flex-1 ${textClass} bg-white/5 hover:bg-white/10 border-white/10 hover:scale-105 transition-transform cursor-pointer`}
+                    >
+                        <PlayCircle className="w-4 h-4 mr-2" />
+                        Deploy
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={handleWhatsAppAlert}
+                        className={`flex-1 text-emerald-400 bg-emerald-500/5 hover:bg-emerald-500/10 border-emerald-500/10 hover:scale-105 transition-transform cursor-pointer`}
+                    >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Alert
+                    </Button>
+                </div>
             </div>
         </motion.div>
     );

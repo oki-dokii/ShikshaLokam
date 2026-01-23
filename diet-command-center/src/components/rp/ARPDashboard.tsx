@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
     BookOpen,
     GraduationCap,
@@ -6,14 +7,19 @@ import {
     FileText,
     CheckSquare,
     Sparkles,
-    Target
+    Target,
+    AlertTriangle,
+    MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { ClusterMetrics } from '@/types/courseTypes';
 
-const TOPIC_HEATMAP = [
+const INITIAL_TOPIC_HEATMAP = [
     { topic: 'Fractions', code: 'M-7-04', mastery: 45, status: 'critical', students: 120 },
     { topic: 'Geometry', code: 'M-7-08', mastery: 72, status: 'good', students: 340 },
     { topic: 'Algebra', code: 'M-8-02', mastery: 58, status: 'warning', students: 210 },
@@ -27,7 +33,47 @@ const TRAINING_SESSIONS = [
     { id: 2, name: 'Science Lab Safety', date: 'Oct 05', attendance: '85%', impact: 'Pending' },
 ];
 
-export function ARPDashboard() {
+export function ARPDashboard({ cluster }: { cluster: ClusterMetrics }) {
+    const navigate = useNavigate();
+    const [heatmap, setHeatmap] = useState(INITIAL_TOPIC_HEATMAP);
+
+    // Update heatmap based on cluster health to simulate dynamic data
+    useEffect(() => {
+        setHeatmap(prev => prev.map(item => ({
+            ...item,
+            mastery: Math.min(100, Math.max(10, item.mastery + (cluster.overallHealth - 70) / 2 + (Math.random() * 10 - 5)))
+        })));
+    }, [cluster]);
+
+    const handleTopicClick = (topic: string) => {
+        toast.info(`Generating deep analysis for ${topic}... Opening Teacher Copilot.`);
+        navigate('/engagement-analysis');
+    };
+
+    const handleWhatsAppGap = (topic: string, mastery: number) => {
+        toast.success(`Cluster-wide WhatsApp alert sent for ${topic}`, {
+            description: `All Math teachers in ${cluster.name} notified. Action: Remedial focus on this gap (${Math.round(mastery)}% mastery).`
+        });
+    };
+
+    const handleCreateQuiz = () => {
+        toast.success("AI is generating a diagnostic quiz for the 'Measurement' gap...");
+        setTimeout(() => {
+            navigate('/module-generator');
+        }, 1500);
+    };
+
+    const handleUploadPlan = () => {
+        toast.promise(
+            new Promise((resolve) => setTimeout(resolve, 2000)),
+            {
+                loading: 'AI analyzing lesson plan for pedagogical alignment...',
+                success: 'Lesson plan analyzed! Added to Cluster Resource Repository.',
+                error: 'Failed to upload plan.',
+            }
+        );
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
@@ -36,7 +82,7 @@ export function ARPDashboard() {
                 {[
                     { label: 'Avg Student Score', val: '68%', color: 'text-brand-blue', icon: GraduationCap },
                     { label: 'Curriculum Covered', val: '74%', color: 'text-emerald-400', icon: BookOpen },
-                    { label: 'Learning Gaps', val: '12', color: 'text-red-400', icon: AlertIcon },
+                    { label: 'Learning Gaps', val: '12', color: 'text-red-400', icon: AlertTriangle },
                     { label: 'Trainings Live', val: '3', color: 'text-orange-400', icon: Target }
                 ].map((stat, i) => (
                     <div key={i} className="p-5 rounded-2xl bg-white dark:bg-[#0F1629]/90 border border-slate-200 dark:border-white/10 backdrop-blur-md flex flex-col items-start gap-4 hover:shadow-xl transition-all group shadow-lg">
@@ -65,7 +111,7 @@ export function ARPDashboard() {
                                     Concept Mastery Heatmap
                                 </CardTitle>
                                 <CardDescription className="text-pink-200/50 mt-1">
-                                    Live performance analysis by sub-topic across {TOPIC_HEATMAP.reduce((acc, curr) => acc + curr.students, 0)} students
+                                    Live performance analysis by sub-topic across {heatmap.reduce((acc, curr) => acc + curr.students, 0)} students
                                 </CardDescription>
                             </div>
                             <div className="flex gap-2">
@@ -76,10 +122,11 @@ export function ARPDashboard() {
                     </CardHeader>
                     <CardContent className="pt-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {TOPIC_HEATMAP.map((item, i) => (
+                            {heatmap.map((item, i) => (
                                 <motion.div
                                     key={i}
                                     whileHover={{ scale: 1.02, y: -2 }}
+                                    onClick={() => handleTopicClick(item.topic)}
                                     className={`p-5 rounded-xl border relative overflow-hidden flex items-center justify-between group cursor-pointer transition-all ${item.status === 'critical' ? 'bg-red-500/10 border-red-500/30 hover:bg-red-500/20' :
                                         item.status === 'warning' ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20' :
                                             item.status === 'good' ? 'bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20' :
@@ -94,13 +141,28 @@ export function ARPDashboard() {
                                         <p className="text-xs text-slate-300 font-medium">{item.students} Students Tracked</p>
                                     </div>
 
-                                    <div className="text-right relative z-10">
-                                        <div className={`text-2xl font-black font-orbitron ${item.status === 'critical' ? 'text-red-400' :
-                                            item.status === 'warning' ? 'text-orange-400' :
-                                                item.status === 'good' ? 'text-blue-400' :
-                                                    'text-emerald-400'
-                                            }`}>{item.mastery}%</div>
-                                        <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mastery</div>
+                                    <div className="flex items-center gap-3 relative z-10">
+                                        {item.status === 'critical' && (
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleWhatsAppGap(item.topic, item.mastery);
+                                                }}
+                                                className="h-8 w-8 text-emerald-500 hover:bg-emerald-500/10"
+                                            >
+                                                <MessageSquare className="w-4 h-4" />
+                                            </Button>
+                                        )}
+                                        <div className="text-right">
+                                            <div className={`text-2xl font-black font-orbitron ${item.status === 'critical' ? 'text-red-400' :
+                                                item.status === 'warning' ? 'text-orange-400' :
+                                                    item.status === 'good' ? 'text-blue-400' :
+                                                        'text-emerald-400'
+                                                }`}>{Math.round(item.mastery)}%</div>
+                                            <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mastery</div>
+                                        </div>
                                     </div>
 
                                     {/* Abstract Glow */}
@@ -151,19 +213,25 @@ export function ARPDashboard() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="grid grid-cols-2 gap-3">
-                            <Button className="h-24 flex flex-col gap-3 bg-[#0F1629]/80 hover:bg-brand-purple/20 border border-white/10 hover:border-brand-purple/50 transition-all group">
-                                <FileText className="w-6 h-6 text-slate-300 group-hover:text-brand-purple transition-colors" />
-                                <span className="text-[10px] font-bold text-slate-200">Upload Lesson Plan</span>
-                            </Button>
-                            <Button className="h-24 flex flex-col gap-3 bg-[#0F1629]/80 hover:bg-brand-blue/20 border border-white/10 hover:border-brand-blue/50 transition-all group">
-                                <CheckSquare className="w-6 h-6 text-slate-300 group-hover:text-brand-blue transition-colors" />
-                                <span className="text-[10px] font-bold text-slate-200">Create Quiz</span>
-                            </Button>
+                            <button
+                                onClick={handleUploadPlan}
+                                className="h-24 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#0F1629]/80 hover:bg-brand-purple/20 border border-slate-200 dark:border-white/10 hover:border-brand-purple/50 transition-all group rounded-xl"
+                            >
+                                <FileText className="w-6 h-6 text-slate-500 dark:text-slate-300 group-hover:text-brand-purple transition-colors" />
+                                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200">Upload Lesson Plan</span>
+                            </button>
+                            <button
+                                onClick={handleCreateQuiz}
+                                className="h-24 flex flex-col items-center justify-center gap-3 bg-white dark:bg-[#0F1629]/80 hover:bg-brand-blue/20 border border-slate-200 dark:border-white/10 hover:border-brand-blue/50 transition-all group rounded-xl"
+                            >
+                                <CheckSquare className="w-6 h-6 text-slate-500 dark:text-slate-300 group-hover:text-brand-blue transition-colors" />
+                                <span className="text-[10px] font-bold text-slate-900 dark:text-slate-200">Create Quiz</span>
+                            </button>
                         </CardContent>
                     </Card>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     MapPin,
@@ -15,13 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-
-// Mock Data for CRP
-const VISIT_PLAN = [
-    { id: 1, school: 'Govt High School, Sector A', status: 'urgent', reason: 'Critical Attendance Drop', distance: '1.2 km', time: '09:00 AM' },
-    { id: 2, school: 'Primary School, Block B', status: 'pending', reason: 'Routine Academic Review', distance: '3.5 km', time: '11:00 AM' },
-    { id: 3, school: 'Girls High School, Sector C', status: 'completed', reason: 'MDM Quality Check', distance: '0.8 km', time: '02:00 PM' },
-];
+import { toast } from 'sonner';
+import { ClusterMetrics } from '@/types/courseTypes';
 
 const OBSERVATION_DOMAINS = [
     { name: 'Classroom Mgmt', score: 78, trend: 'up' },
@@ -35,7 +31,58 @@ const PEER_GROUPS = [
     { id: 2, name: 'Science Lab Setup', members: 4, nextSession: 'Wed, 2 PM' },
 ];
 
-export function CRPDashboard() {
+export function CRPDashboard({ cluster }: { cluster: ClusterMetrics }) {
+    const [visits, setVisits] = useState(cluster.schools.map((s, i) => ({
+        id: i + 1,
+        school: s.name,
+        status: i === 0 ? 'urgent' : i === 1 ? 'pending' : 'completed',
+        reason: i === 0 ? 'Attendance Drop' : i === 1 ? 'Academic Review' : 'Compliance Check',
+        distance: `${Math.round(0.5 + Math.random() * 4)} km`,
+        time: `${9 + i}:00 AM`
+    })));
+    const [isNavigating, setIsNavigating] = useState(false);
+
+    // Update visits when cluster changes
+    useEffect(() => {
+        setVisits(cluster.schools.map((s, i) => ({
+            id: i + 1,
+            school: s.name,
+            status: i === 0 ? 'urgent' : i === 1 ? 'pending' : 'completed',
+            reason: i === 0 ? 'Attendance Drop' : i === 1 ? 'Academic Review' : 'Compliance Check',
+            distance: `${Math.round(0.5 + Math.random() * 4)} km`,
+            time: `${9 + i}:00 AM`
+        })));
+    }, [cluster]);
+
+    const handleStartNavigation = () => {
+        const nextVisit = visits.find(v => v.status !== 'completed');
+        if (!nextVisit) {
+            toast.success("All visits for today are completed!");
+            return;
+        }
+
+        setIsNavigating(true);
+        toast.info(`Starting navigation to ${nextVisit.school}... Optimized route active.`);
+
+        setTimeout(() => {
+            setIsNavigating(false);
+            toast.success(`Arrived at ${nextVisit.school}. Classroom observation template loaded.`);
+        }, 3000);
+    };
+
+    const toggleVisitStatus = (id: number) => {
+        setVisits(prev => prev.map(v =>
+            v.id === id
+                ? { ...v, status: v.status === 'completed' ? 'pending' : 'completed' }
+                : v
+        ));
+
+        const visit = visits.find(v => v.id === id);
+        if (visit?.status !== 'completed') {
+            toast.success(`Observation for ${visit?.school} synced with BRC server.`);
+        }
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Top Row: Visit Planner */}
@@ -61,18 +108,19 @@ export function CRPDashboard() {
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-3 pt-6 relative z-10">
-                        {VISIT_PLAN.map((visit, i) => (
+                        {visits.map((visit, i) => (
                             <motion.div
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: i * 0.1 }}
                                 key={visit.id}
+                                onClick={() => toggleVisitStatus(visit.id)}
                                 className="flex items-center justify-between p-4 rounded-xl bg-[#0F1629] border border-white/5 hover:border-indigo-500/30 hover:bg-[#151B33] transition-all group/item cursor-pointer"
                             >
                                 <div className="flex items-center gap-5">
                                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-lg shadow-inner ${visit.status === 'urgent' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                                            visit.status === 'completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
-                                                'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                                        visit.status === 'completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                                            'bg-blue-500/10 text-blue-500 border border-blue-500/20'
                                         }`}>
                                         {i + 1}
                                     </div>
@@ -88,16 +136,21 @@ export function CRPDashboard() {
                                 </div>
                                 <div className="text-right">
                                     <Badge className={`px-3 py-1 text-[10px] uppercase tracking-wider font-bold ${visit.status === 'urgent' ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' :
-                                            visit.status === 'completed' ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' :
-                                                'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
+                                        visit.status === 'completed' ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30' :
+                                            'bg-blue-500/20 text-blue-400 hover:bg-blue-500/30'
                                         }`}>
                                         {visit.reason}
                                     </Badge>
                                 </div>
                             </motion.div>
                         ))}
-                        <Button className="w-full mt-4 h-12 bg-indigo-600 hover:bg-indigo-500 text-white font-bold tracking-wider uppercase text-xs shadow-lg shadow-indigo-600/20">
-                            <Navigation className="w-4 h-4 mr-2" /> Start Navigation
+                        <Button
+                            onClick={handleStartNavigation}
+                            disabled={isNavigating}
+                            className={`w-full mt-4 h-12 ${isNavigating ? 'bg-slate-700 animate-pulse' : 'bg-indigo-600 hover:bg-indigo-500'} text-white font-bold tracking-wider uppercase text-xs shadow-lg shadow-indigo-600/20 transition-all`}
+                        >
+                            <Navigation className={`w-4 h-4 mr-2 ${isNavigating ? 'animate-spin' : ''}`} />
+                            {isNavigating ? 'Navigation Active...' : 'Start Navigation'}
                         </Button>
                     </CardContent>
                 </Card>

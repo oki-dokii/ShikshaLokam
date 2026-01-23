@@ -108,7 +108,7 @@ const AssessmentAI = () => {
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder="e.g., Raju struggles with fractions but is very good at multiplication. He often gets confused when adding denominators..."
-                                    className="w-full h-72 bg-white/50 border border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-inner font-inter leading-relaxed"
+                                    className="w-full h-72 bg-muted/30 dark:bg-black/20 border border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-inner font-inter leading-relaxed"
                                 />
                             </div>
 
@@ -201,7 +201,7 @@ const AssessmentAI = () => {
                                         </h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {report.strengths.map((s, i) => (
-                                                <div key={i} className="flex gap-4 p-4 bg-white/40 border border-emerald-500/10 rounded-2xl group hover:border-emerald-500/30 transition-all">
+                                                <div key={i} className="flex gap-4 p-4 bg-muted/20 dark:bg-emerald-500/5 border border-emerald-500/10 rounded-2xl group hover:border-emerald-500/30 transition-all">
                                                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0 group-hover:scale-125 transition-transform" />
                                                     <p className="text-foreground/80 text-sm leading-relaxed">{s}</p>
                                                 </div>
@@ -248,7 +248,7 @@ const AssessmentAI = () => {
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: i * 0.1 }}
-                                                    className="p-5 bg-white/60 border border-primary/10 rounded-2xl relative shadow-sm group hover:shadow-md transition-all"
+                                                    className="p-5 bg-muted/20 dark:bg-white/5 border border-primary/10 rounded-2xl relative shadow-sm group hover:shadow-md transition-all"
                                                 >
                                                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1/2 bg-primary/20 rounded-r-full group-hover:bg-primary transition-colors" />
                                                     <p className="text-foreground leading-relaxed pl-4">{a}</p>

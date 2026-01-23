@@ -189,7 +189,7 @@ const SimulationArenaContent = () => {
                             key="chat"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white/40 backdrop-blur-xl border border-white/60 rounded-[32px] overflow-hidden flex flex-col shadow-2xl h-[750px]"
+                            className="glass-card border-white/20 dark:border-white/5 rounded-[32px] overflow-hidden flex flex-col shadow-2xl h-[750px] relative"
                         >
                             {/* Chat Header */}
                             <div className="px-8 py-6 border-b border-white/50 bg-white/20 flex items-center justify-between">
@@ -233,7 +233,7 @@ const SimulationArenaContent = () => {
                                                 </div>
                                                 <div className={`p-5 rounded-3xl shadow-sm leading-relaxed ${msg.role === 'user'
                                                     ? 'bg-gradient-to-br from-primary to-secondary text-white rounded-tr-none'
-                                                    : 'glass-card bg-white/80 border-white/50 text-foreground rounded-tl-none'
+                                                    : 'glass-card bg-white dark:bg-white/10 border-white/50 dark:border-white/5 text-foreground rounded-tl-none shadow-md'
                                                     }`}>
                                                     <p className="text-[15px]">{msg.text}</p>
                                                 </div>
@@ -269,7 +269,7 @@ const SimulationArenaContent = () => {
                                             onChange={(e) => setInput(e.target.value)}
                                             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
                                             placeholder="Shape your response here..."
-                                            className="w-full h-16 bg-white border-2 border-border/50 rounded-2xl px-8 pr-16 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-xl shadow-black/5 placeholder:text-muted-foreground/50"
+                                            className="w-full h-16 bg-white dark:bg-white/5 border-2 border-border/50 rounded-2xl px-8 pr-16 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-xl shadow-black/5 placeholder:text-muted-foreground/50"
                                         />
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 p-2">
                                             <Sparkles className="w-5 h-5 text-primary/30" />

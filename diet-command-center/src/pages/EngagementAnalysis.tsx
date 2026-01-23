@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart2, Activity, Zap, Users, Lightbulb, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { analyzeEngagement } from "@/lib/gemini";
+import { analyzeSessionEngagement } from "@/lib/gemini";
 import { motion, AnimatePresence } from "framer-motion";
 
 const EngagementAnalysis = () => {
@@ -15,7 +15,7 @@ const EngagementAnalysis = () => {
         if (!input.trim()) return;
         setIsLoading(true);
         try {
-            const result = await analyzeEngagement(input);
+            const result = await analyzeSessionEngagement(input);
             setReport(result);
         } catch (error) {
             console.error(error);
@@ -79,7 +79,7 @@ const EngagementAnalysis = () => {
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="e.g., Today's science class started well, but students got restless during the experiment phase. They seemed confused about the instructions..."
-                                className="w-full h-80 bg-white/50 border border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-inner font-inter leading-relaxed"
+                                className="w-full h-80 bg-muted/30 dark:bg-black/20 border border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-inner font-inter leading-relaxed"
                             />
 
                             <Button
@@ -190,7 +190,7 @@ const EngagementAnalysis = () => {
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     transition={{ delay: i * 0.1 }}
-                                                    className="group flex gap-5 p-5 bg-white/40 border border-white/50 rounded-2xl hover:bg-white/60 transition-all hover:shadow-md"
+                                                    className="group flex gap-5 p-5 bg-muted/20 dark:bg-white/5 border border-white/10 dark:border-white/5 rounded-2xl hover:bg-white/10 dark:hover:bg-white/10 transition-all hover:shadow-md"
                                                 >
                                                     <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                                                         <Lightbulb className="w-5 h-5 text-amber-600" />

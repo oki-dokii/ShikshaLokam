@@ -84,9 +84,9 @@ const PredictiveTraining = () => {
 
                 {/* LEFT: Input Configuration */}
                 <div className="lg:col-span-5 space-y-8 px-6 lg:px-0">
-                    <div className="clean-card p-8 border-border/80 relative overflow-hidden bg-white">
+                    <div className="glass-card p-8 border-border/10 relative overflow-hidden">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-primary shadow-lg shadow-primary/20">
                                 <Activity className="w-6 h-6" />
                             </div>
                             <div>
@@ -127,7 +127,7 @@ const PredictiveTraining = () => {
                             <Button
                                 onClick={handlePredict}
                                 disabled={isLoading}
-                                className="w-full h-14 mt-4 shadow-lg shadow-primary/20 font-bold transition-all hover:scale-[1.01] active:scale-[0.99] gap-2"
+                                className="w-full h-14 mt-4 shadow-xl shadow-primary/20 font-bold transition-all hover:scale-[1.01] active:scale-[0.99] gap-2 bg-primary text-primary-foreground"
                             >
                                 {isLoading ? (
                                     <>
@@ -154,13 +154,13 @@ const PredictiveTraining = () => {
                             className="space-y-6"
                         >
                             {/* Prediction Card */}
-                            <div className="clean-card p-8 border-primary/20 bg-white relative overflow-hidden shadow-2xl">
-                                <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+                            <div className="glass-card p-8 border-primary/30 relative overflow-hidden shadow-2xl bg-gradient-to-br from-primary/5 via-transparent to-transparent">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.05]">
                                     <TrendingUp className="w-32 h-32 text-primary" />
                                 </div>
 
                                 <div className="flex items-center gap-2 mb-6">
-                                    <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/10">
+                                    <span className="px-3 py-1 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
                                         Recommended Intervention
                                     </span>
                                 </div>
@@ -187,17 +187,17 @@ const PredictiveTraining = () => {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: 0.2 }}
-                                    className="bg-red-50 border border-red-100 rounded-[2rem] p-8 flex items-start gap-6"
+                                    className="bg-red-500/5 dark:bg-red-500/10 border border-red-500/20 rounded-[2rem] p-8 flex items-start gap-6 backdrop-blur-md"
                                 >
-                                    <div className="bg-red-500/10 p-4 rounded-2xl border border-red-500/20 text-red-600">
+                                    <div className="bg-red-500/20 p-4 rounded-2xl border border-red-500/30 text-red-500 shadow-lg shadow-red-500/10">
                                         <ShieldAlert className="w-8 h-8" />
                                     </div>
                                     <div className="space-y-3">
-                                        <h3 className="text-red-700 font-bold text-xl font-outfit">Preventive Risk Alert</h3>
-                                        <p className="text-red-900/80 font-semibold text-lg leading-snug">{prediction.riskAssessment}</p>
-                                        <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-red-100/50 shadow-sm mt-4">
-                                            <span className="text-[10px] text-red-600/60 uppercase font-black tracking-widest block mb-2">Suggested Correction</span>
-                                            <p className="text-red-950 font-bold">{prediction.preventiveAction}</p>
+                                        <h3 className="text-red-500 font-bold text-xl font-outfit">Preventive Risk Alert</h3>
+                                        <p className="text-foreground/90 font-semibold text-lg leading-snug">{prediction.riskAssessment}</p>
+                                        <div className="bg-white/40 dark:bg-black/40 backdrop-blur-md p-5 rounded-2xl border border-red-500/20 shadow-xl mt-4">
+                                            <span className="text-[10px] text-red-500 uppercase font-black tracking-widest block mb-2 opacity-80">Suggested Correction</span>
+                                            <p className="text-foreground font-bold leading-relaxed">{prediction.preventiveAction}</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -214,9 +214,9 @@ const PredictiveTraining = () => {
                                 Enter classroom signals to get AI-driven predictions for the most impactful training module for your teachers.
                             </p>
                             <div className="flex gap-4 mt-4">
-                                <div className="p-4 bg-white/50 rounded-2xl border border-primary/10 shadow-sm">
-                                    <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Signal Types</p>
-                                    <p className="text-lg font-black text-primary">Attendance, Scores</p>
+                                <div className="p-5 glass-card border-primary/20 shadow-2xl">
+                                    <p className="text-[10px] uppercase font-black tracking-widest text-primary mb-1">Signal Types</p>
+                                    <p className="text-lg font-black text-foreground">Attendance, Scores, Behavior</p>
                                 </div>
                             </div>
                         </div>
