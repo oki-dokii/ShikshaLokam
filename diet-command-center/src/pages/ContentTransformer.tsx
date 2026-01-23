@@ -2,17 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     ArrowLeft, Sparkles, Loader2, BookOpen, Lightbulb, Target,
-    HelpCircle, FileText, Globe, Layers, Zap, Upload, GraduationCap,
+    HelpCircle, FileText, Globe, Layers, Upload, GraduationCap,
     LucideIcon, CheckCircle2, Layout, BookMarked, Globe2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import {
-    transformManualContent,
-    generateCourseModules,
-    MicroModuleOutput
+    generateCourseModules
 } from "@/lib/gemini";
 import {
     SAMPLE_MANUALS,
@@ -23,8 +20,8 @@ import {
     ManualChunk,
     LocalContext
 } from "@/data/trainingManuals";
-import { SUPPORTED_LANGUAGES, INDIAN_LANGUAGES } from "@/lib/translate";
-import type { GeneratedCourse, CourseModule } from "@/types/courseTypes";
+import { SUPPORTED_LANGUAGES } from "@/lib/translate";
+import type { GeneratedCourse } from "@/types/courseTypes";
 import FileUploader from "@/components/content/FileUploader";
 import CourseOutline from "@/components/content/CourseOutline";
 import ModuleViewer from "@/components/content/ModuleViewer";
@@ -35,13 +32,8 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-type TransformMode = 'quick' | 'course';
-
 const ContentTransformer = () => {
     const navigate = useNavigate();
-
-    // Transform mode
-    const [mode, setMode] = useState<TransformMode>('course');
 
     // Source content state
     const [selectedManual, setSelectedManual] = useState<ManualChunk | null>(null);
@@ -55,7 +47,6 @@ const ContentTransformer = () => {
     const [languageCode, setLanguageCode] = useState("en");
     const [grade, setGrade] = useState(GRADE_LEVELS[1]);
     const [subject, setSubject] = useState(SUBJECTS[6]);
-    const [showAllLanguages, setShowAllLanguages] = useState(false);
     const [numberOfModules, setNumberOfModules] = useState(6);
 
     // NCERT RAG state
@@ -65,7 +56,6 @@ const ContentTransformer = () => {
 
     // Output state
     const [isTransforming, setIsTransforming] = useState(false);
-    const [microModule, setMicroModule] = useState<MicroModuleOutput | null>(null);
 
     // Course builder state
     const [generatedCourse, setGeneratedCourse] = useState<GeneratedCourse | null>(null);
@@ -80,59 +70,6 @@ const ContentTransformer = () => {
         setUploadedFileName(fileName);
         setUseCustomContent(true);
         toast.success(`Content extracted from ${fileName}`);
-    };
-
-    const handleQuickTransform = async () => {
-        let sourceContent = useCustomContent ? customContent : selectedManual?.content;
-        const sourceTitle = useCustomContent ? (uploadedFileName || "Custom Content") : selectedManual?.title || "";
-
-        if (isNcertMode && selectedNcertSource) {
-            // In NCERT mode, we use the RAG context as the primary source if no other content is provided
-            // or we combine them. For Quick Transform, let's assume it uses NCERT context.
-            const ncertContext = await loadNcertContext(selectedNcertSource);
-            if (ncertContext) {
-                sourceContent = ncertContext;
-            }
-        }
-
-        if (!sourceContent || sourceContent.trim().length < 50) {
-            toast.error("Please select a training manual, NCERT source, or enter custom content.");
-            return;
-        }
-
-        const selectedLang = SUPPORTED_LANGUAGES.find(l => l.code === languageCode);
-        const languageName = selectedLang ? selectedLang.name : 'English';
-
-        setIsTransforming(true);
-
-        if (languageCode !== 'en') {
-            toast.info(`Generating in English, then translating to ${languageName}...`);
-        }
-
-        try {
-            const result = await transformManualContent(
-                sourceContent,
-                sourceTitle,
-                {
-                    region: region,
-                    teacherCluster: region.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-                    schoolType: schoolType,
-                    language: languageName,
-                    grade: grade,
-                    subject: subject
-                },
-                getLocalContext(),
-                languageCode
-            );
-
-            setMicroModule(result);
-            toast.success(`Micro-module generated in ${languageName}!`);
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to transform content. Please try again.");
-        } finally {
-            setIsTransforming(false);
-        }
     };
 
     const handleCourseGeneration = async () => {
@@ -154,7 +91,6 @@ const ContentTransformer = () => {
             let ncertContext = "";
             if (isNcertMode && selectedNcertSource) {
                 ncertContext = await loadNcertContext(selectedNcertSource);
-                // If we have no primary content, use NCERT context as the primary content too
                 if (!sourceContent || sourceContent.trim().length < 50) {
                     sourceContent = ncertContext;
                 }
@@ -175,7 +111,6 @@ const ContentTransformer = () => {
             setGeneratedCourse(course);
             setActiveModuleIndex(0);
 
-            // SAVE FOR OFFLINE USE
             try {
                 localStorage.setItem('shiksha_saved_course', JSON.stringify(course));
                 localStorage.setItem('shiksha_last_saved', new Date().toISOString());
@@ -209,7 +144,6 @@ const ContentTransformer = () => {
     };
 
     const resetForm = () => {
-        setMicroModule(null);
         setGeneratedCourse(null);
         setSelectedManual(null);
         setCustomContent("");
@@ -223,16 +157,11 @@ const ContentTransformer = () => {
         setNcertLoading(true);
         try {
             if (source.type === 'json') {
-                // For JSON, we fetch it (it's in src/data/ncert/ but we need to treat it as a module or fetch)
-                // Since it was converted to JSON, we can import it or fetch it if moved to public
-                // For now, let's assume it's fetched from the public path if we moved it, 
-                // but actually, I'll use a dynamic import for simplicity if it's in src
                 const pathParts = source.path.split('/');
                 const fileName = pathParts[pathParts.length - 1];
 
                 const response = await fetch(`/ncert/${fileName}`);
                 const data = await response.json();
-                // Filter out fragments and join meaningful answers
                 return data
                     .map((item: any) => {
                         const q = item.question && item.question.length > 10 ? `Discussion: ${item.question}\n` : '';
@@ -240,7 +169,6 @@ const ContentTransformer = () => {
                     })
                     .join('\n\n');
             } else {
-                // For PDF, fetch from public path and extract text
                 const fileName = source.path.split('/').pop();
                 const response = await fetch(`/ncert/${fileName}`);
                 const blob = await response.blob();
@@ -249,7 +177,6 @@ const ContentTransformer = () => {
                 const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
                 const pdf = await loadingTask.promise;
                 let fullText = '';
-                // Limit to first 10 pages for demo performance/context limits
                 const pagesToRead = Math.min(pdf.numPages, 10);
                 for (let i = 1; i <= pagesToRead; i++) {
                     const page = await pdf.getPage(i);
@@ -271,13 +198,11 @@ const ContentTransformer = () => {
     if (generatedCourse) {
         return (
             <div className="min-h-screen bg-background text-foreground relative overflow-hidden flex flex-col">
-                {/* Background Decorative Blurs */}
                 <div className="fixed inset-0 pointer-events-none overflow-hidden">
                     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
                     <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]" />
                 </div>
 
-                {/* Header */}
                 <header className="flex items-center gap-6 px-8 py-5 border-b border-border/50 relative z-10 bg-background/60 backdrop-blur-xl">
                     <Button
                         variant="ghost"
@@ -310,10 +235,8 @@ const ContentTransformer = () => {
                     </div>
                 </header>
 
-                {/* Main Content - Course View */}
                 <div className="flex flex-1 relative z-10 overflow-hidden">
-                    {/* Left Sidebar - Course Outline */}
-                    <aside className="w-[320px] flex-shrink-0 border-r border-border/50 bg-white/40 backdrop-blur-md overflow-hidden flex flex-col">
+                    <aside className="w-[320px] flex-shrink-0 border-r border-border/50 bg-card overflow-hidden flex flex-col">
                         <div className="p-6 border-b border-border/50 bg-muted/30">
                             <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground mb-1">Architecture</h3>
                             <p className="text-sm text-foreground/80 font-medium line-clamp-2">{generatedCourse.description}</p>
@@ -327,7 +250,6 @@ const ContentTransformer = () => {
                         </div>
                     </aside>
 
-                    {/* Main Content - Module Viewer */}
                     <div className="flex-1 p-6 overflow-y-auto">
                         <AnimatePresence mode="wait">
                             <ModuleViewer
@@ -352,13 +274,11 @@ const ContentTransformer = () => {
         <div className="min-h-screen bg-background text-foreground p-8 relative overflow-hidden">
             <div className="absolute inset-0 grid-pattern opacity-[0.03] pointer-events-none" />
 
-            {/* Background Decorative Blurs */}
             <div className="fixed inset-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px]" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 rounded-full blur-[120px]" />
             </div>
 
-            {/* Header */}
             <header className="relative z-10 px-6 py-8 flex items-center gap-6 max-w-7xl mx-auto">
                 <Button
                     variant="ghost"
@@ -379,32 +299,14 @@ const ContentTransformer = () => {
                 </div>
             </header>
 
-            {/* Mode Toggle */}
             <div className="flex gap-4 mb-10 relative z-10 max-w-7xl mx-auto px-6">
-                <button
-                    onClick={() => setMode('course')}
-                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all shadow-sm border ${mode === 'course'
-                        ? 'bg-primary text-white border-primary shadow-primary/20 scale-100'
-                        : 'bg-white border-border text-muted-foreground hover:border-primary/30 hover:text-foreground scale-[0.98]'
-                        }`}
-                >
+                <div className="flex items-center gap-3 px-8 py-4 rounded-2xl font-bold bg-primary text-white border-primary shadow-lg shadow-primary/20 scale-100">
                     <Layout className="w-5 h-5" />
                     Course Builder
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ml-2 ${mode === 'course' ? 'bg-white/20' : 'bg-primary/10 text-primary'}`}>PREMIUM</span>
-                </button>
-                <button
-                    onClick={() => setMode('quick')}
-                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all shadow-sm border ${mode === 'quick'
-                        ? 'bg-primary text-white border-primary shadow-primary/20 scale-100'
-                        : 'bg-white border-border text-muted-foreground hover:border-primary/30 hover:text-foreground scale-[0.98]'
-                        }`}
-                >
-                    <Zap className="w-5 h-5" />
-                    Quick Transform
-                </button>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full ml-2 bg-white/20">PREMIUM</span>
+                </div>
             </div>
 
-            {/* Offline Access Helper */}
             <div className="max-w-7xl mx-auto px-6 mb-8 flex items-center justify-end">
                 <button
                     onClick={() => {
@@ -425,12 +327,9 @@ const ContentTransformer = () => {
 
             <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
 
-                {/* LEFT: Input Configuration */}
                 <div className="lg:col-span-5 space-y-8 px-6 lg:px-0">
-
-                    {/* NCERT Mode Toggle & Selector */}
                     <div className="glass-card p-8 border-border relative overflow-hidden bg-card">
-                        <div className={`absolute top-0 right-0 p-4 ${isNcertMode ? 'opacity-100' : 'opacity-[0.05]'}`}>
+                        <div className="absolute top-0 right-0 p-4 opacity-100">
                             <BookOpen className="w-16 h-16 text-primary -rotate-12" />
                         </div>
 
@@ -480,295 +379,127 @@ const ContentTransformer = () => {
                         </AnimatePresence>
                     </div>
 
-                    {/* Source Content Selection */}
                     <div className="glass-card p-8 border-border bg-card">
                         <div className="flex items-center gap-4 mb-8">
                             <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
                                 <FileText className="w-6 h-6" />
                             </div>
                             <div>
-                                <h2 className="text-xl font-outfit font-bold text-foreground">
-                                    {mode === 'course' ? 'Upload Course Content' : 'Training Content'}
-                                </h2>
+                                <h2 className="text-xl font-outfit font-bold text-foreground">Upload Course Content</h2>
                                 <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Source Material</p>
                             </div>
                         </div>
 
-                        {mode === 'course' ? (
-                            <div className="space-y-6">
-                                <FileUploader
-                                    onContentExtracted={handleFileContentExtracted}
-                                    isProcessing={isTransforming}
-                                />
+                        <div className="space-y-6">
+                            <FileUploader
+                                onContentExtracted={handleFileContentExtracted}
+                                isProcessing={isTransforming}
+                            />
 
-                                <div className="relative">
-                                    <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-border/50"></div>
-                                    </div>
-                                    <div className="relative flex justify-center">
-                                        <span className="px-4 bg-card text-muted-foreground text-[10px] font-black uppercase tracking-widest">or paste content</span>
-                                    </div>
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-border/50"></div>
                                 </div>
-
-                                <textarea
-                                    placeholder="Paste your syllabus, course outline, or teaching content here... (minimum 100 characters)"
-                                    value={customContent}
-                                    onChange={(e) => {
-                                        setCustomContent(e.target.value);
-                                        setUseCustomContent(true);
-                                    }}
-                                    className="w-full h-40 bg-white/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
-                                />
+                                <div className="relative flex justify-center">
+                                    <span className="px-4 bg-card text-muted-foreground text-[10px] font-black uppercase tracking-widest">or paste content</span>
+                                </div>
                             </div>
-                        ) : (
-                            <>
-                                <div className="flex p-1 bg-muted rounded-2xl mb-8">
-                                    <button
-                                        onClick={() => setUseCustomContent(false)}
-                                        className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${!useCustomContent
-                                            ? 'bg-card text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
-                                            }`}
-                                    >
-                                        Sample Manuals
-                                    </button>
-                                    <button
-                                        onClick={() => setUseCustomContent(true)}
-                                        className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${useCustomContent
-                                            ? 'bg-card text-primary shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground'
-                                            }`}
-                                    >
-                                        Custom Paste
-                                    </button>
-                                </div>
 
-                                {!useCustomContent ? (
-                                    <div className="space-y-3">
-                                        <div className="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
-                                            {SAMPLE_MANUALS.map((manual) => (
-                                                <div
-                                                    key={manual.id}
-                                                    onClick={() => setSelectedManual(manual)}
-                                                    className={`p-5 rounded-2xl border-2 transition-all cursor-pointer relative overflow-hidden group ${selectedManual?.id === manual.id
-                                                        ? 'border-primary bg-primary/5 shadow-md shadow-primary/5'
-                                                        : 'border-border/50 bg-background/40 hover:border-primary/30 hover:bg-background/60'
-                                                        }`}
-                                                >
-                                                    <div className="relative z-10">
-                                                        <h4 className="font-bold text-foreground text-[15px]">{manual.title}</h4>
-                                                        <p className="text-[11px] text-muted-foreground mt-1 font-medium">{manual.source}</p>
-                                                        <div className="flex gap-2 mt-4">
-                                                            {manual.topics.slice(0, 3).map(topic => (
-                                                                <span key={topic} className="text-[10px] px-2.5 py-1 bg-muted rounded-full text-muted-foreground font-bold uppercase tracking-wider">
-                                                                    {topic}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                    <CheckCircle2 className={`absolute top-4 right-4 w-5 h-5 text-primary transition-all ${selectedManual?.id === manual.id ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`} />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <textarea
-                                        placeholder="Paste your training manual content here... (minimum 50 characters)"
-                                        value={customContent}
-                                        onChange={(e) => setCustomContent(e.target.value)}
-                                        className="w-full h-60 bg-background/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
-                                    />
-                                )}
-                            </>
-                        )}
+                            <textarea
+                                placeholder="Paste your syllabus, course outline, or teaching content here... (minimum 100 characters)"
+                                value={customContent}
+                                onChange={(e) => {
+                                    setCustomContent(e.target.value);
+                                    setUseCustomContent(true);
+                                }}
+                                className="w-full h-40 bg-background/40 border-2 border-border/50 rounded-2xl p-5 text-foreground focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all resize-none shadow-inner text-sm leading-relaxed"
+                            />
+                        </div>
                     </div>
 
-                    {/* Number of Modules Selector */}
-                    {mode === 'course' && (
-                        <div className="glass-card p-8 border-border bg-card">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                    <Layers className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-outfit font-bold text-foreground">Course Structure</h2>
-                                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Module Configuration</p>
-                                </div>
+                    <div className="glass-card p-8 border-border bg-card">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                                <Layers className="w-6 h-6" />
                             </div>
-
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between mb-4">
-                                    <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Number of Modules</label>
-                                    <span className="text-lg font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{numberOfModules}</span>
-                                </div>
-                                <input
-                                    type="range"
-                                    min="3"
-                                    max="30"
-                                    value={numberOfModules}
-                                    onChange={(e) => setNumberOfModules(Number(e.target.value))}
-                                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
-                                />
-                                <p className="text-[10px] text-muted-foreground font-medium mt-3 uppercase tracking-widest">
-                                    Estimated duration: ~{numberOfModules * 7} minutes immersion
-                                </p>
+                            <div>
+                                <h2 className="text-xl font-outfit font-bold text-foreground">Course Structure</h2>
+                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Module Configuration</p>
                             </div>
                         </div>
-                    )}
 
-                    {/* Transform Button */}
-                    {!microModule && (
-                        <Button
-                            onClick={mode === 'course' ? handleCourseGeneration : handleQuickTransform}
-                            disabled={isTransforming || ncertLoading || (!selectedManual && !customContent.trim() && !selectedNcertSource)}
-                            className="w-full h-16 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] gap-4"
-                        >
-                            {isTransforming || ncertLoading ? (
-                                <>
-                                    <Loader2 className="w-6 h-6 animate-spin" />
-                                    <span>
-                                        {ncertLoading
-                                            ? 'Loading NCERT Context...'
-                                            : (mode === 'course' ? `Generating ${numberOfModules} Modules...` : 'Transforming Content...')
-                                        }
-                                    </span>
-                                </>
-                            ) : (
-                                <>
-                                    {mode === 'course' ? (
-                                        <>
-                                            <Layers className="w-6 h-6" />
-                                            <span>Build Resource Course</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles className="w-6 h-6" />
-                                            <span>Transform to Micro-Module</span>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </Button>
-                    )}
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between mb-4">
+                                <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Number of Modules</label>
+                                <span className="text-lg font-black text-primary bg-primary/10 px-3 py-1 rounded-lg">{numberOfModules}</span>
+                            </div>
+                            <input
+                                type="range"
+                                min="3"
+                                max="30"
+                                value={numberOfModules}
+                                onChange={(e) => setNumberOfModules(Number(e.target.value))}
+                                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                            />
+                            <p className="text-[10px] text-muted-foreground font-medium mt-3 uppercase tracking-widest">
+                                Estimated duration: ~{numberOfModules * 7} minutes immersion
+                            </p>
+                        </div>
+                    </div>
+
+                    <Button
+                        onClick={handleCourseGeneration}
+                        disabled={isTransforming || ncertLoading || (!selectedManual && !customContent.trim() && !selectedNcertSource)}
+                        className="w-full h-16 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.01] active:scale-[0.99] gap-4"
+                    >
+                        {isTransforming || ncertLoading ? (
+                            <>
+                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <span>
+                                    {ncertLoading
+                                        ? 'Loading NCERT Context...'
+                                        : `Generating ${numberOfModules} Modules...`
+                                    }
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <Layers className="w-6 h-6" />
+                                <span>Build Resource Course</span>
+                            </>
+                        )}
+                    </Button>
                 </div>
 
-                {/* RIGHT: Output */}
                 <div className="lg:col-span-7 min-h-[600px] px-6 lg:px-0 relative">
-                    <AnimatePresence mode="wait">
-                        {microModule ? (
-                            <motion.div
-                                key="output"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="clean-card overflow-hidden shadow-2xl border-border bg-white"
-                            >
-                                {/* Header */}
-                                <div className="bg-primary p-8 text-white relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-8 opacity-10">
-                                        <Sparkles className="w-24 h-24" />
-                                    </div>
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <span className="px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest border border-white/30">
-                                            Immersion Module
-                                        </span>
-                                        <span className="px-3 py-1 bg-secondary/30 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
-                                            5 MINUTE READ
-                                        </span>
-                                    </div>
-                                    <h2 className="text-2xl font-outfit font-bold leading-tight">
-                                        {microModule.sourceTitle}
-                                    </h2>
-                                    <div className="flex items-center gap-4 mt-6 text-sm font-medium text-white/80">
-                                        <div className="flex items-center gap-1.5">
-                                            <Globe2 className="w-4 h-4" />
-                                            {SUPPORTED_LANGUAGES.find(l => l.code === languageCode)?.name || 'English'}
-                                        </div>
-                                        <div className="flex items-center gap-1.5">
-                                            <GraduationCap className="w-4 h-4" />
-                                            {grade}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Content Grid */}
-                                <div className="p-8 space-y-6">
-                                    {[
-                                        { title: "Core Concept", content: microModule.coreIdea, color: "text-primary", icon: Lightbulb, bg: "bg-primary/5", border: "border-primary/10" },
-                                        { title: "Interactive Example", content: microModule.classroomExample, color: "text-emerald-600", icon: Layout, bg: "bg-emerald-500/5", border: "border-emerald-500/10" },
-                                        { title: "Practical Action", content: microModule.actionStep, color: "text-amber-600", icon: Target, bg: "bg-amber-500/5", border: "border-amber-500/10" },
-                                        { title: "Personal Reflection", content: microModule.reflectionQuestion, color: "text-secondary", icon: HelpCircle, bg: "bg-secondary/5", border: "border-secondary/10", italic: true }
-                                    ].map((section, idx) => (
-                                        <motion.div
-                                            key={idx}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: idx * 0.1 }}
-                                            className={`p-6 rounded-2xl border ${section.border} ${section.bg} group hover:shadow-md transition-all`}
-                                        >
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <div className={`w-8 h-8 rounded-lg ${section.bg} border ${section.border} flex items-center justify-center ${section.color}`}>
-                                                    <section.icon className="w-4 h-4" />
-                                                </div>
-                                                <h3 className={`font-black text-[10px] uppercase tracking-widest ${section.color}`}>
-                                                    {section.title}
-                                                </h3>
-                                            </div>
-                                            <p className={`text-foreground/80 leading-relaxed text-sm ${section.italic ? 'italic font-medium' : ''}`}>
-                                                {section.content}
-                                            </p>
-                                        </motion.div>
-                                    ))}
-                                </div>
-
-                                {/* Actions */}
-                                <div className="p-8 pt-0 flex gap-4">
-                                    <Button
-                                        onClick={resetForm}
-                                        variant="outline"
-                                        className="flex-1 h-14 rounded-2xl border-primary/20 hover:bg-primary/5 text-primary font-bold"
-                                    >
-                                        Adapt Another
-                                    </Button>
-                                    <Button className="flex-1 h-14 rounded-2xl shadow-lg shadow-primary/20 font-bold gap-2">
-                                        <Upload className="w-4 h-4" />
-                                        Save to Library
-                                    </Button>
-                                </div>
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="placeholder"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="h-full flex flex-col items-center justify-center border-2 border-dashed border-primary/20 bg-primary/5 rounded-[2.5rem] p-12 text-center"
-                            >
-                                <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mb-8">
-                                    <Sparkles className="w-12 h-12 text-muted-foreground/30" />
-                                </div>
-                                <h3 className="text-2xl font-outfit font-bold text-foreground mb-4">
-                                    {mode === 'course' ? 'Resource Strategy Ready' : 'Evolution Unit Pending'}
-                                </h3>
-                                <p className="text-muted-foreground max-w-sm leading-relaxed mb-8">
-                                    {mode === 'course'
-                                        ? "Fill in your content parameters to generate a deep-immersion pedagogical resource course."
-                                        : "Select your source material and target profile to evolve it into a localized micro-resource."}
-                                </p>
-                                <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
-                                    <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
-                                        <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Efficiency</p>
-                                        <p className="text-lg font-black text-foreground">5 Min</p>
-                                    </div>
-                                    <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
-                                        <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Adaptation</p>
-                                        <p className="text-lg font-black text-foreground">Local</p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="h-full flex flex-col items-center justify-center border-2 border-dashed border-primary/20 bg-primary/5 rounded-[2.5rem] p-12 text-center"
+                    >
+                        <div className="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mb-8">
+                            <Sparkles className="w-12 h-12 text-muted-foreground/30" />
+                        </div>
+                        <h3 className="text-2xl font-outfit font-bold text-foreground mb-4">
+                            Resource Strategy Ready
+                        </h3>
+                        <p className="text-muted-foreground max-w-sm leading-relaxed mb-8">
+                            Fill in your content parameters to generate a deep-immersion pedagogical resource course.
+                        </p>
+                        <div className="grid grid-cols-2 gap-4 w-full max-w-xs">
+                            <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
+                                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Efficiency</p>
+                                <p className="text-lg font-black text-foreground">Course</p>
+                            </div>
+                            <div className="p-4 bg-muted/10 rounded-2xl border border-border/30">
+                                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground mb-1">Adaptation</p>
+                                <p className="text-lg font-black text-foreground">Local</p>
+                            </div>
+                        </div>
+                    </motion.div>
                 </div>
             </main>
-        </div >
+        </div>
     );
 };
 
