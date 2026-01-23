@@ -212,12 +212,12 @@ export const TeacherTimetable = () => {
                             transition={{ duration: 0.3 }}
                             layout
                             className={`relative group overflow-hidden p-8 rounded-[2.5rem] border transition-all duration-500 ${slot.status === 'current'
-                                ? 'bg-white border-primary/30 shadow-2xl shadow-primary/5 ring-1 ring-primary/20 scale-[1.02]'
-                                : 'bg-muted/10 border-border/50 hover:bg-white hover:border-primary/20 hover:shadow-xl'
+                                ? 'bg-card border-primary/40 shadow-2xl shadow-primary/10 ring-1 ring-primary/20 scale-[1.02] dark:bg-primary/5'
+                                : 'bg-muted/20 border-border/50 hover:bg-card hover:border-primary/20 hover:shadow-xl'
                                 }`}
                         >
                             {slot.status === 'current' && (
-                                <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+                                <div className="absolute top-0 right-0 p-8 opacity-[0.05] dark:opacity-[0.1]">
                                     <Clock className="w-24 h-24 text-primary" />
                                 </div>
                             )}
@@ -246,13 +246,13 @@ export const TeacherTimetable = () => {
                                             {slot.subject}
                                         </h3>
                                         {slot.status === 'current' && (
-                                            <span className="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1.5 border border-green-200">
+                                            <span className="px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-black uppercase tracking-widest rounded-full flex items-center gap-1.5 border border-green-500/20">
                                                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                                                 Live Session
                                             </span>
                                         )}
                                         {slot.status === 'upcoming' && i === 2 && (
-                                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/10">
+                                            <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full border border-primary/20">
                                                 Next Up
                                             </span>
                                         )}
@@ -260,13 +260,13 @@ export const TeacherTimetable = () => {
 
                                     <div className="flex items-center flex-wrap gap-6 text-sm">
                                         <span className="flex items-center gap-2 font-medium text-muted-foreground">
-                                            <div className="p-1.5 bg-muted rounded-lg group-hover:bg-white transition-colors">
+                                            <div className="p-1.5 bg-muted/50 rounded-lg group-hover:bg-background transition-colors dark:bg-muted/30 dark:group-hover:bg-muted/50">
                                                 <Users className="w-4 h-4" />
                                             </div>
                                             {slot.grade}
                                         </span>
                                         <span className="flex items-center gap-2 font-medium text-muted-foreground">
-                                            <div className="p-1.5 bg-muted rounded-lg group-hover:bg-white transition-colors">
+                                            <div className="p-1.5 bg-muted/50 rounded-lg group-hover:bg-background transition-colors dark:bg-muted/30 dark:group-hover:bg-muted/50">
                                                 <BookOpen className="w-4 h-4" />
                                             </div>
                                             {slot.topic}
@@ -276,7 +276,7 @@ export const TeacherTimetable = () => {
 
                                 <div className="flex-shrink-0">
                                     {slot.status === 'completed' ? (
-                                        <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 px-5 py-3 rounded-2xl text-emerald-600 font-bold text-sm">
+                                        <div className="flex items-center gap-3 bg-emerald-500/10 border border-emerald-500/20 px-5 py-3 rounded-2xl text-emerald-600 dark:text-emerald-400 font-bold text-sm">
                                             <CheckCircle2 className="w-5 h-5" />
                                             <span>Reflection Logged</span>
                                         </div>
@@ -284,14 +284,14 @@ export const TeacherTimetable = () => {
                                         <Button
                                             variant={slot.status === 'current' ? "default" : "outline"}
                                             className={`rounded-2xl gap-3 h-14 px-8 font-bold transition-all duration-300 ${slot.status === 'current'
-                                                ? 'bg-primary shadow-xl shadow-primary/20 hover:scale-[1.05] active:scale-[0.95]'
+                                                ? 'bg-primary shadow-xl shadow-primary/20 hover:scale-[1.05] active:scale-[0.95] text-primary-foreground'
                                                 : 'border-border/80 hover:border-primary/50 hover:bg-primary/5 text-muted-foreground hover:text-primary'
                                                 }`}
                                         >
                                             {slot.status === 'current' ? (
                                                 <>
-                                                    <PlayCircle className="w-5 h-5 text-white" />
-                                                    <span className="text-white">Active Simulation</span>
+                                                    <PlayCircle className="w-5 h-5" />
+                                                    <span>Active Simulation</span>
                                                 </>
                                             ) : (
                                                 <>
@@ -308,7 +308,7 @@ export const TeacherTimetable = () => {
                 </AnimatePresence>
             </div>
 
-            <div className="mt-12 text-center p-8 rounded-[2rem] bg-muted/30 border border-dashed border-border">
+            <div className="mt-12 text-center p-8 rounded-[2rem] bg-muted/20 border border-dashed border-border/50">
                 <p className="text-muted-foreground text-sm max-w-lg mx-auto leading-relaxed">
                     Need to adjust your schedule? Add new slots or remove completed ones. Changes are saved to your personal <span className="text-primary font-bold italic">Teaching Hub</span>.
                 </p>
