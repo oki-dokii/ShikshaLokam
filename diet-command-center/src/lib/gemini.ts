@@ -14,7 +14,7 @@ const GOOGLE_API_KEY_FALLBACK = import.meta.env.VITE_GOOGLE_API_KEY || "AIzaSyB7
 const genAI = new GoogleGenerativeAI(GOOGLE_API_KEY_FALLBACK);
 
 // Call Groq API
-async function callGroqAPI(prompt: string, base64Image?: string): Promise<string> {
+async function callGroqAPI(prompt: string, base64Image?: string, maxTokens: number = 4000): Promise<string> {
     const visionModels = [
         "llama-3.2-11b-vision",
         "llama-3.2-90b-vision",
@@ -51,7 +51,7 @@ async function callGroqAPI(prompt: string, base64Image?: string): Promise<string
                     model: model,
                     messages: [{ role: "user", content: content }],
                     temperature: base64Image ? 0.1 : 0.7,
-                    max_tokens: 4000 // Keep within TPM limit
+                    max_tokens: maxTokens
                 })
             });
 
@@ -99,7 +99,7 @@ async function callGroqAPI(prompt: string, base64Image?: string): Promise<string
     throw lastError || new Error("Failed to call Groq API after multiple retries");
 }
 
-async function callGeminiProxy(contents: any[], systemInstruction?: string) {
+async function callGeminiProxy(contents: any[], systemInstruction?: string, maxTokens: number = 4000) {
     // Extract prompt text and optional image
     let promptText = "";
     let base64Image = "";
@@ -122,7 +122,7 @@ async function callGeminiProxy(contents: any[], systemInstruction?: string) {
     }
 
     // Use Groq API (will automatically switch to vision model if image is present)
-    return await callGroqAPI(promptText, base64Image);
+    return await callGroqAPI(promptText, base64Image, maxTokens);
 }
 export const processKnowledgeSnippet = async (text: string) => {
     const prompt = `
@@ -973,7 +973,9 @@ export const generateCourseModules = async (
 
     const prompt = `You are an expert instructional designer creating premium Udemy-style course content for Indian government school teachers.
 
-TASK: Break down the provided course content into ${numberOfModules} detailed, high-quality micro-learning modules.
+TASK: Break down the provided course content into a MAXIMUM of ${numberOfModules} detailed, high-quality micro-learning modules.
+
+Only create as many modules as the source content naturally supports. If the content is short, 2-3 high-quality modules are better than forcing ${numberOfModules} modules. Do not hallucinate, repeat content, or create "random/filler" modules just to meet the count. If the source content is over, stop generating modules.
 
 ========================
 COURSE CONTEXT
@@ -999,11 +1001,11 @@ ${input.ncertContext}
 MODULE QUALITY REQUIREMENTS (CRITICAL)
 ========================
 Each module MUST be:
-1. **HIGHLY DESCRIPTIVE**: Content should be 150-200 words with rich explanations, examples, and practical applications
+1. **HIGHLY DESCRIPTIVE**: Content should be 100-150 words with rich explanations, examples, and practical applications
 2. **VISUALLY ORGANIZED**: Include clear structure with headers, bullet points conceptually
-3. **EXAMPLE-RICH**: Include at least 2 real classroom examples or scenarios
+3. **EXAMPLE-RICH**: Include at least 1 real classroom example or scenario
 4. **PROGRESSIVE**: Build logically on previous modules
-5. **QUIZ-HEAVY**: Include 3-5 quiz questions per module (multiple choice)
+5. **QUIZ-HEAVY**: Include 2-3 quiz questions per module (multiple choice)
 6. **ACTIONABLE**: End with specific things the teacher can do tomorrow
 
 ========================
@@ -1017,6 +1019,8 @@ For each module, specify a "visualizationType" that BEST represents the content:
 - "sequence": For numbered steps, ordered procedures
 
 Also provide "visualizationNodes": An array of 4-8 key concepts/steps as strings that should appear in the visualization.
+
+IMPORTANT SYNTAX RULE: Every node in a flowchart MUST have a unique alphanumeric identifier (like 'A', 'B1', 'node2') followed by its label in brackets. Example: A["Label Name"] --> B["Another Label"]. NEVER use labels alone like ["Label"]. All labels MUST be in double quotes.
 
 ${input.isNcertMode ? `
 ========================
@@ -1078,10 +1082,12 @@ Return ONLY the JSON, no other text.`;
         const resultText = await callGeminiProxy([{
             role: "user",
             parts: [{ text: prompt }]
-        }]);
+        }], undefined, 8000); // 8k tokens for full courses
 
-        const jsonStr = resultText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-        const parsed = JSON.parse(jsonStr);
+        const parsed = safeParseLargeJson(resultText);
+        if (!parsed || !parsed.modules) {
+            throw new Error("Invalid course structure returned from AI");
+        }
 
         // Process modules sequentially with a small delay to avoid hitting rate limits
         const modulesWithVisualizations: CourseModule[] = [];
@@ -1165,10 +1171,11 @@ DIAGRAM REQUIREMENTS:
 2. CONTENT: Focus on the relationship between concepts.
 3. STYLE: Use simple labels (max 3-5 words). Avoid special characters (, ), [, ], etc. in labels.
 4. SYNTAX:
-   - For flowchart: Use A[Label] --> B[Label]
-   - For mindmap: Use root((Title))\n  node1\n  node2 (Indent subnodes with spaces. Ensure ONLY ONE root node exists).
+   - For flowchart: Use A["Label"] --> B["Label"]. ALL labels MUST be in double quotes inside brackets.
+   - For mindmap: Use root(("Title"))\n  node1["Label"]\n  node2["Label"] (Indent subnodes with spaces. Ensure ONLY ONE root node exists).
+   - For sequenceDiagram: Use ParticipantA ->> ParticipantB: "Message text". Always quote message text.
 5. IMPORTANT: Do not include the "${mermaidType}" line itself in the "mermaidCode" field, as I will add it.
-6. FORMAT: Return ONLY a JSON object.
+6. FORMAT: Return ONLY a JSON object. Ensure the mermaidCode is a valid string.
 
 JSON FORMAT:
 {
@@ -1184,12 +1191,18 @@ JSON FORMAT:
         }]);
 
         // Better JSON extraction - find the JSON object in the response
-        let jsonStr = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        let jsonStr = resultText.trim();
 
-        // Try to extract JSON object if there's extra text
-        const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            jsonStr = jsonMatch[0];
+        // 1. Remove markdown blocks
+        jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        // 2. Try to extract JSON object using a more robust parser or regex
+        // Look for the first '{' and the last '}'
+        const firstBrace = jsonStr.indexOf('{');
+        const lastBrace = jsonStr.lastIndexOf('}');
+
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
         }
 
         try {
@@ -1247,40 +1260,69 @@ function generateFallbackMermaid(title: string, keyPoints: string[]): string {
 function sanitizeMermaidCode(code: string): string {
     if (!code) return code;
 
-    // Replace problematic patterns in node labels
-    // Pattern: [Label] - sanitize the content inside brackets
-    let sanitized = code.replace(/\[([^\]]+)\]/g, (match, label) => {
-        // Remove or replace problematic characters inside labels
-        const cleanLabel = label
-            .replace(/[\[\](){}|&<>]/g, '') // Remove brackets, parens, braces, pipes
-            .replace(/['"]/g, '')           // Remove quotes
-            .replace(/\s+/g, ' ')           // Normalize whitespace
-            .trim()
-            .substring(0, 40);              // Limit length
-        return `[${cleanLabel || 'Node'}]`;
+    let cleaned = code
+        .replace(/\[\[/g, '[')
+        .replace(/\]\]/g, ']')
+        .replace(/\(\(\(/g, '((')
+        .replace(/\)\)\)/g, '))')
+        .replace(/\{\{/g, '{')
+        .replace(/\}\}/g, '}');
+
+    let lines = cleaned.split('\n');
+    let nodeCounter = 0;
+
+    const processedLines = lines.map(line => {
+        let trimmed = line.trim();
+        // Skip header lines or structural keywords
+        if (!trimmed || trimmed.match(/^(flowchart|graph|sequenceDiagram|mindmap|timeline|subgraph|end|participant|actor|note|classDef|style|click|linkStyle)/i)) {
+            return line;
+        }
+
+        // Split by core Mermaid arrows
+        const arrowRegex = /(-->|->>|->|==>|<-|--|--\>|-\|>)/g;
+        const segments = line.split(arrowRegex);
+        const processedSegments = segments.map(segment => {
+            // If it's an arrow, keep it as is
+            if (segment.match(arrowRegex)) return segment;
+
+            let s = segment.trim();
+            if (!s) return s;
+
+            // Detect ID[Label], ID(Label), ID{Label}
+            const nodeMatch = s.match(/^([A-Za-z0-0_.-]+)?\s*([\[\(\{].*[\]\)\}])$/);
+
+            if (nodeMatch) {
+                nodeCounter++;
+                const id = nodeMatch[1] || `node${nodeCounter}`;
+                const bracketed = nodeMatch[2];
+                const typeStart = bracketed[0];
+                const typeEnd = bracketed[bracketed.length - 1];
+
+                let inner = bracketed.substring(typeStart === '(' ? 2 : 1, bracketed.length - (typeEnd === ')' ? 2 : 1));
+                const cleanLabel = inner.replace(/[\[\](){}|"']/g, ' ').replace(/\s+/g, ' ').trim();
+
+                if (typeStart === '[') return `${id}["${cleanLabel}"]`;
+                if (typeStart === '(') return `${id}(("${cleanLabel}"))`;
+                if (typeStart === '{') return `${id}{"${cleanLabel}"}`;
+                return `${id}["${cleanLabel}"]`;
+            }
+
+            // If it's plain text without brackets, wrap it if it's not a simple ID
+            if (!s.includes('[') && !s.includes('(') && !s.includes('{')) {
+                if (!s.match(/^[A-Za-z0-0_.-]+$/)) {
+                    nodeCounter++;
+                    return `node${nodeCounter}["${s.replace(/["]/g, '').trim()}"]`;
+                }
+                return s;
+            }
+
+            return s;
+        });
+
+        return processedSegments.join(' ');
     });
 
-    // Also handle ((label)) for mindmap root
-    sanitized = sanitized.replace(/\(\(([^)]+)\)\)/g, (match, label) => {
-        const cleanLabel = label
-            .replace(/[\[\](){}|&<>'"]/g, '')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .substring(0, 40);
-        return `((${cleanLabel || 'Root'}))`;
-    });
-
-    // Handle {label} for decision nodes
-    sanitized = sanitized.replace(/\{([^}]+)\}/g, (match, label) => {
-        const cleanLabel = label
-            .replace(/[\[\](){}|&<>'"]/g, '')
-            .replace(/\s+/g, ' ')
-            .trim()
-            .substring(0, 40);
-        return `{${cleanLabel || 'Decision'}}`;
-    });
-
-    return sanitized;
+    return processedLines.join('\n');
 }
 
 export const extractTextFromImage = async (base64Image: string): Promise<string> => {
@@ -1310,6 +1352,144 @@ Do not add any analysis or commentary - just extract the text exactly as it appe
         throw new Error("Failed to extract text from image. Please try a clearer image or paste text directly.");
     }
 };
+
+// Helper to safely parse large and potentially truncated JSON
+function safeParseLargeJson(text: string): any {
+    if (!text) return null;
+
+    // 1. Basic Cleaning
+    let jsonStr = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    // 2. Find the first '{' to start the JSON object
+    const firstOpen = jsonStr.indexOf('{');
+    if (firstOpen === -1) return null;
+
+    // Work with the content starting from the first '{'
+    let candidate = jsonStr.substring(firstOpen);
+
+    // Function to fix common bad escapes in JSON strings
+    const fixBadEscapes = (str: string) => {
+        return str
+            .replace(/\\'/g, "'") // Fix illegal \' escape
+            .replace(/\\(?![/"\\bfnrtu])/g, '\\\\'); // Fix any backslash not followed by a valid JSON escape char
+    };
+
+    // Try normal parse
+    try {
+        return JSON.parse(fixBadEscapes(candidate));
+    } catch (e) {
+        console.warn("JSON parse failed, attempting smart recovery...", e);
+
+        // 3. Smart Recovery Logic
+        let repaired = candidate;
+
+        // A) Fix unterminated string
+        // Count unescaped quotes
+        let quoteCount = 0;
+        let isEscaped = false;
+        for (let i = 0; i < repaired.length; i++) {
+            if (repaired[i] === '\\' && !isEscaped) {
+                isEscaped = true;
+                continue;
+            }
+            if (repaired[i] === '"' && !isEscaped) {
+                quoteCount++;
+            }
+            isEscaped = false;
+        }
+
+        if (quoteCount % 2 !== 0) {
+            repaired += '"';
+        }
+
+        // B) Balance braces and brackets
+        const stack: string[] = [];
+        let inString = false;
+        isEscaped = false;
+
+        for (let i = 0; i < repaired.length; i++) {
+            const char = repaired[i];
+
+            if (char === '\\' && !isEscaped) {
+                isEscaped = true;
+                continue;
+            }
+
+            if (char === '"' && !isEscaped) {
+                inString = !inString;
+            }
+
+            if (!inString) {
+                if (char === '{') stack.push('{');
+                else if (char === '[') stack.push('[');
+                else if (char === '}') {
+                    if (stack[stack.length - 1] === '{') stack.pop();
+                } else if (char === ']') {
+                    if (stack[stack.length - 1] === '[') stack.pop();
+                }
+            }
+            isEscaped = false;
+        }
+
+        // Close from back to front
+        while (stack.length > 0) {
+            const last = stack.pop();
+            if (last === '{') repaired += '}';
+            else if (last === '[') repaired += ']';
+        }
+
+        // Try parsing the balanced version
+        try {
+            return JSON.parse(fixBadEscapes(repaired));
+        } catch (repairError) {
+            console.warn("Balanced JSON parse failed, attempting modules-specific truncation recovery...");
+
+            // C) Modules-specific Truncation Recovery
+            // If it's a course with modules, try to find the last complete module
+            try {
+                if (candidate.includes('"modules": [')) {
+                    const modulesStart = candidate.indexOf('"modules": [') + 12;
+                    const modulesPart = candidate.substring(modulesStart);
+
+                    let balanceCount = 0;
+                    let lastValidEnd = -1;
+                    let innerInString = false;
+                    let innerIsEscaped = false;
+
+                    for (let i = 0; i < modulesPart.length; i++) {
+                        const char = modulesPart[i];
+                        if (char === '\\' && !innerIsEscaped) {
+                            innerIsEscaped = true;
+                            continue;
+                        }
+                        if (char === '"' && !innerIsEscaped) {
+                            innerInString = !innerInString;
+                        }
+                        if (!innerInString) {
+                            if (char === '{') balanceCount++;
+                            else if (char === '}') {
+                                balanceCount--;
+                                if (balanceCount === 0) lastValidEnd = i;
+                            }
+                        }
+                        innerIsEscaped = false;
+                    }
+
+                    if (lastValidEnd !== -1) {
+                        const validModules = modulesPart.substring(0, lastValidEnd + 1);
+                        const reconstructed = candidate.substring(0, modulesStart) + validModules + "]}";
+                        return JSON.parse(fixBadEscapes(reconstructed));
+                    }
+                }
+            } catch (modulesError) {
+                console.error("Modules-specific recovery failed:", modulesError);
+            }
+        }
+
+        // Final attempt: if we have a total structure parse error, re-throw the original
+        throw e;
+    }
+}
 
 export const generateChatResponse = async (
     query: string,

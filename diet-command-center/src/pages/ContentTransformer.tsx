@@ -47,7 +47,7 @@ const ContentTransformer = () => {
     const [languageCode, setLanguageCode] = useState("en");
     const [grade, setGrade] = useState(GRADE_LEVELS[1]);
     const [subject, setSubject] = useState(SUBJECTS[6]);
-    const [numberOfModules, setNumberOfModules] = useState(6);
+    const [numberOfModules, setNumberOfModules] = useState(4);
 
     // NCERT RAG state
     const [isNcertMode, setIsNcertMode] = useState(false);
